@@ -19,6 +19,8 @@ namespace engine
 	class AbstractCard;
 	namespace math
 	{
+		const float pi = 3.14159265f;
+		const float rad = pi / 180;
 		bool inside(const Vec2f &point, const Rect &rect);
 		bool inside(const Vec2f &point, const Vec2f ro, const Vec2f rs);
 		float length(const Vec2f &v);

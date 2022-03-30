@@ -6,6 +6,7 @@
 int main()
 {
 	using engine::math::mix;
+	using engine::math::pi;
 	using sf::Vector2f;
 	const unsigned int screen_width = 1920, screen_height = 1080; // temprary
 	sf::VideoMode mode = sf::VideoMode::getDesktopMode();

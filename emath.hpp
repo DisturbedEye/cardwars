@@ -31,12 +31,13 @@ inline float engine::math::length(const Vec2f &v)
 bool engine::math::inside(const Vec2f &p, const Convex &polygon)
 { // только для выпуклых многоугольников
 	bool ins = true;
-	Vec2f pb = polygon.getPoint(0), pa;
-	for (int i = 1; i < polygon.getPointCount(); i++)
+	const Vec2f pp = polygon.getPosition();
+	Vec2f p1 = pp + polygon.getPoint(0), p2;
+	for (int i = polygon.getPointCount() - 1; i >= 0; i--)
 	{
-		pa = polygon.getPoint(i);
-		ins = ins && (pb.y - pa.y) * p.x + (pa.x - pb.x) * p.y <= pb.y * pa.x - pb.x * pa.y;
-		pb = pa;
+		p2 = pp + polygon.getPoint(i);
+		ins = ins && (p1.y - p2.y) * p.x + (p2.x - p1.x) * p.y <= p1.y * p2.x - p1.x * p2.y;
+		p1 = p2;
 	}
 	return ins;
 }
