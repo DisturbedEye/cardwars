@@ -3,7 +3,7 @@
 
 inline bool engine::math::around(const float &x, const int n) // округление до n чисел после запятой
 {
-	return std::roundf(x * powf(10, n)) / powf(10, n);
+	return std::roundf(x * powf(10, static_cast<float>(n))) / powf(10, static_cast<float>(n));
 }
 
 inline bool engine::math::belongs(const float &x, const float &m, const float &n)
