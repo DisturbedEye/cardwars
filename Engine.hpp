@@ -13,28 +13,9 @@ namespace engine
 	typedef sf::CircleShape Circle;
 	typedef sf::ConvexShape Convex; // выпуклый многоугольник
 	template <class Shape>
-	class Button : public sf::Drawable 
-	{
-	public:
-		Shape shape;
-		sf::Text content;
-
-		Button(const Shape shape);
-		void waitForAction(const bool &before, const bool &after, const Vec2f &p);
-		void setPosition(const Vec2f position);
-		void setOrigin(const Vec2f origin);
-		bool isPressed() const;
-		bool isClicked() const;
-		bool isIntersected() const;
-		bool isHold() const;
-	private:
-		virtual void draw(sf::RenderTarget &window, sf::RenderStates states) const override;
-		bool is_pressed = false;
-		bool is_hold = false;
-		bool is_clicked = false;
-		bool intersected = false;
-	};
+	class Button;
 	class Deck;
+	class CardSorter;
 	class AbstractCard;
 	namespace math
 	{
@@ -51,4 +32,5 @@ namespace engine
 #include "emath.hpp"
 #include "button.hpp"
 #include "AbstractCard.hpp"
+#include "CardSorter.hpp"
 #include "Deck.hpp"

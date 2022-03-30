@@ -1,5 +1,28 @@
 #pragma once
 template <class Shape>
+class engine::Button : public sf::Drawable
+{
+public:
+	Shape shape;
+	sf::Text content;
+
+	explicit Button(const Shape shape);
+	void waitForAction(const bool &before, const bool &after, const Vec2f &p);
+	void setPosition(const Vec2f position);
+	void setOrigin(const Vec2f origin);
+	bool isPressed() const;
+	bool isClicked() const;
+	bool isIntersected() const;
+	bool isHold() const;
+private:
+	virtual void draw(sf::RenderTarget &window, sf::RenderStates states) const override;
+	bool is_pressed = false;
+	bool is_hold = false;
+	bool is_clicked = false;
+	bool intersected = false;
+};
+
+template <class Shape>
 engine::Button<Shape>::Button(const Shape sh)
 	: shape(sh)
 {

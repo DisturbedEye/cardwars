@@ -13,10 +13,10 @@ int main()
 	window.setFramerateLimit(60);
 	float time;
 	sf::Mouse mouse;
-	sf::RectangleShape rect(Vector2f(300, 100));
 	Vector2f bpos = Vector2f(screen_width, screen_height) / 2.f;
-	Vector2f bhalfsize = rect.getSize() / 2.f;
-	engine::Button<sf::RectangleShape> button(rect);
+	Vector2f bsize = Vector2f(300.f, 100.f);
+	Vector2f bhalfsize = bsize / 2.f;
+	engine::Button<sf::RectangleShape> button = engine::Button<sf::RectangleShape>(sf::RectangleShape(bsize));
 	sf::Font font;
 	if (!font.loadFromFile("Fonts\\Winston\\Winston-Regular.ttf"))
 	{
