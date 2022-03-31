@@ -13,7 +13,11 @@ namespace parametrs
 	sf::Vector2f resolutionf = sf::Vector2f(1920.f, 1080.f);
 	uint8_t frame_limit = 60;
 }
-
+using engine::Button;
+using sf::Vector2f;
+using engine::math::mix;
+using namespace parametrs;
+typedef sf::RectangleShape Rect;
 sf::Font &loadFont()
 {
 	static sf::Font font;
@@ -31,11 +35,6 @@ void about_us(sf::RenderWindow &window);
 
 int main()
 {
-	using engine::math::mix;
-	using engine::math::pi;
-	using engine::math::rad;
-	using namespace parametrs;
-	using sf::Vector2f;
 	sf::VideoMode mode = sf::VideoMode::getDesktopMode();
 	sf::RenderWindow window(sf::VideoMode(resolution.x, resolution.y, mode.bitsPerPixel), "Card Wars");
 	window.setFramerateLimit(60);
@@ -55,11 +54,6 @@ int main()
 
 int main_menu(sf::RenderWindow &window)
 {
-	using engine::Button;
-	using sf::Vector2f;
-	using engine::math::mix;
-	using namespace parametrs;
-	typedef sf::RectangleShape Rect;
 	Vector2f res = Vector2f(resolutionf.x, resolutionf.y);
 	sf::Mouse mouse;
 	Vector2f bpos = Vector2f(res.x / 6, res.y) / 2.f; // button position
@@ -134,9 +128,6 @@ void game_settings(sf::RenderWindow &window)
 	* audio (later add)
 	* other settings
 	*/
-	using engine::Button;
-	typedef sf::RectangleShape Rect;
-	using sf::Vector2f;
 	Vector2f ssize = Vector2f(60, 60); // switchers size
 	Vector2f tsize = Vector2f(400, 60); // rtarget size
 	Button<Rect> switcherL = Button<Rect>(Rect(ssize));
@@ -169,11 +160,6 @@ void start_game(sf::RenderWindow &window)
 
 void about_us(sf::RenderWindow &window)
 {
-	using engine::Button;
-	using sf::Vector2f;
-	using namespace parametrs;
-	typedef sf::RectangleShape Rect;
-	using engine::math::mix;
 	Button<Rect> back(Rect(Vector2f(resolutionf.x/9.6f, resolutionf.y/18.f)));
 	Vector2f bpos = Vector2f( 0, resolutionf.y - back.shape.getSize().y );
 	sf::Mouse m;
