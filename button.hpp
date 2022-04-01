@@ -7,38 +7,23 @@ public:
 	sf::Text content;
 
 	explicit Button(const Shape shape);
-	void waitForAction(const bool &before, const bool &after, const Vec2f &p);
+	Button(const Button<Shape> &b) : content(b.content), shape(b.shape) {}
 	void setPosition(const Vec2f position);
 	void setOrigin(const Vec2f origin);
-	bool isPressed() const;
-	bool isClicked() const;
-	bool isIntersected() const;
-	bool isHold() const;
+	void setScale(const Vec2f scale);
+	bool isPressed(const bool &before, const bool &after, const Vec2f &p) const;
+	bool isClicked(const bool &before, const bool &after, const Vec2f &p) const;
+	bool isIntersected(const Vec2f &p) const;
+	bool isHold(const bool &after, const Vec2f &p) const;
 private:
 	virtual void draw(sf::RenderTarget &window, sf::RenderStates states) const override;
-	bool is_pressed = false;
-	bool is_hold = false;
-	bool is_clicked = false;
-	bool intersected = false;
 };
 
 template <class Shape>
 engine::Button<Shape>::Button(const Shape sh)
 	: shape(sh)
 {
-}
-
-template<class Shape>
-inline void engine::Button<Shape>::waitForAction(const bool &before, const bool &after, const Vec2f &p)
-{
-	if (math::inside(p, shape))
-	{
-		this->intersected = true;
-		this->is_clicked = !before and after ? true : false;
-		this->is_pressed = before and !after? true : false;
-		this->is_hold = after;
-	}
-	else this->intersected = false;
+	content.setOrigin(content.getGlobalBounds().width/2.f, 0.f);
 }
 
 template<class Shape>
@@ -56,27 +41,34 @@ inline void engine::Button<Shape>::setOrigin(const Vec2f origin)
 }
 
 template<class Shape>
-inline bool engine::Button<Shape>::isPressed() const
+inline void engine::Button<Shape>::setScale(const Vec2f scale)
 {
-	return this->is_pressed;
+	shape.setScale(scale);
+	content.setScale(scale);
 }
 
 template<class Shape>
-inline bool engine::Button<Shape>::isClicked() const
+inline bool engine::Button<Shape>::isPressed(const bool &before, const bool &after, const Vec2f &p) const
 {
-	return this->is_clicked;
+	return this->isIntersected(p) and before and !after;
 }
 
 template<class Shape>
-inline bool engine::Button<Shape>::isIntersected() const
+inline bool engine::Button<Shape>::isClicked(const bool &before, const bool &after, const Vec2f &p) const
 {
-	return this->intersected;
+	return this->isIntersected(p) and !before and after;
 }
 
 template<class Shape>
-inline bool engine::Button<Shape>::isHold() const
+inline bool engine::Button<Shape>::isIntersected(const Vec2f &p) const
 {
-	return this->is_hold;
+	return math::inside(p, shape);
+}
+
+template<class Shape>
+inline bool engine::Button<Shape>::isHold(const bool &after, const Vec2f &p) const
+{
+	return this->isIntersected(p) and after;
 }
 
 template<class Shape>

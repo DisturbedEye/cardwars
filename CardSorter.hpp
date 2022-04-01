@@ -2,8 +2,9 @@ class engine::CardSorter
 {
 	CardSorter();
 	~CardSorter();
-	void sortInSegment(const Vec2f p1, const Vec2f p2);
+	void sortInSegment(const Vec2f &p1, const Vec2f &p2);
 	void addCard(const AbstractCard *card);
+	const AbstractCard *getCard() const;
 private:
 	std::list<AbstractCard *> cards;
 	void sort();

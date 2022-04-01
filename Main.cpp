@@ -7,17 +7,13 @@ std::ostream &operator<<(std::ostream &out, const sf::Vector2f &v)
 	out << "{ " << v.x << ", " << v.y << " }";
 	return out;
 }
+
 namespace parametrs
 {
 	sf::Vector2u resolution = sf::Vector2u(1920u, 1080u);
 	sf::Vector2f resolutionf = sf::Vector2f(1920.f, 1080.f);
 	uint8_t frame_limit = 60;
 }
-using engine::Button;
-using sf::Vector2f;
-using engine::math::mix;
-using namespace parametrs;
-typedef sf::RectangleShape Rect;
 sf::Font &loadFont()
 {
 	static sf::Font font;
@@ -35,6 +31,11 @@ void about_us(sf::RenderWindow &window);
 
 int main()
 {
+	using engine::Button;
+	using sf::Vector2f;
+	using engine::math::mix;
+	using namespace parametrs;
+	typedef sf::RectangleShape Rect;
 	sf::VideoMode mode = sf::VideoMode::getDesktopMode();
 	sf::RenderWindow window(sf::VideoMode(resolution.x, resolution.y, mode.bitsPerPixel), "Card Wars");
 	window.setFramerateLimit(60);
@@ -54,12 +55,16 @@ int main()
 
 int main_menu(sf::RenderWindow &window)
 {
+	using engine::Button;
+	using sf::Vector2f;
+	using engine::math::mix;
+	using namespace parametrs;
+	typedef sf::RectangleShape Rect;
 	Vector2f res = Vector2f(resolutionf.x, resolutionf.y);
 	sf::Mouse mouse;
 	Vector2f bpos = Vector2f(res.x / 6, res.y) / 2.f; // button position
 	Vector2f bsize = Vector2f(200.f, 60.f); // button size
 	Vector2f bhalfsize = bsize / 2.f; // half of button size
-
 	// buttons 
 
 	Button<Rect> start = engine::Button<Rect>(Rect(bsize));
@@ -76,17 +81,17 @@ int main_menu(sf::RenderWindow &window)
 	about_us.content = sf::Text("About Us", font, resolution.y / 27u);
 
 	exit.content = sf::Text("Exit", font, resolution.y / 27u);
+
 	buttons.push_back(start); // 1
 	buttons.push_back(settings); // 2
 	buttons.push_back(about_us); // 3
 	buttons.push_back(exit); // 4
 	sf::Color bcolor = sf::Color(115, 101, 174); // button color
 	for (auto &i : buttons)
-		i.setOrigin(bhalfsize);
-
+		i.shape.setOrigin(bhalfsize);
 	Vector2f mpos;
-	bool before = mouse.isButtonPressed(sf::Mouse::Button::Left), after, in_start = false, in_settings = false, to_exit = false;
-	int8_t j, k;
+	bool before = mouse.isButtonPressed(sf::Mouse::Button::Left), after;
+	int j, k;
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -98,22 +103,20 @@ int main_menu(sf::RenderWindow &window)
 		mpos = Vector2f(mouse.getPosition(window));
 		k = 1;
 		j = 0;
-		after = mouse.isButtonPressed(sf::Mouse::Button::Left); // only in that order
+		after = mouse.isButtonPressed(sf::Mouse::Button::Left); // no
 		for (auto &b : buttons)
 		{
-			b.waitForAction(before, after, mpos);
-			if (b.isIntersected())
+			if (b.isIntersected(mpos))
 				b.shape.setFillColor(mix(bcolor, sf::Color::White));
 			else b.shape.setFillColor(bcolor);
 
-			if (b.isPressed())
+			if (b.isPressed(before, after, mpos))
 				return k;
-
 			b.setPosition(Vector2f(bpos.x + bhalfsize.x / 4.f, bpos.y + (j++) * res.y / 12 + bhalfsize.y));
 			window.draw(b);
 			k++;
 		}
-		before = mouse.isButtonPressed(sf::Mouse::Button::Left); // only in that order
+		before = mouse.isButtonPressed(sf::Mouse::Button::Left); // don't touch
 		window.display();
 	}
 }
@@ -128,6 +131,11 @@ void game_settings(sf::RenderWindow &window)
 	* audio (later add)
 	* other settings
 	*/
+	using engine::Button;
+	using sf::Vector2f;
+	using engine::math::mix;
+	using namespace parametrs;
+	typedef sf::RectangleShape Rect;
 	Vector2f ssize = Vector2f(60, 60); // switchers size
 	Vector2f tsize = Vector2f(400, 60); // rtarget size
 	Button<Rect> switcherL = Button<Rect>(Rect(ssize));
@@ -147,6 +155,11 @@ void game_settings(sf::RenderWindow &window)
 
 void start_game(sf::RenderWindow &window)
 {
+	using engine::Button;
+	using sf::Vector2f;
+	using engine::math::mix;
+	using namespace parametrs;
+	typedef sf::RectangleShape Rect;
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -160,6 +173,11 @@ void start_game(sf::RenderWindow &window)
 
 void about_us(sf::RenderWindow &window)
 {
+	using engine::Button;
+	using sf::Vector2f;
+	using engine::math::mix;
+	using namespace parametrs;
+	typedef sf::RectangleShape Rect;
 	Button<Rect> back(Rect(Vector2f(resolutionf.x/9.6f, resolutionf.y/18.f)));
 	Vector2f bpos = Vector2f( 0, resolutionf.y - back.shape.getSize().y );
 	sf::Mouse m;
@@ -191,14 +209,13 @@ void about_us(sf::RenderWindow &window)
 				window.close();
 		mpos = Vector2f(m.getPosition(window));
 		window.clear();
-		after = m.isButtonPressed(sf::Mouse::Button::Left);
-		back.waitForAction(before, after, mpos);
-		before = m.isButtonPressed(sf::Mouse::Button::Left);
-		if (back.isIntersected())
+		after = m.isButtonPressed(sf::Mouse::Button::Left); // don't touch this
+		if (back.isIntersected(mpos))
 			back.shape.setFillColor(mix(bcolor, sf::Color::White));
 		else back.shape.setFillColor(bcolor);
-		if (back.isPressed())
+		if (back.isPressed(before, after, mpos))
 			return;
+		before = m.isButtonPressed(sf::Mouse::Button::Left); // don't touch this
 		window.draw(rect);
 		window.draw(text);
 		window.draw(back);

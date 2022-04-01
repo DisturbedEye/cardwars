@@ -45,11 +45,12 @@ inline bool engine::math::inside(const Vec2f &point, const Circle &circle)
 {
 	const float &x = point.x;
 	const float &y = point.y;
-	const float x0 = circle.getPosition().x;
-	const float y0 = circle.getPosition().y;
+	const float r = circle.getRadius();
 	const float p = circle.getScale().x;
 	const float q = circle.getScale().y;
-	const float r = circle.getRadius();
+	const Vec2f cor = circle.getOrigin();
+	const float x0 = circle.getPosition().x + r*p - cor.x;
+	const float y0 = circle.getPosition().y + r*q - cor.y;
 	return powf((x - x0)/p, 2.f) + powf((y - y0)/q, 2.f) <= powf(r, 2.f);
 }
 sf::Color engine::math::mix(const sf::Color &c1, const sf::Color &c2)
