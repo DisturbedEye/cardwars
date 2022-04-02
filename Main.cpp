@@ -167,6 +167,8 @@ void start_game(sf::RenderWindow &window)
 			if (event.type == sf::Event::Closed)
 				window.close();
 		window.clear();
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
+			return;
 		window.display();
 	}
 }
