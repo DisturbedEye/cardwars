@@ -3,6 +3,7 @@
 #include <vector>
 #include <cmath>
 #include <list>
+#include <typeinfo>
 
 namespace engine
 {
@@ -13,10 +14,15 @@ namespace engine
 	typedef sf::CircleShape Circle;
 	typedef sf::ConvexShape Convex; // выпуклый многоугольник
 	template <class Shape>
-	class Button;
+	struct Button;
 	class Deck;
-	class CardSorter;
-	class AbstractCard;
+	struct AbstractCard;
+
+	namespace cards
+	{
+		struct WitherSkeleton;
+	}
+
 	namespace math
 	{
 		const float pi = 3.14159265f;
@@ -42,5 +48,4 @@ namespace engine
 #include "WitherSkeleton.hpp"
 
 /////////////////////
-#include "CardSorter.hpp"
 #include "Deck.hpp"

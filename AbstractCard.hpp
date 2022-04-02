@@ -1,19 +1,20 @@
 #pragma once
 
-class engine::AbstractCard : public sf::Drawable
+struct engine::AbstractCard : public sf::Drawable
 {
-public:
 	friend class Deck;
-	friend class CardSorter;
-	virtual void use() const = 0;
-	bool isTaked() const;
+	enum class Type
+	{
+		Ground, Air, Debuff, Buff, Water, Static
+	};
+	AbstractCard(const Vec2f &window_size);
+	AbstractCard() {}
+	virtual void onUse() const = 0;
+	bool isTaked();
 	bool isChoosed() const; // event when need to see the description
 	void onTake();
 protected:
-	sf::String title;
-	sf::String description;
-	sf::String type;
-	Button<Rect> c;
+	Button<Rect> card_collision;
 	Rect cover;
 	void setPosition(const Vec2f p);
 	void setOrigin(const Vec2f o);
@@ -22,6 +23,25 @@ protected:
 	virtual void draw(sf::RenderTarget &window, sf::RenderStates states) const override;
 };
 
+
+engine::AbstractCard::AbstractCard(const Vec2f &window_size)
+{
+	cover = Rect(Vec2f(window_size.x/9.f, window_size.y/4.f));
+	card_collision = Button<Rect>(cover);
+}
+
+
+bool engine::AbstractCard::isChoosed() const
+{
+	return false;
+}
+bool engine::AbstractCard::isTaked()
+{
+}
+void engine::AbstractCard::onTake()
+{
+
+}
 void engine::AbstractCard::setPosition(const Vec2f p)
 {
 	cover.setPosition(p);

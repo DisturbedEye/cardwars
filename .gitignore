@@ -1,0 +1,27 @@
+﻿################################################################################
+# Данный GITIGNORE-файл был автоматически создан Microsoft(R) Visual Studio.
+################################################################################
+
+/x64/Release/vc142.pdb
+/x64/Release/vc.nativecodeanalysis.all.xml
+/x64/Release/Main.obj
+/x64/Release/Main.nativecodeanalysis.xml
+/x64/Release/Main.nativecodeanalysis.sarif
+/x64/Release/CodeAnalysisResultManifest.txt
+/x64/Release/Card Wars.vcxproj.FileListAbsolute.txt
+/x64/Release/Card Wars.tlog/unsuccessfulbuild
+/x64/Release/Card Wars.tlog/link.write.1.tlog
+/x64/Release/Card Wars.tlog/link.read.1.tlog
+/x64/Release/Card Wars.tlog/link.command.1.tlog
+/x64/Release/Card Wars.tlog/CL.command.1.tlog
+/x64/Release/Card Wars.tlog/Card Wars.lastbuildstate
+/x64/Release/Card Wars.log
+/x64/Release/Card Wars.ipdb
+/x64/Release/Card Wars.iobj
+/x64/Release/Card Wars.exe.recipe
+/x64/Release/Card Wars.Build.CppClean.log
+/Card Wars.vcxproj.user
+/Card Wars.vcxproj.filters
+/Card Wars.vcxproj
+/x64/Release/Card Wars.tlog/CL.write.1.tlog
+/x64/Release/Card Wars.tlog/CL.read.1.tlog

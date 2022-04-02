@@ -11,15 +11,14 @@ std::ostream &operator<<(std::ostream &out, const sf::Vector2f &v)
 namespace parametrs
 {
 	sf::Vector2u resolution = sf::Vector2u(1920u, 1080u);
-	sf::Vector2f resolutionf = sf::Vector2f(1920.f, 1080.f);
-	uint8_t frame_limit = 60;
+	uint8_t frame_limit = 60u;
 }
 sf::Font &loadFont()
 {
 	static sf::Font font;
 	if (!font.loadFromFile("Fonts\\RezaZulmiSerif\\RezaZulmiSerif.ttf"))
 	{
-		std::cout << "FileNotFoundError: File \"Winston-Regular.ttf\" not found!";
+		std::cout << "FileNotFoundError: File \"RezaZulmiSerif.ttf\" not found!";
 		throw;
 	}
 	return font;
@@ -28,6 +27,20 @@ void start_game(sf::RenderWindow &window);
 void game_settings(sf::RenderWindow &window);
 int main_menu(sf::RenderWindow &window);
 void about_us(sf::RenderWindow &window);
+
+void draw_card(sf::RenderWindow &window)
+{
+	while (window.isOpen())
+	{
+		sf::Event event;
+		while (window.pollEvent(event))
+			if (event.type == sf::Event::Closed)
+				window.close();
+		window.clear();
+		window.display();
+	}
+}
+
 
 int main()
 {
@@ -60,38 +73,27 @@ int main_menu(sf::RenderWindow &window)
 	using engine::math::mix;
 	using namespace parametrs;
 	typedef sf::RectangleShape Rect;
-	Vector2f res = Vector2f(resolutionf.x, resolutionf.y);
+	Vector2f res = Vector2f(float(resolution.x), float(resolution.y));
 	sf::Mouse mouse;
 	Vector2f bpos = Vector2f(res.x / 6, res.y) / 2.f; // button position
 	Vector2f bsize = Vector2f(200.f, 60.f); // button size
 	Vector2f bhalfsize = bsize / 2.f; // half of button size
+	sf::Font &font = loadFont();
 	// buttons 
 
-	Button<Rect> start = engine::Button<Rect>(Rect(bsize));
-	Button<Rect> settings = engine::Button<Rect>(Rect(bsize));
-	Button<Rect> about_us = engine::Button<Rect>(Rect(bsize));
-	Button<Rect> exit = engine::Button<Rect>(Rect(bsize));
+	Button<Rect> start = engine::Button<Rect>(Rect(bsize), "Start", font, resolution.y / 27u);
+	Button<Rect> settings = engine::Button<Rect>(Rect(bsize), "Settings", font, resolution.y / 27u);
+	Button<Rect> about_us = engine::Button<Rect>(Rect(bsize), "About Us", font, resolution.y / 27u);
+	Button<Rect> exit = engine::Button<Rect>(Rect(bsize), "Exit", font, resolution.y / 27u);
 
 	std::vector<engine::Button<sf::RectangleShape>> buttons; // buttons too 
-	sf::Font &font = loadFont();
-	start.content = sf::Text("Start", font, resolution.y / 27u);
-
-	settings.content = sf::Text("Settings", font, resolution.y / 27u);
-
-	about_us.content = sf::Text("About Us", font, resolution.y / 27u);
-
-	exit.content = sf::Text("Exit", font, resolution.y / 27u);
-
 	buttons.push_back(start); // 1
 	buttons.push_back(settings); // 2
 	buttons.push_back(about_us); // 3
 	buttons.push_back(exit); // 4
 	sf::Color bcolor = sf::Color(115, 101, 174); // button color
-	for (auto &i : buttons)
-		i.shape.setOrigin(bhalfsize);
 	Vector2f mpos;
-	bool before = mouse.isButtonPressed(sf::Mouse::Button::Left), after;
-	int j, k;
+	uint8_t j, k;
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -103,22 +105,20 @@ int main_menu(sf::RenderWindow &window)
 		mpos = Vector2f(mouse.getPosition(window));
 		k = 1;
 		j = 0;
-		after = mouse.isButtonPressed(sf::Mouse::Button::Left); // no
 		for (auto &b : buttons)
 		{
 			if (b.isIntersected(mpos))
 				b.shape.setFillColor(mix(bcolor, sf::Color::White));
 			else b.shape.setFillColor(bcolor);
-
-			if (b.isPressed(before, after, mpos))
+			if (b.isPressed(sf::Mouse::Button::Left, mpos))
 				return k;
-			b.setPosition(Vector2f(bpos.x + bhalfsize.x / 4.f, bpos.y + (j++) * res.y / 12 + bhalfsize.y));
+			b.setPosition(Vector2f(bpos.x, (bpos.y + (j++) * (float(resolution.y)/24.f+bsize.y))));
 			window.draw(b);
 			k++;
 		}
-		before = mouse.isButtonPressed(sf::Mouse::Button::Left); // don't touch
 		window.display();
 	}
+	return 0;
 }
 
 
@@ -178,29 +178,26 @@ void about_us(sf::RenderWindow &window)
 	using engine::math::mix;
 	using namespace parametrs;
 	typedef sf::RectangleShape Rect;
-	Button<Rect> back(Rect(Vector2f(resolutionf.x/9.6f, resolutionf.y/18.f)));
-	Vector2f bpos = Vector2f( 0, resolutionf.y - back.shape.getSize().y );
+	sf::Font &font = loadFont();
+	Button<Rect> back(Rect(Vector2f(float(resolution.x)/9.6f, float(resolution.y)/18.f)), "Back", font, resolution.y / 27u);
+	Vector2f bpos = Vector2f( 0, float(resolution.y) - back.shape.getSize().y );
 	sf::Mouse m;
-	Rect rect(Vector2f(resolutionf.x * 2.f / 3.f, resolutionf.y));
+	Rect rect(Vector2f(float(resolution.x) * 2.f / 3.f, float(resolution.y)));
 	rect.setOrigin(rect.getSize() / 2.f);
-	rect.setPosition(resolutionf.x / 2.f, resolutionf.y / 2.f);
+	rect.setPosition(float(resolution.x) / 2.f, float(resolution.y) / 2.f);
 	rect.setFillColor(sf::Color(67, 67, 67));
 	sf::Texture texture;
 	texture.loadFromFile("images\\evolution.jpg");
 	sf::Sprite cardlol;
 	cardlol.setScale(0.5f, 0.5f);
 	cardlol.setTexture(texture);
-	cardlol.setPosition(rect.getPosition().x, resolutionf.y/3.f);
+	cardlol.setPosition(rect.getPosition().x, float(resolution.y)/3.f);
 	cardlol.setOrigin(cardlol.getGlobalBounds().width, 0);
 	sf::Color bcolor = sf::Color(115, 101, 174); // button color
-	sf::Font &font = loadFont();
-	back.content = sf::Text("Back", font, resolution.y/27u);
-	back.content.setOrigin(-back.content.getGlobalBounds().width/2.f, 0.f);
 	sf::Text text("About Us:", font, resolution.y / 27u);
 	text.setPosition(resolution.x/2.f - text.getGlobalBounds().width /2.f, 0.f);
 	back.setPosition(bpos);
 	Vector2f mpos;
-	bool before = m.isButtonPressed(sf::Mouse::Button::Left), after;
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -209,13 +206,11 @@ void about_us(sf::RenderWindow &window)
 				window.close();
 		mpos = Vector2f(m.getPosition(window));
 		window.clear();
-		after = m.isButtonPressed(sf::Mouse::Button::Left); // don't touch this
 		if (back.isIntersected(mpos))
 			back.shape.setFillColor(mix(bcolor, sf::Color::White));
 		else back.shape.setFillColor(bcolor);
-		if (back.isPressed(before, after, mpos))
+		if (back.isPressed(sf::Mouse::Button::Left, mpos))
 			return;
-		before = m.isButtonPressed(sf::Mouse::Button::Left); // don't touch this
 		window.draw(rect);
 		window.draw(text);
 		window.draw(back);

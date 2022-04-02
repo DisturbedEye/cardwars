@@ -5,8 +5,10 @@ class engine::Deck
 public:
 	~Deck();
 	void addCard(AbstractCard *card);
+	const std::list<AbstractCard *> &getCards() const;
 
 private:
+	void shuffle();
 	std::list<AbstractCard *> cards;
 };
 
