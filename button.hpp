@@ -21,7 +21,7 @@ struct engine::Button : public sf::Drawable
 	bool isHold(const bool &after, const Vec2f &p) const;
 private:
 	bool before = false;
-	virtual void draw(sf::RenderTarget &window, sf::RenderStates states) const override;
+	void draw(sf::RenderTarget &window, sf::RenderStates states) const override;
 };
 
 

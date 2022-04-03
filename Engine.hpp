@@ -4,6 +4,7 @@
 #include <cmath>
 #include <list>
 #include <typeinfo>
+#include <map>
 
 namespace engine
 {
@@ -16,13 +17,6 @@ namespace engine
 	template <class Shape>
 	struct Button;
 	class Deck;
-	struct AbstractCard;
-
-	namespace cards
-	{
-		struct WitherSkeleton;
-	}
-
 	namespace math
 	{
 		const float pi = 3.14159265f;
@@ -42,10 +36,4 @@ namespace engine
 
 #include "emath.hpp"
 #include "button.hpp"
-#include "AbstractCard.hpp"
-// including cards //
-
-#include "WitherSkeleton.hpp"
-
-/////////////////////
 #include "Deck.hpp"

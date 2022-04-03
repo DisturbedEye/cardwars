@@ -1,25 +1,20 @@
 #pragma once
 
-class engine::Deck
+class engine::Deck : public sf::Drawable
 {
-public:
-	~Deck();
-	void addCard(AbstractCard *card);
-	const std::list<AbstractCard *> &getCards() const;
-
 private:
+	class ACollection;
+	struct SuperCollection;
 	void shuffle();
-	std::list<AbstractCard *> cards;
+	ACollection *collection;
+	void draw(sf::RenderTarget &win, sf::RenderStates st) const override;
+	inline const static int max_card_count_by_width = 3;
+public:
+	Deck(ACollection *cols)
+	{
+		collection = cols;
+	}
 };
 
-engine::Deck::~Deck()
-{
-	for (auto i : cards)
-	{
-		delete i;
-	}
-}
-void engine::Deck::addCard(AbstractCard *card)
-{
-	cards.push_back(card);
-}
+#include "AbstractCollection.hpp"
+#include "SuperCollection.hpp"

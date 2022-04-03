@@ -33,7 +33,7 @@ bool engine::math::inside(const Vec2f &p, const Convex &polygon)
 	bool ins = true;
 	const Vec2f pp = polygon.getPosition();
 	Vec2f p1 = pp + polygon.getPoint(0), p2;
-	for (int i = polygon.getPointCount() - 1; i >= 0; i--)
+	for (int i = int(polygon.getPointCount()) - 1; i >= 0; i--)
 	{
 		p2 = pp + polygon.getPoint(i);
 		ins = ins && (p1.y - p2.y) * p.x + (p2.x - p1.x) * p.y <= p1.y * p2.x - p1.x * p2.y;

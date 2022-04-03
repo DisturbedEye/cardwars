@@ -136,11 +136,13 @@ void game_settings(sf::RenderWindow &window)
 	using engine::math::mix;
 	using namespace parametrs;
 	typedef sf::RectangleShape Rect;
+	std::vector<Vector2f> resolutions = { {2560, 1440}, {1920, 1080}, {1600, 900}, {1366, 768}, {1280, 720}, {800, 600} };
 	Vector2f ssize = Vector2f(60, 60); // switchers size
 	Vector2f tsize = Vector2f(400, 60); // rtarget size
 	Button<Rect> switcherL = Button<Rect>(Rect(ssize));
 	Button<Rect> switcherR = Button<Rect>(Rect(ssize));
 	Button<Rect> rscreen = Button<Rect>(Rect(tsize));
+	std::vector<Button<Rect>> buttons = {switcherL, rscreen, switcherR};
 	auto &font = loadFont();
 	while (window.isOpen())
 	{
