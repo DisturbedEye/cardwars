@@ -2,9 +2,6 @@
 
 class engine::Deck : public sf::Drawable
 {
-private:
-	class ACollection;
-	struct SuperCollection;
 	void shuffle();
 	ACollection *collection;
 	void draw(sf::RenderTarget &win, sf::RenderStates st) const override;
@@ -15,6 +12,3 @@ public:
 		collection = cols;
 	}
 };
-
-#include "AbstractCollection.hpp"
-#include "SuperCollection.hpp"

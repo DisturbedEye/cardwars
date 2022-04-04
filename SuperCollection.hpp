@@ -1,6 +1,6 @@
 #pragma once
 
-struct engine::Deck::SuperCollection : public engine::Deck::ACollection
+struct engine::collections::SuperCollection : public engine::ACollection
 {
 	inline const static std::string Name = "Collection of All";
 	const std::list<ACollection::ACard *> &getCards() { return cards; }
@@ -11,7 +11,7 @@ private:
 };
 
 
-engine::Deck::SuperCollection::SuperCollection(const Vec2f &scr)
+engine::collections::SuperCollection::SuperCollection(const Vec2f &scr)
 {
 	ACollection::WitherSkeleton w(scr);
 	cards.push_back(&w);

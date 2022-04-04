@@ -85,12 +85,11 @@ int main_menu(sf::RenderWindow &window)
 	Button<Rect> settings = engine::Button<Rect>(Rect(bsize), "Settings", font, resolution.y / 27u);
 	Button<Rect> about_us = engine::Button<Rect>(Rect(bsize), "About Us", font, resolution.y / 27u);
 	Button<Rect> exit = engine::Button<Rect>(Rect(bsize), "Exit", font, resolution.y / 27u);
-
 	std::vector<engine::Button<sf::RectangleShape>> buttons; // buttons too 
-	buttons.push_back(start); // 1
+	buttons.push_back(start);	 // 1
 	buttons.push_back(settings); // 2
 	buttons.push_back(about_us); // 3
-	buttons.push_back(exit); // 4
+	buttons.push_back(exit);	 // 4
 	sf::Color bcolor = sf::Color(115, 101, 174); // button color
 	Vector2f mpos;
 	uint8_t j, k;

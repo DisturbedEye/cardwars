@@ -85,7 +85,7 @@ inline bool engine::Button<Shape>::isPressed(sf::Mouse::Button button, const Vec
 template<class Shape>
 inline bool engine::Button<Shape>::isClicked(sf::Keyboard::Key key)
 {
-	const bool after = sf::Mouse::isKeyPressed(key);
+	const bool after = sf::Keyboard::isKeyPressed(key);
 	const bool out = !before and after;
 	before = after;
 	return out;

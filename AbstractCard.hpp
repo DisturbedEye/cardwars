@@ -1,6 +1,6 @@
 #pragma once
 
-struct engine::Deck::ACollection::ACard : public sf::Drawable
+struct engine::ACollection::ACard : public sf::Drawable
 {
 	friend class Deck;
 	friend class AbstractCollection;
@@ -24,38 +24,38 @@ protected:
 };
 
 
-engine::Deck::ACollection::ACard::ACard(const Vec2f &window_size)
+engine::ACollection::ACard::ACard(const Vec2f &window_size)
 {
 	cover = Rect(Vec2f(window_size.x/9.f, window_size.y/4.f));
 	card_collision = Button<Rect>(cover);
 }
 
 
-bool engine::Deck::ACollection::ACard::isChoosed() const
+bool engine::ACollection::ACard::isChoosed() const
 {
 	return false;
 }
-bool engine::Deck::ACollection::ACard::isTaked()
+bool engine::ACollection::ACard::isTaked()
 {
 	return false;
 }
-void engine::Deck::ACollection::ACard::onTake()
+void engine::ACollection::ACard::onTake()
 {
 
 }
-void engine::Deck::ACollection::ACard::setPosition(const Vec2f p)
+void engine::ACollection::ACard::setPosition(const Vec2f p)
 {
 	cover.setPosition(p);
 }
-void engine::Deck::ACollection::ACard::setOrigin(const Vec2f o)
+void engine::ACollection::ACard::setOrigin(const Vec2f o)
 {
 	cover.setOrigin(o);
 }
-void engine::Deck::ACollection::ACard::setSize(const Vec2f s)
+void engine::ACollection::ACard::setSize(const Vec2f s)
 {
 	cover.setSize(s);
 }
-void engine::Deck::ACollection::ACard::draw(sf::RenderTarget &window, sf::RenderStates states) const
+void engine::ACollection::ACard::draw(sf::RenderTarget &window, sf::RenderStates states) const
 {
 	window.draw(cover);
 }

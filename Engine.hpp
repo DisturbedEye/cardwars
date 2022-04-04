@@ -17,6 +17,11 @@ namespace engine
 	template <class Shape>
 	struct Button;
 	class Deck;
+	class ACollection;
+	namespace collections
+	{
+		struct SuperCollection;
+	}
 	namespace math
 	{
 		const float pi = 3.14159265f;
@@ -36,4 +41,6 @@ namespace engine
 
 #include "emath.hpp"
 #include "button.hpp"
+#include "AbstractCollection.hpp"
+#include "SuperCollection.hpp"
 #include "Deck.hpp"
