@@ -19,6 +19,7 @@ struct engine::Button : public sf::Drawable
 	bool isClicked(sf::Mouse::Button, const Vec2f &p);
 	bool isIntersected(const Vec2f &p) const;
 	bool isHold(const bool &after, const Vec2f &p) const;
+	void resetToCenter();
 private:
 	bool before = false;
 	void draw(sf::RenderTarget &window, sf::RenderStates states) const override;
@@ -109,6 +110,12 @@ template<class Shape>
 inline bool engine::Button<Shape>::isHold(const bool &after, const Vec2f &p) const
 {
 	return this->isIntersected(p) and after;
+}
+
+template<typename Shape>
+inline void engine::Button<Shape>::resetToCenter()
+{
+	content.setOrigin((content.getGlobalBounds().width - shape.getGlobalBounds().width) / 2.f, 0.f);
 }
 
 template<class Shape>
