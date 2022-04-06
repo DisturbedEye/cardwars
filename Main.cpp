@@ -150,6 +150,7 @@ void game_settings(sf::RenderWindow &window)
 
 	using engine::Button;
 	using sf::Vector2f, sf::Vector2u;
+	using std::min, std::max;
 	using engine::math::mix;
 	using namespace parametrs;
 	typedef sf::RectangleShape Rect;
@@ -159,23 +160,20 @@ void game_settings(sf::RenderWindow &window)
 	Vector2f res = Vector2f(ures);
 	std::vector<Vector2u> resolutions = { {2560, 1440}, {1920, 1080}, {1600, 900}, {1366, 768}, {1280, 720}, {800, 600} };
 
-	Vector2f bpos = Vector2f(res.x / 6.f, res.y / 3.f) / 2.f; // button position
-	Vector2f ssize = Vector2f(res.x / 32.f, res.y / 18.f); // switchers size
-	Vector2f tsize = Vector2f(res.x / 4.8f, res.y / 18.f); // rtarget size
+	Vector2f bpos = Vector2f(res.x / 3.f, res.y / 8.f); // button position
 	Vector2f bsize = Vector2f(res.x / 9.6f, res.y / 18.f); // button size
-	Vector2f rsize = Vector2f(res.x / 5.5f, res.y / 18.f); // reset button size
 	sf::Color bcolor = sf::Color(115, 1, 4); // button color (reddish for me plz)
 	auto &font = loadFont();
 
 	// buttons
 	Button<Rect> backB = Button<Rect>(Rect(bsize), "Back", font, ures.y / 27u);
-	Button<Rect> resetB = Button<Rect>(Rect(bsize), "Save", font, ures.y / 27u);
-	Button<Rect> saveB = Button<Rect>(Rect(rsize), "Reset to default", font, ures.y / 27u);
-	Button<Rect> switcherL = Button<Rect>(Rect(ssize), "<", font, ures.y / 27u);
-	Button<Rect> switcherR = Button<Rect>(Rect(ssize), ">", font, ures.y / 27u);
+	Button<Rect> resetB = Button<Rect>(Rect(bsize), "Reset", font, ures.y / 27u);
+	Button<Rect> saveB = Button<Rect>(Rect(Vector2f(bsize)), "Save", font, ures.y / 27u);
+	Button<Rect> switcherL = Button<Rect>(Rect(Vector2f(res.x / 32.f, res.y / 18.f)), "<", font, ures.y / 27u);
+	Button<Rect> switcherR = Button<Rect>(Rect(Vector2f(res.x / 32.f, res.y / 18.f)), ">", font, ures.y / 27u);
 	std::string ressx = std::to_string(default_resolution.x);
 	std::string ressy = std::to_string(default_resolution.y);
-	Button<Rect> rScreen = Button<Rect>(Rect(tsize), ressx+" x "+ressy, font, ures.y / 27u); // resolution display through button
+	Button<Rect> rScreen = Button<Rect>(Rect(Vector2f(res.x / 4.8f, res.y / 18.f)), ressx+" x "+ressy, font, ures.y / 27u); // resolution display through button
 
 	//totally not ripped off from main menu surely
 	std::vector<engine::Button<sf::RectangleShape>> buttons;
@@ -185,8 +183,10 @@ void game_settings(sf::RenderWindow &window)
 	buttons.push_back(switcherR); // 4
 	buttons.push_back(saveB);     // 5
 	buttons.push_back(resetB);    // 6
-
-    uint8_t j, k;
+	for (int i = 1; i <= 3; i++)
+		std::cout << floor(i / 3) << "\n";
+    uint8_t i, j, k, n;
+	float w;
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -196,18 +196,21 @@ void game_settings(sf::RenderWindow &window)
 			{
 			case sf::Event::Closed:
 				window.close();
+
 			case sf::Event::Resized:
 				sf::FloatRect varea(0, 0, (float)event.size.width, (float)event.size.height);
 				window.setView(sf::View(varea));
 				res = Vector2f(window.getSize());
 				bpos = Vector2f(res.x / 6.f, res.y / 3.f) / 2.f; // button position
-				ssize = Vector2f(res.x / 32.f, res.y / 18.f); // switchers size
-				tsize = Vector2f(res.x / 4.8f, res.y / 18.f); // rtarget size
 				bsize = Vector2f(res.x / 9.6f, res.y / 18.f); // button size
-				rsize = Vector2f(res.x / 5.5f, res.y / 18.f); // reset button size
+				buttons[0].shape.setSize(Vector2f(res.x / 9.6f, res.y / 18.f)); // back
+				buttons[1].shape.setSize(Vector2f(res.x / 4.8f, res.y / 18.f)); // switcher l
+				buttons[2].shape.setSize(Vector2f(res.x / 4.8f, res.y / 18.f)); // rtarget
+				buttons[3].shape.setSize(Vector2f(res.x / 4.8f, res.y / 18.f)); // switcher r
+				buttons[4].shape.setSize(Vector2f(res.x / 9.6f, res.y / 18.f)); // save
+				buttons[5].shape.setSize(Vector2f(res.x / 5.5f, res.y / 18.f)); // reset
 				for (auto &b : buttons)
 				{
-					b.shape.setSize(bsize);
 					b.content.setCharacterSize((uint32_t)abs(floor(engine::math::length(res))) / 54u);
 					b.resetToCenter();
 				}
@@ -216,39 +219,27 @@ void game_settings(sf::RenderWindow &window)
 		mpos = Vector2f(m.getPosition(window));
 		window.clear();
 		//code
-		k = 1;
-		j = 0;
+		k = 1, j = i = w = 0;
 		for (auto &b : buttons) 
 		{
-			if (b.isIntersected(mpos) && k != 5)
+			if (b.isIntersected(mpos) && k != 3)
 				b.shape.setFillColor(mix(bcolor, sf::Color::White));
 			else b.shape.setFillColor(bcolor);
 			//button positioning
 
-			if (k == 1) 
-			{
-				b.setPosition(Vector2f(0, 0));
-			}
-			if (k == 2 or k == 3 or k == 4)
-			{
-				b.setPosition(Vector2f(bpos.x + (j+3) * (res.y / 24.f + ssize.x) + floor((j+3)/6.f) * tsize.x / 1.15f, bpos.y));
-			}
-			if (k == 5 or k == 6) 
-			{
-				b.setPosition(Vector2f(bpos.x + (j-3) * (res.y / 24.f + rsize.x), res.y - bpos.y));
-			}
-			/*
-			positioning need to see like that
-
 			if (k == 1) // back
                 b.setPosition(Vector2f(0, 0));
+
 			else if (k == buttons.size() or k == buttons.size() - 1)
-				b.setPosition(Vector2f(0, 0));
+				b.setPosition(Vector2f(res.x, (++i) * res.y / 10) - b.shape.getSize());
+
 			else 
 			{
-				b.setPosition(Vector2f(0, 0));
+				n = floor(j / 3.f);
+				w = j % 3 == 0 ? 0 : w + buttons[k-2].shape.getSize().x;
+				b.setPosition(Vector2f(bpos.x + w + (j % 3)*res.x/27.f, bpos.y + n*bsize.y));
+				j++;
 			}
-			*/
             if (b.isPressed(sf::Mouse::Button::Left, mpos))
 			{
                 // button functions
@@ -273,7 +264,6 @@ void game_settings(sf::RenderWindow &window)
                 }
             }
             k++;
-			j++;
             window.draw(b);
 		}
 		window.display();
