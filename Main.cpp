@@ -1,7 +1,5 @@
 ﻿#include <SFML/Graphics.hpp>
-#include <iostream>
 #include "Engine.hpp"
-#include <string>
 template <typename T>
 std::ostream &operator<<(std::ostream &out, const sf::Vector2<T> &v)
 {
@@ -11,8 +9,10 @@ std::ostream &operator<<(std::ostream &out, const sf::Vector2<T> &v)
 
 namespace parametrs
 {
-	sf::Vector2u default_resolution = sf::Vector2u(1920u, 1080u);
-	uint8_t frame_limit = 60u;
+	auto info = get_infof();
+	sf::Vector2u default_resolution = sf::Vector2u(info[0], info[1]);
+	bool vsync = static_cast<bool>(info[2]);
+	int frame_limit = info[3];
 }
 sf::Font &loadFont()
 {
@@ -46,13 +46,15 @@ void draw_card(sf::RenderWindow &window)
 int main()
 {
 	using engine::Button;
-	using sf::Vector2f;
+	using Vec2f = sf::Vector2f;
 	using engine::math::mix;
 	using namespace parametrs;
 	typedef sf::RectangleShape Rect;
 	sf::VideoMode mode = sf::VideoMode::getDesktopMode();
 	sf::RenderWindow window(sf::VideoMode(default_resolution.x, default_resolution.y, mode.bitsPerPixel), "Card Wars");
-	window.setFramerateLimit(60);
+	window.setFramerateLimit(frame_limit);
+	window.setVerticalSyncEnabled(vsync);
+
 	int position = 0; // 0 - main menu, 1 - start game, 2 - in settings, 3 about us? 4 - exit
 	while (position != 4)
 	{
@@ -185,7 +187,8 @@ void game_settings(sf::RenderWindow &window)
 	buttons.push_back(resetB);    // 6
 	for (int i = 1; i <= 3; i++)
 		std::cout << floor(i / 3) << "\n";
-    uint8_t i, j, k, n;
+    uint8_t i, j, n;
+	int k;
 	float w;
 	while (window.isOpen())
 	{
@@ -219,7 +222,7 @@ void game_settings(sf::RenderWindow &window)
 		mpos = Vector2f(m.getPosition(window));
 		window.clear();
 		//code
-		k = 1, j = i = w = 0;
+		k = 1, j = i = 0, w = 0.f;
 		for (auto &b : buttons) 
 		{
 			if (b.isIntersected(mpos) && k != 3)
@@ -235,7 +238,7 @@ void game_settings(sf::RenderWindow &window)
 
 			else 
 			{
-				n = floor(j / 3.f);
+				n = static_cast<uint8_t>(abs(floor(j / 3.f)));
 				w = j % 3 == 0 ? 0 : w + buttons[k-2].shape.getSize().x;
 				b.setPosition(Vector2f(bpos.x + w + (j % 3)*res.x/27.f, bpos.y + n*bsize.y));
 				j++;

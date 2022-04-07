@@ -1,47 +1,53 @@
-#include <iostream>
-#include <string>
 #include <fstream>
+#include <windows.h>
 
-std::string* get_infof(std::string dir){ // reading file
-    std::string info;
-    std::fstream file;
-    std::string buf[5];
-    std::string check;
-    int j=0;
-    file.open("local/"+dir+".data", std::ios::binary | std::ios::in | std::ios::out); // opening info file
-    if (file.is_open()){
-        file >> check;
-        while(check!=""){
-            std::string line;
-            file >> line;
-            buf[j] = line;
-            j++;
-        }
-    }
-    else{ // open defaults if no info file
-        file.open("local/"+dir+".defaults", std::ios::binary | std::ios::in | std::ios::out);
-        while(1){
-            std::string line;
-            file >> line;
-            buf[j] = line;
-            j++;
-        }
-    }
-    file.close();
-
-    return buf;
-}
-
-// r - with or without reset, useful for deleting account data or resetting settings to default
-void set_infof(std::string dir, std::string info, bool r){ // writing in file
-    std::fstream file;
-    std::string path = "local/"+dir+".data";
-    file.open(path, std::ios::trunc); // opening info file, overwriting it
-    if (r){ // reset
-        if (file.is_open()) std::remove(path.c_str());
-    }
-    else{ // save
-        if (file.is_open()) file << info;
-    }
-    file.close();
+std::vector<int> get_infof()
+{ // reading file
+	using std::string;
+	using std::to_string;
+	std::ifstream ifile;
+	std::vector<string> buf;
+	ifile.open("local/info.txt"); // opening info file
+	std::vector<string> props = { "resolution", "vsync", "frame-limit" }; // properties
+	if (!ifile.is_open())
+	{
+		std::ofstream ofile;
+		system("mkdir local");
+		ofile.open("local/info.txt");
+		std::vector<string> params = {to_string(GetSystemMetrics(SM_CXSCREEN)) + " " + to_string(GetSystemMetrics(SM_CYSCREEN)), "1", "60"}; // parametrs
+		for(int i = 0; i < props.size(); i++)
+			ofile << params[i] << ";" << props[i] << "\n";
+		ofile.close();
+		ifile.open("local/info.txt");
+	}
+	string *line = new string();
+	while (!ifile.eof())
+	{
+		std::getline(ifile, *line);
+		buf.push_back(*line);
+	}
+	delete line;
+	ifile.close();
+	string str;
+	std::vector<int> opt; // massive size is number of parametrs
+	for (auto &i : buf)
+	{
+		str = "";
+		for (auto ch : i)
+		{
+			if (ch == ' ')
+			{
+				opt.push_back(std::stoi(str));
+				str = "";
+			}
+			else if (ch == ';')
+			{
+				opt.push_back(std::stoi(str));
+				break;
+			}
+			else
+				str += ch;
+		}
+	}
+	return opt;
 }

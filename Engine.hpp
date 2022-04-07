@@ -5,6 +5,7 @@
 #include <list>
 #include <typeinfo>
 #include <map>
+#include <string>
 
 namespace engine
 {
@@ -44,3 +45,4 @@ namespace engine
 #include "AbstractCollection.hpp"
 #include "SuperCollection.hpp"
 #include "Deck.hpp"
+#include "FileManagement.hpp"
