@@ -10,9 +10,9 @@ std::ostream &operator<<(std::ostream &out, const sf::Vector2<T> &v)
 namespace parametrs
 {
 	auto info = get_infof();
-	sf::Vector2u default_resolution = sf::Vector2u(info[0], info[1]);
-	bool vsync = static_cast<bool>(info[2]);
-	int frame_limit = info[3];
+	auto default_resolution = sf::Vector2u(info[0], info[1]);
+	bool vsync = info[2];
+	unsigned int frame_limit = abs(info[3]);
 }
 sf::Font &loadFont()
 {
@@ -54,7 +54,6 @@ int main()
 	sf::RenderWindow window(sf::VideoMode(default_resolution.x, default_resolution.y, mode.bitsPerPixel), "Card Wars");
 	window.setFramerateLimit(frame_limit);
 	window.setVerticalSyncEnabled(vsync);
-
 	int position = 0; // 0 - main menu, 1 - start game, 2 - in settings, 3 about us? 4 - exit
 	while (position != 4)
 	{
@@ -160,7 +159,7 @@ void game_settings(sf::RenderWindow &window)
 	Vector2f mpos;
 	Vector2u ures = window.getSize();
 	Vector2f res = Vector2f(ures);
-	std::vector<Vector2u> resolutions = { {2560, 1440}, {1920, 1080}, {1600, 900}, {1366, 768}, {1280, 720}, {800, 600} };
+	std::vector<Vector2u> resolutions = { {800, 600}, {1280, 720}, {1366, 768}, {1600, 900}, {1920, 1080}, {2560, 1440} };
 
 	Vector2f bpos = Vector2f(res.x / 3.f, res.y / 8.f); // button position
 	Vector2f bsize = Vector2f(res.x / 9.6f, res.y / 18.f); // button size
@@ -187,7 +186,7 @@ void game_settings(sf::RenderWindow &window)
 	buttons.push_back(resetB);    // 6
 	for (int i = 1; i <= 3; i++)
 		std::cout << floor(i / 3) << "\n";
-    uint8_t i, j, n;
+    uint8_t i, j, n, p; // p - resulution id
 	int k;
 	float w;
 	while (window.isOpen())
@@ -253,10 +252,14 @@ void game_settings(sf::RenderWindow &window)
 					return;
 				// settings
 				case 2: // left slider 
+					p = std::max(p - 1, 0); // limit
+					buttons[2].setString(std::to_string(resolutions[p].x) + " x " + std::to_string(resolutions[p].y));
 					break;
 				case 3: // resolution "viewer"
 					break;
 				case 4: // right slider
+					p = std::min(size_t(p + 1), resolutions.size() - 1); // limit
+					buttons[2].setString(std::to_string(resolutions[p].x) + " x " + std::to_string(resolutions[p].y));
 					break;
 				// save
 				case 5:

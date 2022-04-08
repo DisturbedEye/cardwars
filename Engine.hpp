@@ -4,6 +4,7 @@
 #include <cmath>
 #include <list>
 #include <typeinfo>
+#include <algorithm>
 #include <map>
 #include <string>
 

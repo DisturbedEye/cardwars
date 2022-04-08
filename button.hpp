@@ -10,6 +10,7 @@ struct engine::Button : public sf::Drawable
 	void setPosition(const Vec2f position);
 	void setOrigin(const Vec2f origin);
 	void setScale(const Vec2f scale);
+	void setString(const sf::String &string);
 
 	Shape shape;
 	sf::Text content;
@@ -64,6 +65,17 @@ inline void engine::Button<Shape>::setScale(const Vec2f scale)
 {
 	shape.setScale(scale);
 	content.setScale(scale);
+}
+
+template<typename Shape>
+inline void engine::Button<Shape>::setString(const sf::String &string)
+{
+	/*
+	* sets a string to content, 
+	* with reseting to center 
+	*/
+	content.setString(string);
+	resetToCenter();
 }
 
 template<class Shape>
