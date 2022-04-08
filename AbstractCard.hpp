@@ -1,9 +1,9 @@
 #pragma once
 
-struct engine::ACollection::ACard : public sf::Drawable
+struct engine::ACard : public sf::Drawable
 {
 	friend class Deck;
-	friend class AbstractCollection;
+	friend class ACollection;
 	enum class Types
 	{
 		Ground, Air, Debuff, Buff, Water, Static
@@ -24,38 +24,38 @@ protected:
 };
 
 
-engine::ACollection::ACard::ACard(const Vec2f &window_size)
+engine::ACard::ACard(const Vec2f &window_size)
 {
 	cover = Rect(Vec2f(window_size.x/9.f, window_size.y/4.f));
 	card_collision = Button<Rect>(cover);
 }
 
 
-bool engine::ACollection::ACard::isChoosed() const
+bool engine::ACard::isChoosed() const
 {
 	return false;
 }
-bool engine::ACollection::ACard::isTaked()
+bool engine::ACard::isTaked()
 {
 	return false;
 }
-void engine::ACollection::ACard::onTake()
+void engine::ACard::onTake()
 {
 
 }
-void engine::ACollection::ACard::setPosition(const Vec2f p)
+void engine::ACard::setPosition(const Vec2f p)
 {
 	cover.setPosition(p);
 }
-void engine::ACollection::ACard::setOrigin(const Vec2f o)
+void engine::ACard::setOrigin(const Vec2f o)
 {
 	cover.setOrigin(o);
 }
-void engine::ACollection::ACard::setSize(const Vec2f s)
+void engine::ACard::setSize(const Vec2f s)
 {
 	cover.setSize(s);
 }
-void engine::ACollection::ACard::draw(sf::RenderTarget &window, sf::RenderStates states) const
+void engine::ACard::draw(sf::RenderTarget &window, sf::RenderStates states) const
 {
 	window.draw(cover);
 }

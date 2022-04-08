@@ -1,6 +1,6 @@
 #pragma once
 
-struct engine::ACollection::WitherSkeleton : public virtual engine::ACollection::ACard
+struct engine::cards::WitherSkeleton : public virtual engine::ACard
 {
 	inline const static int Damage = 2; // temporary
 	inline const static int Health = 4; // temporary
@@ -13,7 +13,7 @@ private:
 	virtual void onUse() const final override;
 };
 
-engine::ACollection::WitherSkeleton::WitherSkeleton(const Vec2f &window_size)
+engine::cards::WitherSkeleton::WitherSkeleton(const Vec2f &window_size)
 	: ACard(window_size)
 {
 	sf::Texture texture;
@@ -25,7 +25,7 @@ engine::ACollection::WitherSkeleton::WitherSkeleton(const Vec2f &window_size)
 	cover.setTexture(&texture);
 }
 
-void engine::ACollection::WitherSkeleton::onUse() const
+void engine::cards::WitherSkeleton::onUse() const
 {
 	
 }

@@ -1,188 +1,115 @@
 #include <fstream>
 #include <windows.h>
+#include <nlohmann/json.hpp>
 
-enum class Settings
+
+class JsonFile
 {
-	Resolution, Vsync, FrameLimit
+	using Json = nlohmann::json;
+	std::string path;
+	std::string file_name;
+	static void create(std::string path, std::string fname);
+	static std::string getFullPath(const std::string &path, const std::string fname)
+	{
+		const char &lchar = path[path.size() - 1];
+		return (lchar == '/' or lchar == '\\' ? path.substr(path.size() - 1) : path) + "\\" + fname + ".json";
+	}
+public:
+	Json js;
+	JsonFile(const std::string dir, const std::string fname, const Json j = Json()) : path(dir), file_name(fname), js(j) {}
+	static Json load(std::string path, const std::string &fname); // loads json to file
+	Json load();
+	void save() const; // loads json to file
+	static void save(std::string path, const std::string &fname, const Json &j = Json()); // loads json to file
 };
 
-
-std::vector<std::string> getFileContent(std::ifstream &infile)
+void JsonFile::create(std::string path, std::string fname)
 {
-	if (infile.is_open())
-	{		
-		std::vector<std::string> buf;
-		std::string line = "";
-		while (!infile.eof())
-		{
-			std::getline(infile, line);
-			buf.push_back(line);
-		}
-		return buf;
+	using namespace std::string_literals;
+	std::string com = "mkdir "s + path;
+	system(com.c_str()); // console file creating (but only for windows)
+	std::ofstream ofile;
+	ofile.open(getFullPath(path, fname));
+	if (!ofile.is_open())
+	{
+		std::cerr << "FileOpenErr: No such file or dirrectory\n";
+		throw;
 	}
-	return {};
+	ofile.close();
 }
 
+nlohmann::json JsonFile::load(std::string path, const std::string &fname)
+{
+	std::ifstream infile;
+	const std::string full_path = getFullPath(path, fname);
+	infile.open(full_path);
+	if (!infile.is_open())
+	{
+		create(path, fname);
+		infile.open(full_path);
+	}
+	std::string strjs; // json dumped string 
+	while (!infile.eof())
+		infile >> strjs;
+	return Json::parse(strjs);
+}
+
+nlohmann::json JsonFile::load()
+{
+	return js = JsonFile::load(path, file_name);
+}
+
+void JsonFile::save(std::string path, const std::string &fname, const Json &j)
+{
+	std::ofstream outf;
+	const std::string full_path = getFullPath(path, fname);
+	outf.open(full_path);
+	if (!outf.is_open())
+	{
+		create(path, fname);
+		outf.open(full_path);
+	}
+	outf << j.dump();
+	outf.close();
+}
+
+
+void JsonFile::save() const
+{
+	save(path, file_name, js);
+}
 
 void create_infof()
 {
-	using std::string;
-	using std::to_string;
-	std::vector<string> props = { "resolution", "vsync", "frame-limit" };
-	std::ofstream ofile;
-	system("mkdir local");
-	ofile.open("local/info.txt");
-	std::vector<string> params = { to_string(GetSystemMetrics(SM_CXSCREEN)) + " " + to_string(GetSystemMetrics(SM_CYSCREEN)), "1", "60" }; // parametrs
-	for (int i = 0; i < props.size(); i++)
-		ofile << params[i] << ";" << props[i] << "\n";
-	ofile.close();
+	JsonFile jsf("src", "settings");
+	jsf.js["Resolution"] = { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
+	jsf.js["Vsync"] = true;
+	jsf.js["Frame-limit"] = 60;
+	jsf.save();
 }
-std::vector<int> get_infof()
+
+nlohmann::json load_infof()
 { // reading file
-	/*
-	* 0 - resolution x
-	* 1 - resolution y
-	* 2 - boolean vsync
-	* 3 - frame-limit
-	*/
-	using std::string;
-	using std::to_string;
-	std::ifstream ifile;
-	ifile.open("local/info.txt"); // opening info file
-	if (!ifile.is_open())
-	{
-		create_infof();
-		ifile.open("local/info.txt");
-	}
-	auto buf = getFileContent(ifile);
-	ifile.close();
-	string str;
-	std::vector<int> opt; // massive size is number of parametrs
-	std::vector<string> props = { "resolution", "vsync", "frame-limit" }; // properties
-	for (auto &i : buf)
-	{
-		str = "";
-		for (auto ch : i)
-		{
-			if (ch == ' ')
-			{
-				opt.push_back(std::stoi(str));
-				str = "";
-			}
-			else if (ch == ';')
-			{
-				opt.push_back(std::stoi(str));
-				break;
-			}
-			else
-				str += ch;
-		}
-	}
-	return opt;
+	create_infof();
+	return JsonFile::load("src", "settings");
 }
+
 
 void resetInfoResolution(const unsigned int &x, const unsigned int &y)
 {
-	const std::string name = "resolution";
-	const std::string str = std::to_string(x) + " " + std::to_string(y);
-	std::ifstream ifile;
-	ifile.open("local/info.txt");
-	if (!ifile.is_open())
-	{
-		create_infof();
-		ifile.open("local/info.txt");
-	}
-	auto buf = getFileContent(ifile);
-	ifile.close();
-	size_t n = -1;
-	size_t k = -1;
-	for (size_t i = 0; i < buf.size(); i++)
-	{
-		k = buf[i].find(name);
-		if (k != -1)
-		{
-			n = i;
-			break;
-		}
-	}
-	if (n != -1)
-	{
-		std::string s = buf[n].substr(k, buf[n].size());
-		buf[n] = str + ";" + s;
-		std::ofstream outf;
-		outf.open("local/info.txt");
-		for (auto &i : buf)
-			outf << i + "\n";
-		outf.close();
-	}
+	JsonFile jsf = { "src", "settings", load_infof() };
+	jsf.js["Resolution"] = { x, y };
+	jsf.save();
 }
 void resetInfoFrameLimit(const unsigned int &lim)
 {
-	const std::string name = "frame-limit";
-	const std::string str = std::to_string(lim);
-	std::ifstream ifile;
-	ifile.open("local/info.txt");
-	if (!ifile.is_open())
-	{
-		create_infof();
-		ifile.open("local/info.txt");
-	}
-	auto buf = getFileContent(ifile);
-	ifile.close();
-	size_t n = -1;
-	size_t k = -1;
-	for (size_t i = 0; i < buf.size(); i++)
-	{
-		k = buf[i].find(name);
-		if (k != -1)
-		{
-			n = i;
-			break;
-		}
-	}
-	if (n != -1)
-	{
-		std::string s = buf[n].substr(k, buf[n].size());
-		buf[n] = str + ";" + s;
-		std::ofstream outf;
-		outf.open("local/info.txt");
-		for (auto &i : buf)
-			outf << i + "\n";
-		outf.close();
-	}
+	JsonFile jsf = { "src", "settings", load_infof() };
+	jsf.js["Frame-limit"] = lim;
+	jsf.save();
 }
 void resetInfoVsync(const bool &b)
 {
-	const std::string name = "vsync";
-	const std::string str = std::to_string(b);
-	std::ifstream ifile;
-	ifile.open("local/info.txt");
-	if (!ifile.is_open())
-	{
-		create_infof();
-		ifile.open("local/info.txt");
-	}
-	auto buf = getFileContent(ifile);
-	ifile.close();
-	size_t n = -1;
-	size_t k = -1;
-	for (size_t i = 0; i < buf.size(); i++)
-	{
-		k = buf[i].find(name);
-		if (k != -1)
-		{
-			n = i;
-			break;
-		}
-	}
-	if (n != -1)
-	{
-		std::string s = buf[n].substr(k, buf[n].size());
-		buf[n] = str + ";" + s;
-		std::ofstream outf;
-		outf.open("local/info.txt");
-		for (auto &i : buf)
-			outf << i + "\n";
-		outf.close();
-	}
+	JsonFile jsf = { "src", "settings", load_infof() };
+	jsf.js["Vsync"] = b;
+	jsf.save();
 }

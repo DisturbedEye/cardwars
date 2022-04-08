@@ -19,11 +19,24 @@ namespace engine
 	template <class Shape>
 	struct Button;
 	class Deck;
+	//    cards    //
+
+	struct ACard;
+	namespace cards
+	{
+		struct WitherSkeleton;
+	}
+
+	/////////////////
+	// collections //
+
 	class ACollection;
 	namespace collections
 	{
 		struct SuperCollection;
 	}
+
+	/////////////////
 	namespace math
 	{
 		const float pi = 3.14159265f;

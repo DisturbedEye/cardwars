@@ -1,5 +1,7 @@
 ﻿#include <SFML/Graphics.hpp>
 #include "Engine.hpp"
+
+
 template <typename T>
 std::ostream &operator<<(std::ostream &out, const sf::Vector2<T> &v)
 {
@@ -9,10 +11,10 @@ std::ostream &operator<<(std::ostream &out, const sf::Vector2<T> &v)
 
 namespace parametrs
 {
-	auto info = get_infof();
-	auto default_resolution = sf::Vector2u(info[0], info[1]);
-	bool vsync = info[2];
-	unsigned int frame_limit = abs(info[3]);
+	nlohmann::json info = load_infof();
+	auto default_resolution = sf::Vector2u(info["Resolution"][0], info["Resolution"][1]);
+	bool vsync = info["Vsync"];
+	unsigned int frame_limit = info["Frame-limit"];
 }
 sf::Font &loadFont()
 {
@@ -49,7 +51,7 @@ int main()
 	using Vec2f = sf::Vector2f;
 	using engine::math::mix;
 	using namespace parametrs;
-	typedef sf::RectangleShape Rect;
+	using Rect = sf::RectangleShape;
 	sf::VideoMode mode = sf::VideoMode::getDesktopMode();
 	sf::RenderWindow window(sf::VideoMode(default_resolution.x, default_resolution.y, mode.bitsPerPixel), "Card Wars");
 	window.setFramerateLimit(frame_limit);
