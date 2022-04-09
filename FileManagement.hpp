@@ -48,7 +48,7 @@ nlohmann::json JsonFile::load(std::string path, const std::string &fname)
 		create(path, fname);
 		infile.open(full_path);
 	}
-	std::string strjs = ""; // json dumped string 
+	std::string strjs = ""; // json dumped string
 	std::string line;
 	while (!infile.eof())
 	{
@@ -90,6 +90,7 @@ void create_infof()
 	jsf.js["Resolution"] = { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
 	jsf.js["Vsync"] = true;
 	jsf.js["Frame-limit"] = 60;
+	jsf.js["Window-mode"] = true; // default window mode
 	jsf.save();
 }
 
@@ -104,21 +105,26 @@ nlohmann::json load_infof()
 }
 
 
-void resetInfoResolution(const unsigned int &x, const unsigned int &y)
+void resetInfoResolution(const unsigned int x, const unsigned int y)
 {
 	JsonFile jsf = { "src", "settings", load_infof() };
 	jsf.js["Resolution"] = { x, y };
 	jsf.save();
 }
-void resetInfoFrameLimit(const unsigned int &lim)
+void resetInfoFrameLimit(const unsigned int lim)
 {
 	JsonFile jsf = { "src", "settings", load_infof() };
 	jsf.js["Frame-limit"] = lim;
 	jsf.save();
 }
-void resetInfoVsync(const bool &b)
+void resetInfoVsync(const bool b)
 {
 	JsonFile jsf = { "src", "settings", load_infof() };
 	jsf.js["Vsync"] = b;
 	jsf.save();
+}
+void resetInfoWindowMode(const bool wmode){
+    JsonFile jsf = { "src", "settings", load_infof() };
+    jsf.js["Window-mode"] = wmode;
+    jsf.save();
 }

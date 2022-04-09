@@ -15,6 +15,7 @@ namespace parametrs
 	auto default_resolution = sf::Vector2u(info["Resolution"][0], info["Resolution"][1]);
 	bool vsync = info["Vsync"];
 	unsigned int frame_limit = info["Frame-limit"];
+	auto window_mode = info["Window-mode"] ? sf::Style::Default : sf::Style::Fullscreen;
 }
 sf::Font &loadFont()
 {
@@ -53,7 +54,7 @@ int main()
 	using namespace parametrs;
 	using Rect = sf::RectangleShape;
 	sf::VideoMode mode = sf::VideoMode::getDesktopMode();
-	sf::RenderWindow window(sf::VideoMode(default_resolution.x, default_resolution.y, mode.bitsPerPixel), "Card Wars");
+	sf::RenderWindow window(sf::VideoMode(default_resolution.x, default_resolution.y, mode.bitsPerPixel), "Card Wars", window_mode);
 	window.setFramerateLimit(frame_limit);
 	window.setVerticalSyncEnabled(vsync);
 	int position = 0; // 0 - main menu, 1 - start game, 2 - in settings, 3 about us? 4 - exit
@@ -162,6 +163,7 @@ void game_settings(sf::RenderWindow &window)
 	Vector2u ures = window.getSize();
 	Vector2f res = Vector2f(ures);
 	std::vector<Vector2u> resolutions = { {800, 600}, {1280, 720}, {1366, 768}, {1600, 900}, {1920, 1080}, {2560, 1440} };
+	std::vector<unsigned int> framerates = { 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60 };
 
 	Vector2f bpos = Vector2f(res.x / 3.f, res.y / 8.f); // button position
 	Vector2f bsize = Vector2f(res.x / 9.6f, res.y / 18.f); // button size
@@ -174,20 +176,31 @@ void game_settings(sf::RenderWindow &window)
 	Button<Rect> saveB = Button<Rect>(Rect(Vector2f(bsize)), "Save", font, ures.y / 27u);
 	Button<Rect> switcherL = Button<Rect>(Rect(Vector2f(res.x / 32.f, res.y / 18.f)), "<", font, ures.y / 27u);
 	Button<Rect> switcherR = Button<Rect>(Rect(Vector2f(res.x / 32.f, res.y / 18.f)), ">", font, ures.y / 27u);
-	std::string ressx = std::to_string(default_resolution.x);
-	std::string ressy = std::to_string(default_resolution.y);
+	std::string ressx = std::to_string(window.getSize().x);
+	std::string ressy = std::to_string(window.getSize().y);
 	Button<Rect> rScreen = Button<Rect>(Rect(Vector2f(res.x / 4.8f, res.y / 18.f)), ressx+" x "+ressy, font, ures.y / 27u); // resolution display through button
+	Button<Rect> switcherWMode = Button<Rect>(Rect(Vector2f(res.x / 32.f, res.y / 18.f)), window_mode == sf::Style::Default ? "" : "+", font, ures.y / 27u); // window mode switcher
+	Button<Rect> switcherVsync = Button<Rect>(Rect(Vector2f(res.x / 32.f, res.y / 18.f)), vsync == true ? "+" : "", font, ures.y / 27u); // vsync mode switcher
+	std::string frp = std::to_string(frame_limit);
+	Button<Rect> switcherLF = Button<Rect>(Rect(Vector2f(res.x / 32.f, res.y / 18.f)), "<", font, ures.y / 27u); // switchers for framerate
+	Button<Rect> switcherRF = Button<Rect>(Rect(Vector2f(res.x / 32.f, res.y / 18.f)), ">", font, ures.y / 27u);
+	Button<Rect> fScreen = Button<Rect>(Rect(Vector2f(res.x / 4.8f, res.y / 18.f)), frp, font, ures.y / 27u); // framerate display through button
 
-	//totally not ripped off from main menu surely
 	std::vector<engine::Button<sf::RectangleShape>> buttons;
-	buttons.push_back(backB);	  // 1
-	buttons.push_back(switcherL); // 2
-	buttons.push_back(rScreen);   // 3
-	buttons.push_back(switcherR); // 4
-	buttons.push_back(saveB);     // 5
-	buttons.push_back(resetB);    // 6
+	buttons.push_back(backB);	      // 1
+	buttons.push_back(switcherL);     // 2
+	buttons.push_back(rScreen);       // 3
+	buttons.push_back(switcherR);     // 4
+	buttons.push_back(saveB);         // 5
+	buttons.push_back(resetB);        // 6
+	buttons.push_back(switcherLF);    // 7
+	buttons.push_back(fScreen);       // 8
+	buttons.push_back(switcherRF);    // 9
+	buttons.push_back(switcherWMode); // 10
+	buttons.push_back(switcherVsync); // 11
 	for (int i = 1; i <= 3; i++)
 		std::cout << floor(i / 3) << "\n";
+		std::cout << (vsync == true ? "vsync yes" : "vsync no");
     uint8_t i, j, n, p; // p - resulution id
 	int k;
 	float w;
@@ -213,6 +226,11 @@ void game_settings(sf::RenderWindow &window)
 				buttons[3].shape.setSize(Vector2f(res.x / 4.8f, res.y / 18.f)); // switcher r
 				buttons[4].shape.setSize(Vector2f(res.x / 9.6f, res.y / 18.f)); // save
 				buttons[5].shape.setSize(Vector2f(res.x / 5.5f, res.y / 18.f)); // reset
+				buttons[9].shape.setSize(Vector2f(res.x / 4.8f, res.y / 18.f)); // switcher wmode
+				buttons[10].shape.setSize(Vector2f(res.x / 4.8f, res.y / 18.f)); // switcher vsync
+				buttons[6].shape.setSize(Vector2f(res.x / 4.8f, res.y / 18.f)); // fswitcher l
+				buttons[7].shape.setSize(Vector2f(res.x / 7.0f, res.y / 18.f)); // ftarget
+				buttons[8].shape.setSize(Vector2f(res.x / 4.8f, res.y / 18.f)); // fswitcher r
 				for (auto &b : buttons)
 				{
 					b.content.setCharacterSize((uint32_t)abs(floor(engine::math::length(res))) / 54u);
@@ -224,24 +242,30 @@ void game_settings(sf::RenderWindow &window)
 		window.clear();
 		//code
 		k = 1, j = i = 0, w = 0.f;
-		for (auto &b : buttons) 
+        unsigned int rx, ry, fr;
+        bool vsy, wmode;
+        if (wmode){
+            rx = 1920;
+            ry = 1080;
+        }
+		for (auto &b : buttons)
 		{
-			if (b.isIntersected(mpos) && k != 3)
+			if (b.isIntersected(mpos) && k != 3 && k != 8)
 				b.shape.setFillColor(mix(bcolor, sf::Color::White));
 			else b.shape.setFillColor(bcolor);
-			//button positioning
 
+			//button positioning
 			if (k == 1) // back
                 b.setPosition(Vector2f(0, 0));
 
-			else if (k == buttons.size() or k == buttons.size() - 1)
+			else if (k == 6 or k == 5)
 				b.setPosition(Vector2f(res.x, (++i) * res.y / 10) - b.shape.getSize());
 
-			else 
+			else
 			{
 				n = static_cast<uint8_t>(abs(floor(j / 3.f)));
 				w = j % 3 == 0 ? 0 : w + buttons[k-2].shape.getSize().x;
-				b.setPosition(Vector2f(bpos.x + w + (j % 3)*res.x/27.f, bpos.y + n*bsize.y));
+				b.setPosition(Vector2f(bpos.x + w + (j % 3)*res.x/27.f, bpos.y + n*bsize.y + 100));
 				j++;
 			}
             if (b.isPressed(sf::Mouse::Button::Left, mpos))
@@ -250,24 +274,57 @@ void game_settings(sf::RenderWindow &window)
                 switch (k)
 				{
                 // back
-                case 1: 
+                case 1:
 					return;
 				// settings
-				case 2: // left slider 
+				case 2: // left slider
 					p = std::max(p - 1, 0); // limit
 					buttons[2].setString(std::to_string(resolutions[p].x) + " x " + std::to_string(resolutions[p].y));
+					rx = resolutions[p].x;
+					ry = resolutions[p].y;
 					break;
 				case 3: // resolution "viewer"
+				    buttons[2].setString(":P");
 					break;
 				case 4: // right slider
 					p = std::min(size_t(p + 1), resolutions.size() - 1); // limit
 					buttons[2].setString(std::to_string(resolutions[p].x) + " x " + std::to_string(resolutions[p].y));
+					rx = resolutions[p].x;
+					ry = resolutions[p].y;
 					break;
 				// save
 				case 5:
+                    resetInfoResolution(rx, ry);
+                    resetInfoVsync(vsy);
+                    resetInfoFrameLimit(fr);
+                    resetInfoWindowMode(wmode);
 					break;
 				// reset
 				case 6:
+				    create_infof();
+					break;
+                // wmode switcher
+                case 11:
+                    if (!wmode) { b.setString("+"); wmode=true; }
+                    else if (wmode) { b.setString(""); wmode=false; }
+                    break;
+                // vsync switcher
+                case 10:
+                    if (!vsy) { b.setString("+"); vsy=true; }
+                    else if (vsy) { b.setString(""); vsy=false; }
+                    break;
+                case 7: // left slider
+					p = std::max(p - 1, 0); // limit
+					buttons[9].setString(std::to_string(framerates[p]));
+					fr = framerates[p];
+					break;
+				case 8: // framerate "viewer"
+				    buttons[7].setString(":D");
+					break;
+				case 9: // right slider
+					p = std::min(size_t(p + 1), framerates.size() - 1); // limit
+					buttons[9].setString(std::to_string(framerates[p]));
+					fr = framerates[p];
 					break;
                 }
             }
@@ -310,7 +367,7 @@ void about_us(sf::RenderWindow &window)
 	Vector2f res = Vector2f(ures);
 	Vector2f bsize = Vector2f(res.x / 9.6f, res.y / 18.f);
 	Button<Rect> back(Rect(bsize), "Back", font, ures.y / 27u);
-	Vector2f bpos = Vector2f( 0, res.y - back.shape.getSize().y );
+	Vector2f bpos = Vector2f(0, 0);
 	sf::Mouse m;
 	Rect rect = Rect(Vector2f(res.x * 2.f / 3.f, res.y));
 	rect.setOrigin(rect.getSize() / 2.f);
