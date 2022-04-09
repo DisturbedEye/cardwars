@@ -48,9 +48,14 @@ nlohmann::json JsonFile::load(std::string path, const std::string &fname)
 		create(path, fname);
 		infile.open(full_path);
 	}
-	std::string strjs; // json dumped string 
+	std::string strjs = ""; // json dumped string 
+	std::string line;
 	while (!infile.eof())
-		infile >> strjs;
+	{
+		infile >> line;
+		strjs += line;
+	}
+	infile.close();
 	return Json::parse(strjs);
 }
 
@@ -69,7 +74,7 @@ void JsonFile::save(std::string path, const std::string &fname, const Json &j)
 		create(path, fname);
 		outf.open(full_path);
 	}
-	outf << j.dump();
+	outf << j.dump(4, ' ');
 	outf.close();
 }
 
@@ -90,7 +95,11 @@ void create_infof()
 
 nlohmann::json load_infof()
 { // reading file
-	create_infof();
+	std::ifstream infile;
+	infile.open("src/settings.json");
+	if (!infile.is_open())
+		create_infof();
+	else infile.close();
 	return JsonFile::load("src", "settings");
 }
 
