@@ -156,7 +156,6 @@ void game_settings(sf::RenderWindow &window)
 	using std::min, std::max;
 	using engine::math::mix;
 	using namespace parametrs;
-	typedef sf::RectangleShape Rect;
 	sf::Mouse m;
 	Vector2f mpos;
 	Vector2u ures = window.getSize();
@@ -210,9 +209,9 @@ void game_settings(sf::RenderWindow &window)
 	uint8_t i, j, n, k;
 	size_t p1 = 4ull; // p1 - resulution id
 	size_t p2 = 2ull; // p2 - framerate id
-	unsigned int rx = 1920, ry = 1080;
+	unsigned int rx = 1920, ry = 1080, video_mode = sf::Style::Default;
 	uint16_t fr = 60;
-	bool vsy = true, wmode = sf::Style::Default;
+	bool vsy = true, wmode = true;
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -284,7 +283,8 @@ void game_settings(sf::RenderWindow &window)
 					resetInfoFramerateLimit(fr);
 					resetInfoWindowMode(wmode);
 					window.close();
-					window.create(sf::VideoMode(window.getSize().x, window.getSize().y, sf::VideoMode::getDesktopMode().bitsPerPixel), "Card Wars", wmode);
+					wmode ? sf::Style::Default : sf::Style::Fullscreen;
+					window.create(sf::VideoMode(window.getSize().x, window.getSize().y, sf::VideoMode::getDesktopMode().bitsPerPixel), "Card Wars", video_mode);
 					window.setSize(Vector2u(rx, ry));
 					window.setVerticalSyncEnabled(vsy);
 					window.setFramerateLimit(fr);
@@ -336,10 +336,13 @@ void game_settings(sf::RenderWindow &window)
 void start_game(sf::RenderWindow &window)
 {
 	using engine::Button;
-	using sf::Vector2f;
+	using Vec2f = sf::Vector2f;
 	using engine::math::mix;
+	using namespace engine::cards;
 	using namespace parametrs;
-	typedef sf::RectangleShape Rect;
+	WitherSkeleton ws(window.getSize());
+	ws.setPosition(Vec2f(window.getSize())/2.f);
+	ws.setOrigin(ws.getSize()/2.f);
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -349,6 +352,7 @@ void start_game(sf::RenderWindow &window)
 		window.clear();
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
 			return;
+		window.draw(ws);
 		window.display();
 	}
 }

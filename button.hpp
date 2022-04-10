@@ -113,6 +113,8 @@ inline void engine::Button::setIndents(const Vec2f &indents)
 inline void engine::Button::setShapeSize(const Vec2f &size)
 {
 	rect.setSize(size);
+	if (center)
+		resetToCenter();
 }
 
 inline void engine::Button::setSize(const Vec2f &size)

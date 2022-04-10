@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <map>
 #include <string>
+#include "FileManagement.hpp"
 
 namespace engine
 {
@@ -16,6 +17,7 @@ namespace engine
 	typedef sf::Vector2u Vec2u;
 	typedef sf::RectangleShape Rect;
 	typedef sf::CircleShape Circle;
+	using Json = nlohmann::json;
 	typedef sf::ConvexShape Convex; // выпуклый многоугольник
 	struct Button;
 	class Deck;
@@ -52,11 +54,17 @@ namespace engine
 	}
 }
 
-
-
 #include "emath.hpp"
 #include "button.hpp"
+// cards //
+
+#include "cards/AbstractCard.hpp"
+#include "cards/ground/WitherSkeleton.hpp"
+
+// collections //
+
 #include "AbstractCollection.hpp"
 #include "SuperCollection.hpp"
+
+/////////////////
 #include "Deck.hpp"
-#include "FileManagement.hpp"
