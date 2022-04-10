@@ -14,8 +14,8 @@ namespace parametrs
 	nlohmann::json info = load_infof();
 	auto default_resolution = sf::Vector2u(info["Resolution"][0], info["Resolution"][1]);
 	bool vsync = info["Vsync"];
-	unsigned int frame_limit = info["Frame-limit"];
-	auto window_mode = info["Window-mode"] ? sf::Style::Default : sf::Style::Fullscreen;
+	unsigned int frame_limit = info["Framerate-limit"];
+	int window_mode = info["Window-mode"] ? sf::Style::Default : sf::Style::Fullscreen;
 }
 sf::Font &loadFont()
 {
@@ -86,11 +86,11 @@ int main_menu(sf::RenderWindow &window)
 	Vector2f bhalfsize = bsize / 2.f; // half of button size
 	sf::Font &font = loadFont();
 	// buttons
-	Button<Rect> start = engine::Button<Rect>(Rect(bsize), "Start", font, ures.y / 27u);
-	Button<Rect> settings = engine::Button<Rect>(Rect(bsize), "Settings", font, ures.y / 27u);
-	Button<Rect> about_us = engine::Button<Rect>(Rect(bsize), "About Us", font, ures.y / 27u);
-	Button<Rect> exit = engine::Button<Rect>(Rect(bsize), "Exit", font, ures.y / 27u);
-	std::vector<engine::Button<sf::RectangleShape>> buttons; // buttons too
+	Button start = Button(bsize, "Start", font, (uint32_t)abs(floor(engine::math::length(res))) / 54u);
+	Button settings = Button(bsize, "Settings", font, (uint32_t)abs(floor(engine::math::length(res))) / 54u);
+	Button about_us = Button(bsize, "About Us", font, (uint32_t)abs(floor(engine::math::length(res))) / 54u);
+	Button exit = Button(bsize, "Exit", font, (uint32_t)abs(floor(engine::math::length(res))) / 54u);
+	std::vector<Button> buttons; // buttons too
 	buttons.push_back(start);	 // 1
 	buttons.push_back(settings); // 2
 	buttons.push_back(about_us); // 3
@@ -115,9 +115,8 @@ int main_menu(sf::RenderWindow &window)
 				bsize = Vector2f(res.x / 9.6f, res.y / 18.f);
 				for (auto &b : buttons)
 				{
-					b.shape.setSize(bsize);
-					b.content.setCharacterSize((uint32_t)abs(floor(engine::math::length(res))) / 54u);
-					b.resetToCenter();
+					b.setSize(bsize);
+					b.setCharacterSize((uint32_t)abs(floor(engine::math::length(res))) / 54u);
 				}
 			}
 		}
@@ -128,8 +127,8 @@ int main_menu(sf::RenderWindow &window)
 		for (auto &b : buttons)
 		{
 			if (b.isIntersected(mpos))
-				b.shape.setFillColor(mix(bcolor, sf::Color::White));
-			else b.shape.setFillColor(bcolor);
+				b.setColor(mix(bcolor, sf::Color::White));
+			else b.setColor(bcolor);
 			if (b.isPressed(sf::Mouse::Button::Left, mpos))
 				return k;
 			b.setPosition(Vector2f(bpos.x, bpos.y + (k - 1) * (res.y/24.f + bsize.y)));
@@ -163,47 +162,57 @@ void game_settings(sf::RenderWindow &window)
 	Vector2u ures = window.getSize();
 	Vector2f res = Vector2f(ures);
 	std::vector<Vector2u> resolutions = { {800, 600}, {1280, 720}, {1366, 768}, {1600, 900}, {1920, 1080}, {2560, 1440} };
-	std::vector<unsigned int> framerates = { 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60 };
-
+	std::vector<uint16_t> framerates = { 30, 59, 60, 75, 100, 120, 144, 240, 360 };
 	Vector2f bpos = Vector2f(res.x / 3.f, res.y / 8.f); // button position
 	Vector2f bsize = Vector2f(res.x / 9.6f, res.y / 18.f); // button size
+	Vector2f bsize2 = Vector2f(res.x / 4.8f, res.y / 18.f); // screen buttons size
+	Vector2f swsize = Vector2f(res.x / 32.f, res.y / 18.f); // switcher size
 	sf::Color bcolor = sf::Color(115, 1, 4); // button color (reddish for me plz)
 	auto &font = loadFont();
-
 	// buttons
-	Button<Rect> backB = Button<Rect>(Rect(bsize), "Back", font, ures.y / 27u);
-	Button<Rect> resetB = Button<Rect>(Rect(bsize), "Reset", font, ures.y / 27u);
-	Button<Rect> saveB = Button<Rect>(Rect(Vector2f(bsize)), "Save", font, ures.y / 27u);
-	Button<Rect> switcherL = Button<Rect>(Rect(Vector2f(res.x / 32.f, res.y / 18.f)), "<", font, ures.y / 27u);
-	Button<Rect> switcherR = Button<Rect>(Rect(Vector2f(res.x / 32.f, res.y / 18.f)), ">", font, ures.y / 27u);
-	std::string ressx = std::to_string(window.getSize().x);
-	std::string ressy = std::to_string(window.getSize().y);
-	Button<Rect> rScreen = Button<Rect>(Rect(Vector2f(res.x / 4.8f, res.y / 18.f)), ressx+" x "+ressy, font, ures.y / 27u); // resolution display through button
-	Button<Rect> switcherWMode = Button<Rect>(Rect(Vector2f(res.x / 32.f, res.y / 18.f)), window_mode == sf::Style::Default ? "" : "+", font, ures.y / 27u); // window mode switcher
-	Button<Rect> switcherVsync = Button<Rect>(Rect(Vector2f(res.x / 32.f, res.y / 18.f)), vsync == true ? "+" : "", font, ures.y / 27u); // vsync mode switcher
-	std::string frp = std::to_string(frame_limit);
-	Button<Rect> switcherLF = Button<Rect>(Rect(Vector2f(res.x / 32.f, res.y / 18.f)), "<", font, ures.y / 27u); // switchers for framerate
-	Button<Rect> switcherRF = Button<Rect>(Rect(Vector2f(res.x / 32.f, res.y / 18.f)), ">", font, ures.y / 27u);
-	Button<Rect> fScreen = Button<Rect>(Rect(Vector2f(res.x / 4.8f, res.y / 18.f)), frp, font, ures.y / 27u); // framerate display through button
+	Button backB = Button(bsize, "Back", font, ures.y / 27u); // save
+	Button resetB = Button(bsize, "Reset", font, ures.y / 27u); // reset
+	Button saveB = Button(Vector2f(bsize), "Save", font, ures.y / 27u);
+	Button switcherL = Button(swsize, "<", font, ures.y / 27u); // left resolution switcher 
+	Button switcherR = Button(swsize, ">", font, ures.y / 27u); // right resolution switcher
+	std::string ressx = std::to_string(window.getSize().x); // string resolution x
+	std::string ressy = std::to_string(window.getSize().y); // string resolution y
+	Button rScreen = Button(bsize2, ressx+" x "+ressy, font, ures.y / 27u); // resolution display through button
+	Button switcherWMode = Button(swsize, window_mode == sf::Style::Default ? "" : "+", font, ures.y / 27u); // window mode switcher
+	Button switcherVsync = Button(swsize, vsync == true ? "+" : "", font, ures.y / 27u); // vsync mode switcher
+	std::string frp = std::to_string(frame_limit); // string frame limit
+	Button switcherLF = Button(swsize, "<", font, ures.y / 27u); // switchers for framerate
+	Button switcherRF = Button(swsize, ">", font, ures.y / 27u);
+	Button fScreen = Button(bsize2, frp, font, ures.y / 27u); // framerate display through button
 
-	std::vector<engine::Button<sf::RectangleShape>> buttons;
+	enum Buttons
+	{
+		Back = 1, Save = 2, Reset = 3,
+		LeftResolutionSwitcher = 4, ResolutionViewer = 5, RightResolutionSwitcher = 6,
+		LeftFramerateSwicher = 7, FramerateViewer = 8, RightFramerateSwitcher = 9,
+		VideoModeSwitcher = 10, VsyncSwitcher = 11
+	};
+
+	std::vector<Button> buttons;
 	buttons.push_back(backB);	      // 1
-	buttons.push_back(switcherL);     // 2
-	buttons.push_back(rScreen);       // 3
-	buttons.push_back(switcherR);     // 4
-	buttons.push_back(saveB);         // 5
-	buttons.push_back(resetB);        // 6
+	buttons.push_back(saveB);         // 2
+	buttons.push_back(resetB);        // 3
+	buttons.push_back(switcherL);     // 4
+	buttons.push_back(rScreen);       // 5
+	buttons.push_back(switcherR);     // 6
 	buttons.push_back(switcherLF);    // 7
 	buttons.push_back(fScreen);       // 8
 	buttons.push_back(switcherRF);    // 9
 	buttons.push_back(switcherWMode); // 10
 	buttons.push_back(switcherVsync); // 11
-	for (int i = 1; i <= 3; i++)
-		std::cout << floor(i / 3) << "\n";
-		std::cout << (vsync == true ? "vsync yes" : "vsync no");
-    uint8_t i, j, n, p; // p - resulution id
-	int k;
 	float w;
+	nlohmann::json jsf = load_infof();
+	uint8_t i, j, n, k;
+	size_t p1 = 4ull; // p1 - resulution id
+	size_t p2 = 2ull; // p2 - framerate id
+	unsigned int rx = 1920, ry = 1080;
+	uint16_t fr = 60;
+	bool vsy = true, wmode = sf::Style::Default;
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -213,120 +222,109 @@ void game_settings(sf::RenderWindow &window)
 			{
 			case sf::Event::Closed:
 				window.close();
-
-			case sf::Event::Resized:
-				sf::FloatRect varea(0, 0, (float)event.size.width, (float)event.size.height);
+			case sf::Event::Resized: // if screen was resized
+				sf::FloatRect varea = sf::FloatRect(0, 0, (float)event.size.width, (float)event.size.height);
 				window.setView(sf::View(varea));
 				res = Vector2f(window.getSize());
-				bpos = Vector2f(res.x / 6.f, res.y / 3.f) / 2.f; // button position
+				bpos = Vector2f(res.x / 3.f, res.y / 8.f); // button position
 				bsize = Vector2f(res.x / 9.6f, res.y / 18.f); // button size
-				buttons[0].shape.setSize(Vector2f(res.x / 9.6f, res.y / 18.f)); // back
-				buttons[1].shape.setSize(Vector2f(res.x / 4.8f, res.y / 18.f)); // switcher l
-				buttons[2].shape.setSize(Vector2f(res.x / 4.8f, res.y / 18.f)); // rtarget
-				buttons[3].shape.setSize(Vector2f(res.x / 4.8f, res.y / 18.f)); // switcher r
-				buttons[4].shape.setSize(Vector2f(res.x / 9.6f, res.y / 18.f)); // save
-				buttons[5].shape.setSize(Vector2f(res.x / 5.5f, res.y / 18.f)); // reset
-				buttons[9].shape.setSize(Vector2f(res.x / 4.8f, res.y / 18.f)); // switcher wmode
-				buttons[10].shape.setSize(Vector2f(res.x / 4.8f, res.y / 18.f)); // switcher vsync
-				buttons[6].shape.setSize(Vector2f(res.x / 4.8f, res.y / 18.f)); // fswitcher l
-				buttons[7].shape.setSize(Vector2f(res.x / 7.0f, res.y / 18.f)); // ftarget
-				buttons[8].shape.setSize(Vector2f(res.x / 4.8f, res.y / 18.f)); // fswitcher r
+				bsize2 = Vector2f(res.x / 4.8f, res.y / 18.f); // screen buttons size
+				swsize = Vector2f(res.x / 32.f, res.y / 18.f); // switcher size
+				buttons[0].setSize(bsize); // back
+				buttons[1].setSize(bsize); // save
+				buttons[2].setSize(bsize); // reset
+				buttons[3].setSize(swsize); // switcher l
+				buttons[4].setSize(bsize2); // rtarget
+				buttons[5].setSize(swsize); // switcher r
+				buttons[6].setSize(swsize); // fswitcher l
+				buttons[7].setSize(bsize2); // ftarget
+				buttons[8].setSize(swsize); // fswitcher r
+				buttons[9].setSize(swsize); // switcher wmode
+				buttons[10].setSize(swsize); // switcher vsync
 				for (auto &b : buttons)
-				{
-					b.content.setCharacterSize((uint32_t)abs(floor(engine::math::length(res))) / 54u);
-					b.resetToCenter();
-				}
+					b.setCharacterSize((uint32_t)abs(floor(engine::math::length(res))) / 54u);
 			}
 		}
 		mpos = Vector2f(m.getPosition(window));
 		window.clear();
 		//code
 		k = 1, j = i = 0, w = 0.f;
-        unsigned int rx, ry, fr;
-        bool vsy, wmode;
-        if (wmode){
-            rx = 1920;
-            ry = 1080;
-        }
 		for (auto &b : buttons)
 		{
-			if (b.isIntersected(mpos) && k != 3 && k != 8)
-				b.shape.setFillColor(mix(bcolor, sf::Color::White));
-			else b.shape.setFillColor(bcolor);
+			if (b.isIntersected(mpos) && k != ResolutionViewer && k != FramerateViewer)
+				b.setColor(mix(bcolor, sf::Color::White));
+			else b.setColor(bcolor);
 
 			//button positioning
-			if (k == 1) // back
+			if (k == Back)
                 b.setPosition(Vector2f(0, 0));
 
-			else if (k == 6 or k == 5)
-				b.setPosition(Vector2f(res.x, (++i) * res.y / 10) - b.shape.getSize());
-
+			else if (k == Save or k == Reset)
+				b.setPosition(Vector2f(res.x, (++i) * res.y / 10) - b.getSize());
 			else
 			{
 				n = static_cast<uint8_t>(abs(floor(j / 3.f)));
-				w = j % 3 == 0 ? 0 : w + buttons[k-2].shape.getSize().x;
+				w = j % 3 == 0 ? 0 : w + buttons[k-2].getSize().x;
 				b.setPosition(Vector2f(bpos.x + w + (j % 3)*res.x/27.f, bpos.y + n*bsize.y + 100));
 				j++;
 			}
             if (b.isPressed(sf::Mouse::Button::Left, mpos))
 			{
                 // button functions
-                switch (k)
+				switch (k)
 				{
-                // back
-                case 1:
+				case Back:
 					return;
-				// settings
-				case 2: // left slider
-					p = std::max(p - 1, 0); // limit
-					buttons[2].setString(std::to_string(resolutions[p].x) + " x " + std::to_string(resolutions[p].y));
-					rx = resolutions[p].x;
-					ry = resolutions[p].y;
+				case Save:
+					rx = resolutions[p1].x;
+					ry = resolutions[p1].y;
+					fr = framerates[p2];
+					resetInfoResolution(rx, ry);
+					resetInfoVsync(vsy);
+					resetInfoFramerateLimit(fr);
+					resetInfoWindowMode(wmode);
+					window.close();
+					window.create(sf::VideoMode(window.getSize().x, window.getSize().y, sf::VideoMode::getDesktopMode().bitsPerPixel), "Card Wars", wmode);
+					window.setSize(Vector2u(rx, ry));
+					window.setVerticalSyncEnabled(vsy);
+					window.setFramerateLimit(fr);
 					break;
-				case 3: // resolution "viewer"
-				    buttons[2].setString(":P");
+				case Reset:
+					create_infof();
 					break;
-				case 4: // right slider
-					p = std::min(size_t(p + 1), resolutions.size() - 1); // limit
-					buttons[2].setString(std::to_string(resolutions[p].x) + " x " + std::to_string(resolutions[p].y));
-					rx = resolutions[p].x;
-					ry = resolutions[p].y;
+				case LeftResolutionSwitcher:
+					p1 = std::max(p1 - 1, 0ull); // limit
+					buttons[4].setString(std::to_string(resolutions[p1].x) + " x " + std::to_string(resolutions[p1].y));
 					break;
-				// save
-				case 5:
-                    resetInfoResolution(rx, ry);
-                    resetInfoVsync(vsy);
-                    resetInfoFrameLimit(fr);
-                    resetInfoWindowMode(wmode);
+				case ResolutionViewer:
+					buttons[4].setString(":P");
 					break;
-				// reset
-				case 6:
-				    create_infof();
+				case RightResolutionSwitcher:
+					p1 = std::min(p1 + 1, resolutions.size() - 1); // limit
+					buttons[4].setString(std::to_string(resolutions[p1].x) + " x " + std::to_string(resolutions[p1].y));
 					break;
-                // wmode switcher
-                case 11:
-                    if (!wmode) { b.setString("+"); wmode=true; }
-                    else if (wmode) { b.setString(""); wmode=false; }
-                    break;
-                // vsync switcher
-                case 10:
-                    if (!vsy) { b.setString("+"); vsy=true; }
-                    else if (vsy) { b.setString(""); vsy=false; }
-                    break;
-                case 7: // left slider
-					p = std::max(p - 1, 0); // limit
-					buttons[9].setString(std::to_string(framerates[p]));
-					fr = framerates[p];
+				case LeftFramerateSwicher:
+					p2 = std::max(p2 - 1, 0ull); // limit
+					buttons[7].setString(std::to_string(framerates[p2]));
 					break;
-				case 8: // framerate "viewer"
-				    buttons[7].setString(":D");
+				case FramerateViewer:
+					buttons[7].setString(":D");
 					break;
-				case 9: // right slider
-					p = std::min(size_t(p + 1), framerates.size() - 1); // limit
-					buttons[9].setString(std::to_string(framerates[p]));
-					fr = framerates[p];
+				case RightFramerateSwitcher: 
+					p2 = std::min(p2 + 1, framerates.size() - 1); // limit
+					buttons[7].setString(std::to_string(framerates[p2]));
 					break;
-                }
+				case VideoModeSwitcher:
+					wmode = !wmode;
+					if (wmode) b.setString("+");
+					else if (!wmode) b.setString("");
+					break;
+				case VsyncSwitcher:
+					vsy = !vsy;
+					if (vsy) b.setString("+");
+					else if (!vsy) b.setString("");
+					break;
+				}
             }
             k++;
             window.draw(b);
@@ -366,7 +364,7 @@ void about_us(sf::RenderWindow &window)
 	sf::Vector2u ures = window.getSize();
 	Vector2f res = Vector2f(ures);
 	Vector2f bsize = Vector2f(res.x / 9.6f, res.y / 18.f);
-	Button<Rect> back(Rect(bsize), "Back", font, ures.y / 27u);
+	Button back(bsize, "Back", font, ures.y / 27u);
 	Vector2f bpos = Vector2f(0, 0);
 	sf::Mouse m;
 	Rect rect = Rect(Vector2f(res.x * 2.f / 3.f, res.y));
@@ -398,12 +396,11 @@ void about_us(sf::RenderWindow &window)
 				sf::FloatRect varea(0, 0, (float) event.size.width, (float) event.size.height);
 				window.setView(sf::View(varea));
 				res = Vector2f(window.getSize());
-				bpos = Vector2f(0, res.y - back.shape.getSize().y);
+				bpos = Vector2f(0, res.y - back.getSize().y);
 				bsize = Vector2f(res.x / 9.6f, res.y / 18.f);
 				back.setPosition(bpos);
-				back.shape.setSize(bsize);
-				back.content.setCharacterSize((uint64_t)abs(floor(engine::math::length(res))) / 54u);
-				back.resetToCenter();
+				back.setSize(bsize);
+				back.setCharacterSize((uint64_t)abs(floor(engine::math::length(res))) / 54u);
 				rect.setSize(Vector2f(res.x * 2.f / 3.f, res.y));
 				rect.setOrigin(rect.getSize() / 2.f);
 				rect.setPosition(res.x / 2.f, res.y / 2.f);
@@ -418,8 +415,8 @@ void about_us(sf::RenderWindow &window)
 		window.clear();
 		//code
 		if (back.isIntersected(mpos))
-			back.shape.setFillColor(mix(bcolor, sf::Color::White));
-		else back.shape.setFillColor(bcolor);
+			back.setColor(mix(bcolor, sf::Color::White));
+		else back.setColor(bcolor);
 		if (back.isPressed(sf::Mouse::Button::Left, mpos))
 			return;
 		window.draw(rect);

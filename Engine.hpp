@@ -10,13 +10,13 @@
 
 namespace engine
 {
+	using namespace std::string_literals;
 	typedef sf::Vector2f Vec2f;
 	typedef sf::Vector2i Vec2i;
 	typedef sf::Vector2u Vec2u;
 	typedef sf::RectangleShape Rect;
 	typedef sf::CircleShape Circle;
 	typedef sf::ConvexShape Convex; // выпуклый многоугольник
-	template <class Shape>
 	struct Button;
 	class Deck;
 	//    cards    //

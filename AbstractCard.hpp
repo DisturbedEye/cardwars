@@ -15,7 +15,6 @@ struct engine::ACard : public sf::Drawable
 	void onTake();
 protected:
 	ACard(const Vec2f &window_size);
-	Button<Rect> card_collision;
 	Rect cover;
 	void setPosition(const Vec2f p);
 	void setOrigin(const Vec2f o);
@@ -27,7 +26,6 @@ protected:
 engine::ACard::ACard(const Vec2f &window_size)
 {
 	cover = Rect(Vec2f(window_size.x/9.f, window_size.y/4.f));
-	card_collision = Button<Rect>(cover);
 }
 
 

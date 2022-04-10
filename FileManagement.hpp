@@ -89,7 +89,7 @@ void create_infof()
 	JsonFile jsf("src", "settings");
 	jsf.js["Resolution"] = { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
 	jsf.js["Vsync"] = true;
-	jsf.js["Frame-limit"] = 60;
+	jsf.js["Framerate-limit"] = 60;
 	jsf.js["Window-mode"] = true; // default window mode
 	jsf.save();
 }
@@ -111,10 +111,10 @@ void resetInfoResolution(const unsigned int x, const unsigned int y)
 	jsf.js["Resolution"] = { x, y };
 	jsf.save();
 }
-void resetInfoFrameLimit(const unsigned int lim)
+void resetInfoFramerateLimit(const unsigned int lim)
 {
 	JsonFile jsf = { "src", "settings", load_infof() };
-	jsf.js["Frame-limit"] = lim;
+	jsf.js["Framerate-limit"] = lim;
 	jsf.save();
 }
 void resetInfoVsync(const bool b)
