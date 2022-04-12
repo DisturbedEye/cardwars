@@ -11,11 +11,10 @@ std::ostream &operator<<(std::ostream &out, const sf::Vector2<T> &v)
 
 namespace parametrs
 {
-	nlohmann::json info = load_infof();
-	auto default_resolution = sf::Vector2u(info["Resolution"][0], info["Resolution"][1]);
-	bool vsync = info["Vsync"];
-	unsigned int frame_limit = info["Framerate-limit"];
-	int window_mode = info["Window-mode"] ? sf::Style::Default : sf::Style::Fullscreen;
+	sf::Vector2u default_resolution = engine::getInfoResolution();
+	bool vsync = engine::getInfoVsync();
+	unsigned int frame_limit = engine::getInfoFramerateLimit();
+	int window_mode = engine::getInfoVideoMode();
 }
 sf::Font &loadFont()
 {
@@ -75,6 +74,7 @@ int main_menu(sf::RenderWindow &window)
 {
 	using engine::Button;
 	using sf::Vector2f;
+	using Vec2u = sf::Vector2u;
 	using engine::math::mix;
 	using namespace parametrs;
 	typedef sf::RectangleShape Rect;
@@ -98,6 +98,8 @@ int main_menu(sf::RenderWindow &window)
 	sf::Color bcolor = sf::Color(115, 101, 174); // button color
 	Vector2f mpos;
 	uint8_t k;
+	sf::Text txt("rescalable text", font);
+	Vec2u bres = window.getSize();;
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -116,8 +118,9 @@ int main_menu(sf::RenderWindow &window)
 				for (auto &b : buttons)
 				{
 					b.setSize(bsize);
-					b.setCharacterSize((uint32_t)abs(floor(engine::math::length(res))) / 54u);
+					b.setScale(Vector2f(res.x / bres.x, res.y / bres.y));
 				}
+				txt.setScale(res.x / bres.x, res.y/bres.y);
 			}
 		}
 		window.clear(); // clears screen
@@ -135,6 +138,7 @@ int main_menu(sf::RenderWindow &window)
 			window.draw(b);
 			k++;
 		}
+		window.draw(txt);
 		window.display();
 	}
 	return 0;
@@ -155,12 +159,21 @@ void game_settings(sf::RenderWindow &window)
 	using sf::Vector2f, sf::Vector2u;
 	using std::min, std::max;
 	using engine::math::mix;
+
 	using namespace parametrs;
 	sf::Mouse m;
 	Vector2f mpos;
 	Vector2u ures = window.getSize();
 	Vector2f res = Vector2f(ures);
-	std::vector<Vector2u> resolutions = { {800, 600}, {1280, 720}, {1366, 768}, {1600, 900}, {1920, 1080}, {2560, 1440} };
+	std::vector<unsigned int> widths = { 800u, 1280u, 1366u, 1600u, 1920u, 2560u };
+	std::vector<unsigned int> heights = { 600u, 720u, 768u, 900u, 1080u, 1440u };
+	if (!engine::math::inside(widths, window.getSize().x) or !engine::math::inside(heights, window.getSize().y))
+	{
+		widths.push_back(window.getSize().x);
+		std::sort(widths.begin(), widths.end());
+		heights.push_back(window.getSize().y);
+		std::sort(heights.begin(), heights.end());
+	}
 	std::vector<uint16_t> framerates = { 30, 59, 60, 75, 100, 120, 144, 240, 360 };
 	Vector2f bpos = Vector2f(res.x / 3.f, res.y / 8.f); // button position
 	Vector2f bsize = Vector2f(res.x / 9.6f, res.y / 18.f); // button size
@@ -177,8 +190,21 @@ void game_settings(sf::RenderWindow &window)
 	std::string ressx = std::to_string(window.getSize().x); // string resolution x
 	std::string ressy = std::to_string(window.getSize().y); // string resolution y
 	Button rScreen = Button(bsize2, ressx+" x "+ressy, font, ures.y / 27u); // resolution display through button
-	Button switcherWMode = Button(swsize, window_mode == sf::Style::Default ? "" : "+", font, ures.y / 27u); // window mode switcher
-	Button switcherVsync = Button(swsize, vsync == true ? "+" : "", font, ures.y / 27u); // vsync mode switcher
+
+
+	int mode_id = engine::reverse_modes[engine::getInfoVideoMode()]; // video mode index
+	std::string strmode = "Windowed";
+	switch (mode_id)
+	{
+	case 1:
+		strmode = "Bordless";
+		break;
+	case 2:
+		strmode = "Fullscreen";
+	}
+	Button switcherWMode = Button(bsize2, strmode, font, ures.y / 27u); // window mode switcher
+
+	Button switcherVsync = Button(swsize, "+", font, ures.y / 27u); // vsync mode switcher
 	std::string frp = std::to_string(frame_limit); // string frame limit
 	Button switcherLF = Button(swsize, "<", font, ures.y / 27u); // switchers for framerate
 	Button switcherRF = Button(swsize, ">", font, ures.y / 27u);
@@ -205,13 +231,14 @@ void game_settings(sf::RenderWindow &window)
 	buttons.push_back(switcherWMode); // 10
 	buttons.push_back(switcherVsync); // 11
 	float w;
-	nlohmann::json jsf = load_infof();
 	uint8_t i, j, n, k;
-	size_t p1 = 4ull; // p1 - resulution id
-	size_t p2 = 2ull; // p2 - framerate id
-	unsigned int rx = 1920, ry = 1080, video_mode = sf::Style::Default;
-	uint16_t fr = 60;
-	bool vsy = true, wmode = true;
+	int xi = static_cast<int>(engine::math::get_index(widths, window.getSize().x)); // width id
+	int yi = static_cast<int>(engine::math::get_index(heights, window.getSize().y)); // height id
+	int p2 = 2; // p2 - framerate id
+	unsigned int rx = widths[xi];
+	unsigned int ry = heights[yi];
+	unsigned int fr = engine::getInfoFramerateLimit();
+	bool vsy = engine::getInfoVsync();
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -221,9 +248,12 @@ void game_settings(sf::RenderWindow &window)
 			{
 			case sf::Event::Closed:
 				window.close();
+				break;
 			case sf::Event::Resized: // if screen was resized
-				sf::FloatRect varea = sf::FloatRect(0, 0, (float)event.size.width, (float)event.size.height);
-				window.setView(sf::View(varea));
+				{
+					sf::FloatRect varea = sf::FloatRect(0, 0, (float)event.size.width, (float)event.size.height);
+					window.setView(sf::View(varea));
+				}
 				res = Vector2f(window.getSize());
 				bpos = Vector2f(res.x / 3.f, res.y / 8.f); // button position
 				bsize = Vector2f(res.x / 9.6f, res.y / 18.f); // button size
@@ -238,7 +268,7 @@ void game_settings(sf::RenderWindow &window)
 				buttons[6].setSize(swsize); // fswitcher l
 				buttons[7].setSize(bsize2); // ftarget
 				buttons[8].setSize(swsize); // fswitcher r
-				buttons[9].setSize(swsize); // switcher wmode
+				buttons[9].setSize(bsize2); // wmode
 				buttons[10].setSize(swsize); // switcher vsync
 				for (auto &b : buttons)
 					b.setCharacterSize((uint32_t)abs(floor(engine::math::length(res))) / 54u);
@@ -275,54 +305,81 @@ void game_settings(sf::RenderWindow &window)
 				case Back:
 					return;
 				case Save:
-					rx = resolutions[p1].x;
-					ry = resolutions[p1].y;
+					rx = widths[xi];
+					ry = heights[xi];
 					fr = framerates[p2];
-					resetInfoResolution(rx, ry);
-					resetInfoVsync(vsy);
-					resetInfoFramerateLimit(fr);
-					resetInfoWindowMode(wmode);
+					engine::resetInfoResolution(rx, ry);
+					engine::resetInfoVsync(vsync);
+					engine::resetInfoFramerateLimit(fr);
+					engine::resetInfoVideoMode(mode_id);
 					window.close();
-					wmode ? sf::Style::Default : sf::Style::Fullscreen;
-					window.create(sf::VideoMode(window.getSize().x, window.getSize().y, sf::VideoMode::getDesktopMode().bitsPerPixel), "Card Wars", video_mode);
-					window.setSize(Vector2u(rx, ry));
-					window.setVerticalSyncEnabled(vsy);
+					window.create(sf::VideoMode(rx, ry, sf::VideoMode::getDesktopMode().bitsPerPixel), "Card Wars", engine::video_modes[mode_id]);
+					window.setVerticalSyncEnabled(vsync);
 					window.setFramerateLimit(fr);
+					res = Vector2f(window.getSize());
+					bpos = Vector2f(res.x / 3.f, res.y / 8.f); // button position
+					bsize = Vector2f(res.x / 9.6f, res.y / 18.f); // button size
+					bsize2 = Vector2f(res.x / 4.8f, res.y / 18.f); // screen buttons size
+					swsize = Vector2f(res.x / 32.f, res.y / 18.f); // switcher size
+					buttons[0].setSize(bsize); // back
+					buttons[1].setSize(bsize); // save
+					buttons[2].setSize(bsize); // reset
+					buttons[3].setSize(swsize); // switcher l
+					buttons[4].setSize(bsize2); // rtarget
+					buttons[5].setSize(swsize); // switcher r
+					buttons[6].setSize(swsize); // fswitcher l
+					buttons[7].setSize(bsize2); // ftarget
+					buttons[8].setSize(swsize); // fswitcher r
+					buttons[9].setSize(bsize2); // wmode
+					buttons[10].setSize(swsize); // switcher vsync
+					for (auto &b : buttons)
+						b.setCharacterSize((uint32_t)abs(floor(engine::math::length(res))) / 54u);
 					break;
 				case Reset:
-					create_infof();
+					engine::create_infof();
 					break;
 				case LeftResolutionSwitcher:
-					p1 = std::max(p1 - 1, 0ull); // limit
-					buttons[4].setString(std::to_string(resolutions[p1].x) + " x " + std::to_string(resolutions[p1].y));
+					xi = std::max(xi - 1, 0);
+					yi = std::max(yi - 1, 0);
+					buttons[4].setString(std::to_string(widths[xi]) + " x " + std::to_string(heights[yi]));
 					break;
 				case ResolutionViewer:
 					buttons[4].setString(":P");
 					break;
 				case RightResolutionSwitcher:
-					p1 = std::min(p1 + 1, resolutions.size() - 1); // limit
-					buttons[4].setString(std::to_string(resolutions[p1].x) + " x " + std::to_string(resolutions[p1].y));
+					xi = std::min(size_t(xi + 1), widths.size() - 1);
+					yi = std::min(size_t(yi + 1), heights.size() - 1);
+					buttons[4].setString(std::to_string(widths[xi]) + " x " + std::to_string(heights[yi]));
 					break;
 				case LeftFramerateSwicher:
-					p2 = std::max(p2 - 1, 0ull); // limit
+					p2 = std::max(p2 - 1, 0);
 					buttons[7].setString(std::to_string(framerates[p2]));
 					break;
 				case FramerateViewer:
 					buttons[7].setString(":D");
 					break;
 				case RightFramerateSwitcher: 
-					p2 = std::min(p2 + 1, framerates.size() - 1); // limit
+					p2 = std::min(size_t(p2 + 1), framerates.size() - 1); 
 					buttons[7].setString(std::to_string(framerates[p2]));
 					break;
 				case VideoModeSwitcher:
-					wmode = !wmode;
-					if (wmode) b.setString("+");
-					else if (!wmode) b.setString("");
+					++mode_id %= engine::getVideoModesCount(); // c++ moment
+					switch (mode_id)
+					{
+					case 0:
+						b.setString("Windowed");
+						break;
+					case 1:
+						b.setString("Bordless");
+						break;
+					case 2:
+						b.setString("Fullscreen");
+					}
 					break;
 				case VsyncSwitcher:
-					vsy = !vsy;
-					if (vsy) b.setString("+");
-					else if (!vsy) b.setString("");
+					vsync = !vsync;
+					if (vsync) b.setString("V");
+					else if (!vsync) b.setString("");
 					break;
 				}
             }

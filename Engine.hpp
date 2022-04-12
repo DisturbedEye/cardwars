@@ -7,7 +7,8 @@
 #include <algorithm>
 #include <map>
 #include <string>
-#include "FileManagement.hpp"
+#include <nlohmann/json.hpp>
+
 
 namespace engine
 {
@@ -19,6 +20,23 @@ namespace engine
 	typedef sf::CircleShape Circle;
 	using Json = nlohmann::json;
 	typedef sf::ConvexShape Convex; // выпуклый многоугольник
+	
+	std::vector<int> video_modes = { sf::Style::Close, sf::Style::None, sf::Style::Fullscreen };
+	std::map<int, int> reverse_modes = { {video_modes[0], 0}, {video_modes[1], 1}, {video_modes[2], 2} };
+	
+	class JsonFile;
+
+	size_t getVideoModesCount() { return video_modes.size(); }
+	void create_infof();
+	Json load_infof();
+	void resetInfoResolution(const unsigned int x, const unsigned int y);
+	void resetInfoFramerateLimit(const unsigned int lim);
+	void resetInfoVsync(const bool b);
+	void resetInfoVideoMode(const int mode);
+	int getInfoVideoMode();
+	Vec2u getInfoResolution();
+	unsigned int getInfoFramerateLimit();
+	bool getInfoVsync();
 	struct Button;
 	class Deck;
 	//    cards    //
@@ -51,8 +69,14 @@ namespace engine
 		bool inside(const Vec2f &point, const Convex &polygon);
 		bool inside(const Vec2f &point, const Circle &circle);
 		sf::Color mix(const sf::Color &c1, const sf::Color &c2);
+		template <class T>
+		size_t get_index(const std::vector<T> &v, const T n);
+		template <class T>
+		bool inside(const std::vector<T> &v, const T n);
 	}
 }
+
+#include "FileManagement.hpp"
 
 #include "emath.hpp"
 #include "button.hpp"

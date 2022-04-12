@@ -8,6 +8,7 @@ struct engine::Button : public sf::Drawable
 	void setPosition(const Vec2f position);
 	void setOrigin(const Vec2f origin);
 	void setScale(const Vec2f scale);
+	void setFontScale(const Vec2f scale);
 	void setString(const sf::String &string);
 	void setIndents(const float&, const float&); // left, top
 	void setIndents(const Vec2f&);

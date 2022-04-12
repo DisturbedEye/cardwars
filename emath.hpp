@@ -1,5 +1,22 @@
 #pragma once
 
+template<class T>
+size_t engine::math::get_index(const std::vector<T> &v, const T n)
+{
+	for (int i = 0; i < v.size(); i++)
+		if (v[i] == n)
+			return i;
+	return -1;
+}
+
+template <class T>
+inline bool engine::math::inside(const std::vector<T> &v, const T n)
+{ // returns true if n inside v vector 
+	for (auto i : v)
+		if (i == n)
+			return true;
+	return false;
+}
 
 inline bool engine::math::around(const float &x, const int n) // округление до n чисел после запятой
 {
