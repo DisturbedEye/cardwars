@@ -165,14 +165,21 @@ void game_settings(sf::RenderWindow &window)
 	Vector2f mpos;
 	Vector2u ures = window.getSize();
 	Vector2f res = Vector2f(ures);
-	std::vector<unsigned int> widths = { 800u, 1280u, 1366u, 1600u, 1920u, 2560u };
-	std::vector<unsigned int> heights = { 600u, 720u, 768u, 900u, 1080u, 1440u };
-	if (!engine::math::inside(widths, window.getSize().x) or !engine::math::inside(heights, window.getSize().y))
+	std::vector<Vector2u> resols = { {800, 600}, {1280, 720}, {1366, 768}, {1600, 900}, {1920, 1080}, {2560, 1440} }; // = resolutions
+	if (!engine::math::inside(resols, window.getSize()))
 	{
-		widths.push_back(window.getSize().x);
-		std::sort(widths.begin(), widths.end());
-		heights.push_back(window.getSize().y);
-		std::sort(heights.begin(), heights.end());
+		unsigned int n = window.getSize().x;
+		if (n < resols[0].x)
+			resols.insert(resols.begin(), window.getSize());
+		else if (n > resols[resols.size() - 1].x)
+			resols.insert(resols.end(), window.getSize());
+		else
+		{
+			int i = 0;
+			auto a = next(resols.begin());
+			while (!(resols.at(i).x <= n and n <= resols.at(++i).x)) a++;
+			resols.insert(a, window.getSize());
+		}
 	}
 	std::vector<uint16_t> framerates = { 30, 59, 60, 75, 100, 120, 144, 240, 360 };
 	Vector2f bpos = Vector2f(res.x / 3.f, res.y / 8.f); // button position
@@ -232,11 +239,9 @@ void game_settings(sf::RenderWindow &window)
 	buttons.push_back(switcherVsync); // 11
 	float w;
 	uint8_t i, j, n, k;
-	int xi = static_cast<int>(engine::math::get_index(widths, window.getSize().x)); // width id
-	int yi = static_cast<int>(engine::math::get_index(heights, window.getSize().y)); // height id
+	int p1 = static_cast<int>(engine::math::get_index(resols, window.getSize()));
 	int p2 = 2; // p2 - framerate id
-	unsigned int rx = widths[xi];
-	unsigned int ry = heights[yi];
+	Vector2u r = window.getSize();
 	unsigned int fr = engine::getInfoFramerateLimit();
 	bool vsy = engine::getInfoVsync();
 	while (window.isOpen())
@@ -305,15 +310,14 @@ void game_settings(sf::RenderWindow &window)
 				case Back:
 					return;
 				case Save:
-					rx = widths[xi];
-					ry = heights[xi];
+					r = resols[p1];
 					fr = framerates[p2];
-					engine::resetInfoResolution(rx, ry);
+					engine::resetInfoResolution(r.x, r.y);
 					engine::resetInfoVsync(vsync);
 					engine::resetInfoFramerateLimit(fr);
 					engine::resetInfoVideoMode(mode_id);
 					window.close();
-					window.create(sf::VideoMode(rx, ry, sf::VideoMode::getDesktopMode().bitsPerPixel), "Card Wars", engine::video_modes[mode_id]);
+					window.create(sf::VideoMode(r.x, r.y, sf::VideoMode::getDesktopMode().bitsPerPixel), "Card Wars", engine::video_modes[mode_id]);
 					window.setVerticalSyncEnabled(vsync);
 					window.setFramerateLimit(fr);
 					res = Vector2f(window.getSize());
@@ -339,17 +343,15 @@ void game_settings(sf::RenderWindow &window)
 					engine::create_infof();
 					break;
 				case LeftResolutionSwitcher:
-					xi = std::max(xi - 1, 0);
-					yi = std::max(yi - 1, 0);
-					buttons[4].setString(std::to_string(widths[xi]) + " x " + std::to_string(heights[yi]));
+					p1 = std::max(p1 - 1, 0);
+					buttons[4].setString(std::to_string(resols[p1].x) + " x " + std::to_string(resols[p1].y));
 					break;
 				case ResolutionViewer:
 					buttons[4].setString(":P");
 					break;
 				case RightResolutionSwitcher:
-					xi = std::min(size_t(xi + 1), widths.size() - 1);
-					yi = std::min(size_t(yi + 1), heights.size() - 1);
-					buttons[4].setString(std::to_string(widths[xi]) + " x " + std::to_string(heights[yi]));
+					p1 = std::min(size_t(p1 + 1), resols.size() - 1);
+					buttons[4].setString(std::to_string(resols[p1].x) + " x " + std::to_string(resols[p1].y));
 					break;
 				case LeftFramerateSwicher:
 					p2 = std::max(p2 - 1, 0);
