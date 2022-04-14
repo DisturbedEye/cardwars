@@ -2,7 +2,13 @@
 	"WitherSkeleton": {
 		"Damage": 5,
 		"Health": 6,
-		"Cost": 7,
-		"Desctiption": "Something..."
+		"Cost": 2,
+		"Description": "Something..."
+	},
+	"Gladiator": {
+		"Damage": 7,
+		"Health": 8,
+		"Cost": 4,
+		"Description": "Just a Description"
 	}
 }

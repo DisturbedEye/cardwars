@@ -1,6 +1,7 @@
 #pragma once
 class engine::ACollection 
 {
+
 protected:
 	std::vector<ACard *> cards;
 public:

@@ -8,7 +8,7 @@
 #include <map>
 #include <string>
 #include <nlohmann/json.hpp>
-
+#include <exception>
 
 namespace engine
 {
@@ -37,13 +37,18 @@ namespace engine
 	Vec2u getInfoResolution();
 	unsigned int getInfoFramerateLimit();
 	bool getInfoVsync();
+	sf::Texture &loadCardTexture(const std::string &path); // path - path/file.type 
+
+
 	struct Button;
+	class CardTexture;
 	class Deck;
 	//    cards    //
 
 	struct ACard;
 	namespace cards
 	{
+		struct Gladiator;
 		struct WitherSkeleton;
 	}
 
@@ -80,14 +85,16 @@ namespace engine
 
 #include "emath.hpp"
 #include "button.hpp"
+#include "CardTexture.hpp"
 // cards //
 
 #include "cards/AbstractCard.hpp"
 #include "cards/ground/WitherSkeleton.hpp"
-
+#include "cards/ground/Gladiator.hpp"
 // collections //
 
 #include "AbstractCollection.hpp"
+
 #include "SuperCollection.hpp"
 
 /////////////////

@@ -399,9 +399,14 @@ void start_game(sf::RenderWindow &window)
 	using engine::math::mix;
 	using namespace engine::cards;
 	using namespace parametrs;
-	WitherSkeleton ws(window.getSize());
-	ws.setPosition(Vec2f(window.getSize())/2.f);
-	ws.setOrigin(ws.getSize()/2.f);
+	WitherSkeleton ws1(window.getSize());
+	ws1.setPosition(Vec2f(window.getSize())/2.f);
+	ws1.setOrigin(ws1.getSize()/2.f);
+	Gladiator glad(window.getSize());
+	WitherSkeleton ws2(window.getSize());
+	Vec2f a = ws1.getPosition();
+	ws2.setPosition(a.x + ws1.getSize().x, a.y);
+	ws2.setOrigin(ws2.getSize() / 2.f);
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -411,7 +416,9 @@ void start_game(sf::RenderWindow &window)
 		window.clear();
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
 			return;
-		window.draw(ws);
+		window.draw(ws1);
+		window.draw(ws2);
+		window.draw(glad);
 		window.display();
 	}
 }

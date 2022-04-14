@@ -3,14 +3,13 @@
 #include <fstream>
 #include <windows.h>
 
-
 class engine::JsonFile
 {
 	using Json = nlohmann::json;
 	std::string path;
 	std::string file_name;
-	static void create(std::string path, std::string fname);
-	static std::string getFullPath(const std::string &path, const std::string fname)
+	static void create(const std::string &path, const std::string &fname);
+	static std::string getFullPath(const std::string &path, const std::string &fname)
 	{
 		if (path.size() == 0)
 			return fname + ".json";
@@ -19,8 +18,8 @@ class engine::JsonFile
 	}
 public:
 	Json js;
-	JsonFile(const std::string dir, const std::string fname, const Json j = Json()) : path(dir), file_name(fname), js(j) {}
-	static Json load(std::string path, const std::string &fname); // loads json to file
+	JsonFile(const std::string path, const std::string fname, const Json j = Json()) : path(path), file_name(fname), js(j) {}
+	static Json load(const std::string &path, const std::string &fname); // loads json to file
 	static Json load(const JsonFile &jsonf); // loads json to file
 	Json load();
 	std::string getFileName() { return file_name; }
@@ -31,23 +30,31 @@ public:
 	static void save(std::string path, const std::string &fname, const Json &j = Json()); // loads json to file
 };
 
-void engine::JsonFile::create(std::string path, std::string fname)
+void engine::JsonFile::create(const std::string &path, const std::string &fname)
 {
+	/*
+	* create a file.
+	* path - file dirrectory
+	* fname - file name, without a file type 
+	*/
 	using namespace std::string_literals;
 	std::string com = "mkdir "s + path;
 	system(com.c_str()); // console file creating (but only for windows)
-	std::ofstream ofile;
-	ofile.open(getFullPath(path, fname));
+	std::ofstream ofile(getFullPath(path, fname));
 	if (!ofile.is_open())
 	{
 		std::cerr << "FileOpenErr: No such file or dirrectory\n";
 		throw;
 	}
-	ofile.close();
 }
 
-nlohmann::json engine::JsonFile::load(std::string path, const std::string &fname)
+nlohmann::json engine::JsonFile::load(const std::string &path, const std::string &fname)
 {
+	/*
+	* loads a file. if file not found creates a file
+	* path - file dirrectory
+	* fname - file name, without a file type
+	*/
 	std::ifstream infile;
 	const std::string full_path = getFullPath(path, fname);
 	infile.open(full_path);
@@ -69,16 +76,31 @@ nlohmann::json engine::JsonFile::load(std::string path, const std::string &fname
 
 inline nlohmann::json engine::JsonFile::load(const JsonFile &jsonf)
 {
+	/*
+	* loads a file. if file not found creates a file
+	* path - file dirrectory
+	* fname - file name, without a file type
+	*/
 	return load(jsonf.path, jsonf.file_name);
 }
 
 nlohmann::json engine::JsonFile::load()
 {
+	/*
+	* loads a file. if file not found creates a file
+	* path - file dirrectory
+	* fname - file name, without a file type
+	*/
 	return js = JsonFile::load(path, file_name);
 }
 
 void engine::JsonFile::save(std::string path, const std::string &fname, const Json &j)
 {
+	/*
+	* save a file. if file not found creates a file
+	* path - file dirrectory
+	* fname - file name, without a file type
+	*/
 	std::ofstream outf;
 	const std::string full_path = getFullPath(path, fname);
 	outf.open(full_path);
@@ -94,11 +116,21 @@ void engine::JsonFile::save(std::string path, const std::string &fname, const Js
 
 void engine::JsonFile::save() const
 {
+	/*
+	* save a file. if file not found creates a file
+	* path - file dirrectory
+	* fname - file name, without a file type
+	*/
 	save(path, file_name, js);
 }
 
 inline void engine::JsonFile::save(const JsonFile &jsonf)
 {
+	/*
+	* save a file. if file not found creates a file
+	* path - file dirrectory
+	* fname - file name, without a file type
+	*/
 	save(jsonf.path, jsonf.file_name, jsonf.js);
 }
 
@@ -123,12 +155,12 @@ nlohmann::json engine::load_infof()
 	try
 	{
 		std::vector<std::string> v = { "Resolution", "Vsync", "Framerate-limit", "Video-mode"};
-		for (int i = 0; i < v.size(); i++)
-			js.at(v[i]);
+		for (auto &i : v)
+			js.at(i);
 	}
-	catch (Json::type_error &err)
+	catch (Json::out_of_range &err) // catch exception
 	{
-		if (err.id == 304)
+		if (err.id == 403)
 		{
 			create_infof();
 			js = JsonFile::load("src", "settings");
