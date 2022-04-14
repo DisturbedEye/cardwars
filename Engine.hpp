@@ -65,7 +65,8 @@ namespace engine
 	namespace math
 	{
 		const float pi = 3.14159265f;
-		const float rad = pi / 180;
+		const float rad = pi / 180; // radian
+		float time(); // surent time after start programm
 		bool inside(const Vec2f &point, const Rect &rect);
 		bool inside(const Vec2f &point, const Vec2f ro, const Vec2f rs);
 		float length(const Vec2f &v);
@@ -73,7 +74,9 @@ namespace engine
 		bool belongs(const float &x, const float &m, const float &n);
 		bool inside(const Vec2f &point, const Convex &polygon);
 		bool inside(const Vec2f &point, const Circle &circle);
+		Vec2f norm(const Vec2f &v) { return v / length(v); }
 		sf::Color mix(const sf::Color &c1, const sf::Color &c2);
+		float clamp(const float &x, const float &minX, const float maxX);
 		template <class T>
 		size_t get_index(const std::vector<T> &v, const T n);
 		template <class T>

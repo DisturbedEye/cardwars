@@ -99,9 +99,11 @@ int main_menu(sf::RenderWindow &window)
 	Vector2f mpos;
 	uint8_t k;
 	sf::Text txt("rescalable text", font);
-	Vec2u bres = window.getSize();;
+	Vec2u bres = window.getSize();
+
 	while (window.isOpen())
 	{
+		float time = engine::math::time(); // surent time after start programm
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
@@ -109,6 +111,7 @@ int main_menu(sf::RenderWindow &window)
 			{
 			case sf::Event::Closed:
 				window.close();
+				break;
 			case sf::Event::Resized:
 				sf::FloatRect varea(0, 0, (float)event.size.width, (float)event.size.height);
 				window.setView(sf::View(varea));
@@ -350,7 +353,7 @@ void game_settings(sf::RenderWindow &window)
 					buttons[4].setString(":P");
 					break;
 				case RightResolutionSwitcher:
-					p1 = std::min(size_t(p1 + 1), resols.size() - 1);
+					p1 = (int) std::min(size_t(p1 + 1), resols.size() - 1);
 					buttons[4].setString(std::to_string(resols[p1].x) + " x " + std::to_string(resols[p1].y));
 					break;
 				case LeftFramerateSwicher:
@@ -361,7 +364,7 @@ void game_settings(sf::RenderWindow &window)
 					buttons[7].setString(":D");
 					break;
 				case RightFramerateSwitcher: 
-					p2 = std::min(size_t(p2 + 1), framerates.size() - 1); 
+					p2 = (int) std::min(size_t(p2 + 1), framerates.size() - 1); 
 					buttons[7].setString(std::to_string(framerates[p2]));
 					break;
 				case VideoModeSwitcher:
@@ -395,34 +398,70 @@ void game_settings(sf::RenderWindow &window)
 void start_game(sf::RenderWindow &window)
 {
 	using engine::Button;
+	using engine::math::clamp;
+	using engine::math::norm;
+	using engine::math::pi;
+	using engine::math::rad;
 	using Vec2f = sf::Vector2f;
 	using engine::math::mix;
+	using Rect = sf::RectangleShape;
 	using namespace engine::cards;
 	using namespace parametrs;
 	const Vec2f res = Vec2f(window.getSize());
+	sf::Mouse m;
+	Vec2f mpos = Vec2f(m.getPosition(window));
 	engine::collections::SuperCollection supc(window.getSize());
 	const float c = 64;
 	const float d = 36;
+	const float &h = res.y;
+	const float &w = res.x;
 	const float x0 = res.x / 3.f;
 	const float y0 = 0;
 	const float cw = supc.getCardSize().x;
 	const float ch = supc.getCardSize().y;
+	const size_t n = (*supc).size(); // card count
+	const int nx = 3; // card count by width
+	const int ny = (int) ceil(n / nx); // card count by height
+	int k = ceil(ny * (ch + d) / h); // number of cards showed on screen
+	float nh = ny*(ch + d);
+	Rect slider( Vec2f(w/90, k*(ch + d)) );
+	slider.setPosition(Vec2f(x0 + nx*(cw + c), 0));
+	slider.setFillColor(sf::Color(54, 54, 54));
+	Vec2f p = slider.getPosition();
+	float t = p.y / h;
+	float ss = 20; // slider speed
+	std::cout << n << "\n";
+	float delta = 0;
 	while (window.isOpen())
 	{
+		float d1 = 0;
 		sf::Event event;
 		while (window.pollEvent(event))
-			if (event.type == sf::Event::Closed)
+			switch (event.type)
+			{
+			case sf::Event::Closed:
 				window.close();
+				break;
+			case sf::Event::MouseWheelMoved:
+				delta = clamp((float)event.mouseWheel.delta, -1, 1);
+				d1 = delta;
+			}
+		mpos = Vec2f(m.getPosition(window));
 		window.clear();
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
 			return;
-		int x, y;
+		p = slider.getPosition();
+		slider.setPosition(p.x, p.y - ss*d1);
+		t = p.y / h;
 		for (int i = 0; i < (*supc).size(); i++)
 		{
-			y = (int) floor(i / 3), x = i % 3;
-			supc[i]->setPosition(x0 + x*(cw + c), y0 + y*(ch + d));
+			int x = i % nx, y = (int) floor(i / nx);
+			supc[i]->setPosition(x0 + x*(cw + c), y0 + (y + k*(delta - 1)*t)*(ch+d));
 			window.draw(*supc[i]);
 		}
+		p = slider.getPosition();
+		slider.setPosition(p.x, clamp(p.y, 0.f, h - slider.getSize().y));
+		window.draw(slider);
 		window.display();
 	}
 }
@@ -465,25 +504,7 @@ void about_us(sf::RenderWindow &window)
 			{
 			case sf::Event::Closed:
 				window.close();
-			case sf::Event::Resized:
-				Vector2f *bres = new Vector2f(res); // before resolution
-				sf::FloatRect varea(0, 0, (float) event.size.width, (float) event.size.height);
-				window.setView(sf::View(varea));
-				res = Vector2f(window.getSize());
-				bpos = Vector2f(0, res.y - back.getSize().y);
-				bsize = Vector2f(res.x / 9.6f, res.y / 18.f);
-				back.setPosition(bpos);
-				back.setSize(bsize);
-				back.setCharacterSize((uint64_t)abs(floor(engine::math::length(res))) / 54u);
-				rect.setSize(Vector2f(res.x * 2.f / 3.f, res.y));
-				rect.setOrigin(rect.getSize() / 2.f);
-				rect.setPosition(res.x / 2.f, res.y / 2.f);
-				cardlol.setScale(0.5f * res.x / bres->x, 0.5f * res.y / bres->y);
-				delete bres;
-				cardlol.setPosition(rect.getPosition().x, res.y / 3.f);
-				cardlol.setOrigin(cardlol.getGlobalBounds().width, 0);
-				text.setCharacterSize((uint32_t)abs(floor(engine::math::length(res))) / 54u);
-				text.setPosition(res.x / 2.f - text.getGlobalBounds().width / 2.f, 0.f);
+				break;
 			}
 		mpos = Vector2f(m.getPosition(window));
 		window.clear();

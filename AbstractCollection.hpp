@@ -6,7 +6,7 @@ protected:
 public:
 	ACollection(const std::vector<ACard *> &cardlist);
 	ACollection(const ACollection &col);
-	ACollection() { std::cout << "succesfully constructed\n"; }
+	ACollection() {  }
 	~ACollection();
 	const std::vector<ACard *> &getCards() const;
 	Vec2f getCardSize() const;
@@ -28,7 +28,6 @@ inline engine::ACollection::~ACollection()
 {
 	for (auto &card : cards)
 		delete card;
-	std::cout << "succesfully destructed\n";
 }
 
 inline const std::vector<engine::ACard *> &engine::ACollection::getCards() const

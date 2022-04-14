@@ -28,6 +28,11 @@ inline bool engine::math::belongs(const float &x, const float &m, const float &n
 	return x <= m and x >= n or x <= n and x >= m;
 }
 
+float engine::math::time()
+{
+	return (float) clock() / CLOCKS_PER_SEC;
+}
+
 inline bool engine::math::inside(const Vec2f &p, const Rect &rect)
 {
 	const Vec2f rs = rect.getSize();
@@ -73,4 +78,9 @@ inline bool engine::math::inside(const Vec2f &point, const Circle &circle)
 sf::Color engine::math::mix(const sf::Color &c1, const sf::Color &c2)
 {
 	return sf::Color((c1.r + c2.r) / 2, (c1.g + c2.g) / 2, (c1.b + c2.b) / 2, (c1.a + c2.a) / 2);
+}
+
+float engine::math::clamp(const float &x, const float &minX, const float maxX)
+{
+	return std::min(maxX, std::max(x, minX));
 }
