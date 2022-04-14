@@ -399,14 +399,14 @@ void start_game(sf::RenderWindow &window)
 	using engine::math::mix;
 	using namespace engine::cards;
 	using namespace parametrs;
-	WitherSkeleton ws1(window.getSize());
-	ws1.setPosition(Vec2f(window.getSize())/2.f);
-	ws1.setOrigin(ws1.getSize()/2.f);
-	Gladiator glad(window.getSize());
-	WitherSkeleton ws2(window.getSize());
-	Vec2f a = ws1.getPosition();
-	ws2.setPosition(a.x + ws1.getSize().x, a.y);
-	ws2.setOrigin(ws2.getSize() / 2.f);
+	const Vec2f res = Vec2f(window.getSize());
+	engine::collections::SuperCollection supc(window.getSize());
+	const float c = 64;
+	const float d = 36;
+	const float x0 = res.x / 3.f;
+	const float y0 = 0;
+	const float cw = supc.getCardSize().x;
+	const float ch = supc.getCardSize().y;
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -416,9 +416,13 @@ void start_game(sf::RenderWindow &window)
 		window.clear();
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
 			return;
-		window.draw(ws1);
-		window.draw(ws2);
-		window.draw(glad);
+		int x, y;
+		for (int i = 0; i < (*supc).size(); i++)
+		{
+			y = (int) floor(i / 3), x = i % 3;
+			supc[i]->setPosition(x0 + x*(cw + c), y0 + y*(ch + d));
+			window.draw(*supc[i]);
+		}
 		window.display();
 	}
 }
