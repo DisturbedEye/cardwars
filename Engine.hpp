@@ -1,5 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <functional>
+#include <iterator>
 #include <vector>
 #include <cmath>
 #include <list>
@@ -7,11 +9,14 @@
 #include <algorithm>
 #include <map>
 #include <string>
+#include <random>
 #include <nlohmann/json.hpp>
 #include <exception>
 
+
 namespace engine
 {
+	class ACollection;
 	using namespace std::string_literals;
 	typedef sf::Vector2f Vec2f;
 	typedef sf::Vector2i Vec2i;
@@ -29,22 +34,22 @@ namespace engine
 	size_t getVideoModesCount() { return video_modes.size(); }
 	void create_infof();
 	Json load_infof();
-	void resetInfoResolution(const unsigned int x, const unsigned int y);
-	void resetInfoFramerateLimit(const unsigned int lim);
-	void resetInfoVsync(const bool b);
-	void resetInfoVideoMode(const int mode);
+	void resetInfoResolution(unsigned int x, unsigned int y);
+	void resetInfoFramerateLimit(unsigned int lim);
+	void resetInfoVsync(bool b);
+	void resetInfoVideoMode(int mode);
 	int getInfoVideoMode();
 	Vec2u getInfoResolution();
 	unsigned int getInfoFramerateLimit();
 	bool getInfoVsync();
-	sf::Texture &loadCardTexture(const std::string &path); // path - path/file.type 
-
+	// Input Actions
+	class Clickable;
 
 	struct Button;
+	class Slider;
 	class CardTexture;
-	class Deck;
 	//    cards    //
-
+	class Deck;
 	struct ACard;
 	namespace cards
 	{
@@ -59,35 +64,37 @@ namespace engine
 	namespace collections
 	{
 		struct SuperCollection;
-	}
-
+	} 
 	/////////////////
+	/// helpers vars
 	namespace math
 	{
 		const float pi = 3.14159265f;
 		const float rad = pi / 180; // radian
 		float time(); // surent time after start programm
 		bool inside(const Vec2f &point, const Rect &rect);
-		bool inside(const Vec2f &point, const Vec2f ro, const Vec2f rs);
+		bool inside(const Vec2f &point, Vec2f ro, Vec2f rs);
 		float length(const Vec2f &v);
-		bool around(const float &x, const int n);
+		float around(const float &x, int n);
 		bool belongs(const float &x, const float &m, const float &n);
 		bool inside(const Vec2f &point, const Convex &polygon);
 		bool inside(const Vec2f &point, const Circle &circle);
 		Vec2f norm(const Vec2f &v) { return v / length(v); }
 		sf::Color mix(const sf::Color &c1, const sf::Color &c2);
-		float clamp(const float &x, const float &minX, const float maxX);
+		float clamp(const float &x, const float &minX, float maxX);
 		template <class T>
-		size_t get_index(const std::vector<T> &v, const T n);
+		size_t get_index(const std::vector<T> &v, T n);
 		template <class T>
-		bool inside(const std::vector<T> &v, const T n);
+		bool inside(const std::vector<T> &v, T n);
 	}
 }
 
 #include "FileManagement.hpp"
 
 #include "emath.hpp"
+#include "Clickable.hpp"
 #include "button.hpp"
+#include "Slider.hpp"
 #include "CardTexture.hpp"
 // cards //
 

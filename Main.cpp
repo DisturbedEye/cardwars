@@ -1,5 +1,4 @@
-﻿#include <SFML/Graphics.hpp>
-#include "Engine.hpp"
+﻿#include "Engine.hpp"
 
 
 template <typename T>
@@ -169,7 +168,7 @@ void game_settings(sf::RenderWindow &window)
 	Vector2u ures = window.getSize();
 	Vector2f res = Vector2f(ures);
 	std::vector<Vector2u> resols = { {800, 600}, {1280, 720}, {1366, 768}, {1600, 900}, {1920, 1080}, {2560, 1440} }; // = resolutions
-	if (!engine::math::inside(resols, window.getSize()))
+	if (!std::any_of(resols.begin(), resols.end(), [ures](Vector2u v) {return v == ures;}))
 	{
 		unsigned int n = window.getSize().x;
 		if (n < resols[0].x)
@@ -189,7 +188,7 @@ void game_settings(sf::RenderWindow &window)
 	Vector2f bsize = Vector2f(res.x / 9.6f, res.y / 18.f); // button size
 	Vector2f bsize2 = Vector2f(res.x / 4.8f, res.y / 18.f); // screen buttons size
 	Vector2f swsize = Vector2f(res.x / 32.f, res.y / 18.f); // switcher size
-	sf::Color bcolor = sf::Color(115, 1, 4); // button color (reddish for me plz)
+	const sf::Color bcolor = sf::Color(115, 1, 4); // button color (reddish for me plz)
 	auto &font = loadFont();
 	// buttons
 	Button backB = Button(bsize, "Back", font, ures.y / 27u); // save
@@ -246,7 +245,6 @@ void game_settings(sf::RenderWindow &window)
 	int p2 = 2; // p2 - framerate id
 	Vector2u r = window.getSize();
 	unsigned int fr = engine::getInfoFramerateLimit();
-	bool vsy = engine::getInfoVsync();
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -279,7 +277,7 @@ void game_settings(sf::RenderWindow &window)
 				buttons[9].setSize(bsize2); // wmode
 				buttons[10].setSize(swsize); // switcher vsync
 				for (auto &b : buttons)
-					b.setCharacterSize((uint32_t)abs(floor(engine::math::length(res))) / 54u);
+					b.setCharacterSize((uint32_t) abs(floor(engine::math::length(res))) / 54u);
 			}
 		}
 		mpos = Vector2f(m.getPosition(window));
@@ -411,27 +409,10 @@ void start_game(sf::RenderWindow &window)
 	sf::Mouse m;
 	Vec2f mpos = Vec2f(m.getPosition(window));
 	engine::collections::SuperCollection supc(window.getSize());
-	const float c = 64;
-	const float d = 36;
-	const float &h = res.y;
-	const float &w = res.x;
-	const float x0 = res.x / 3.f;
-	const float y0 = 0;
-	const float cw = supc.getCardSize().x;
-	const float ch = supc.getCardSize().y;
-	const size_t n = (*supc).size(); // card count
-	const int nx = 3; // card count by width
-	const int ny = (int) ceil(n / nx); // card count by height
-	int k = ceil(ny * (ch + d) / h); // number of cards showed on screen
-	float nh = ny*(ch + d);
-	Rect slider( Vec2f(w/90, k*(ch + d)) );
-	slider.setPosition(Vec2f(x0 + nx*(cw + c), 0));
-	slider.setFillColor(sf::Color(54, 54, 54));
-	Vec2f p = slider.getPosition();
-	float t = p.y / h;
-	float ss = 20; // slider speed
-	std::cout << n << "\n";
-	float delta = 0;
+	engine::Deck deck(&supc, 3, res/30.f, res.y);
+	deck.setPosition(res.x/2.5f, 0);
+	float sens = 50; // slider speed
+	float senst = 0;
 	while (window.isOpen())
 	{
 		float d1 = 0;
@@ -443,25 +424,17 @@ void start_game(sf::RenderWindow &window)
 				window.close();
 				break;
 			case sf::Event::MouseWheelMoved:
-				delta = clamp((float)event.mouseWheel.delta, -1, 1);
-				d1 = delta;
+				d1 = clamp(static_cast<float>(event.mouseWheel.delta), -1, 1);
 			}
 		mpos = Vec2f(m.getPosition(window));
 		window.clear();
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
 			return;
-		p = slider.getPosition();
-		slider.setPosition(p.x, p.y - ss*d1);
-		t = p.y / h;
-		for (int i = 0; i < (*supc).size(); i++)
-		{
-			int x = i % nx, y = (int) floor(i / nx);
-			supc[i]->setPosition(x0 + x*(cw + c), y0 + (y + k*(delta - 1)*t)*(ch+d));
-			window.draw(*supc[i]);
-		}
-		p = slider.getPosition();
-		slider.setPosition(p.x, clamp(p.y, 0.f, h - slider.getSize().y));
-		window.draw(slider);
+		senst = d1 != 0?  senst + sens / 4 : 0;
+		deck.setSliderPos(deck.getSliderPos().y - senst * d1);
+		if (deck.sliderIsClicked(sf::Mouse::Button::Left, mpos) or deck.sliderIsHold(sf::Mouse::Button::Left)) 
+			deck.setSliderPos(mpos.y - deck.getSliderSize().y / 2);
+		window.draw(deck);
 		window.display();
 	}
 }

@@ -1,28 +1,26 @@
 #pragma once
-class engine::ACollection 
+class engine::ACollection : public sf::Drawable
 {
-protected:
-	std::vector<ACard *> cards;
 public:
-	ACollection(const std::vector<ACard *> &cardlist);
+	ACollection(const std::vector<ACard*> &card_list);
 	ACollection(const ACollection &col);
-	ACollection() {  }
+	ACollection() {}
 	~ACollection();
 	const std::vector<ACard *> &getCards() const;
 	Vec2f getCardSize() const;
+	size_t getCardCount() const { return cards.size(); }
 	const std::vector<ACard *> &operator*() { return cards; }
 	ACard *operator[](const size_t &id) { return cards[id]; }
+protected:
+	std::vector<ACard *> cards;
+private:
+	void draw(sf::RenderTarget &win, sf::RenderStates st) const;
+	friend class Deck;
 };
 
-engine::ACollection::ACollection(const std::vector<engine::ACard *> &cardlist)
-{
-	cards = cardlist;
-}
+inline engine::ACollection::ACollection(const std::vector<ACard*> &card_list) : cards(card_list) {}
 
-engine::ACollection::ACollection(const ACollection &col)
-{
-	cards = col.cards;
-}
+inline engine::ACollection::ACollection(const ACollection &col) : cards(col.cards) {}
 
 inline engine::ACollection::~ACollection()
 {
@@ -38,4 +36,10 @@ inline const std::vector<engine::ACard *> &engine::ACollection::getCards() const
 inline sf::Vector2f engine::ACollection::getCardSize() const 
 {
 	return cards[0]->getSize();
+}
+
+inline void engine::ACollection::draw(sf::RenderTarget &win, sf::RenderStates st) const
+{
+	for (auto &card : cards)
+		win.draw(*card);
 }

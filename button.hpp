@@ -1,16 +1,15 @@
 #pragma once
 
-struct engine::Button : public sf::Drawable
+struct engine::Button : public sf::Drawable, public Clickable
 {
 	Button(const Vec2f&, const sf::String&, const sf::Font&, const unsigned int &char_size);
-	Button(const Button &b) : content(b.content), rect(b.rect) {}
-	Button() { rect = Rect(); content = sf::Text(); }
-	void setPosition(const Vec2f position);
-	void setOrigin(const Vec2f origin);
-	void setScale(const Vec2f scale);
-	void setFontScale(const Vec2f scale);
+	Button();
+	void setPosition(Vec2f position);
+	void setOrigin(Vec2f origin);
+	void setScale(Vec2f scale);
+	void setFontScale(Vec2f scale);
 	void setString(const sf::String &string);
-	void setIndents(const float&, const float&); // left, top
+	void setIndents(const float&, const float&); // top, left, down, right 
 	void setIndents(const Vec2f&);
 	void setShapeSize(const Vec2f&);
 	void setSize(const Vec2f&); // size
@@ -21,7 +20,7 @@ struct engine::Button : public sf::Drawable
 	void setStyle(sf::Uint32 style); // font style
 	void setLetterSpacing(float spacingFactor); // letter space 
 	void setLineSpacing(float spacingFactor); // line space
-	void setCharacterSize(const unsigned int size); // charsize
+	void setCharacterSize(unsigned int size); // charsize
 	void setFontOutline(const float&, const sf::Color&);
 	void setTexture(sf::Texture *texture); // texturing 
 	void Centralize(const bool&);
@@ -41,14 +40,7 @@ struct engine::Button : public sf::Drawable
 	unsigned int getCharacterSize() const;
 	sf::Color getFontOutlineColor() const;
 	float getFontOutlineThickness() const;
-	bool isPressed(sf::Keyboard::Key);
-	bool isPressed(sf::Mouse::Button, const Vec2f &);
-	bool isClicked(sf::Keyboard::Key);
-	bool isClicked(sf::Mouse::Button, const Vec2f &p);
-	bool isIntersected(const Vec2f &p) const;
-	bool isHold(const bool &after, const Vec2f &p) const;
 private:
-	Rect rect;
 	sf::Text content;
 	Vec2f indents = Vec2f();
 	Vec2f defaultIndent;
@@ -58,12 +50,11 @@ private:
 	void draw(sf::RenderTarget &window, sf::RenderStates states) const override;
 };
 
+inline engine::Button::Button() : Clickable() {}
 
-
-engine::Button::Button(const Vec2f &size, const sf::String &string, const sf::Font &font, const unsigned int &char_size)
+inline engine::Button::Button(const Vec2f &size, const sf::String &string, const sf::Font &font, const unsigned int &char_size)
+	: Clickable(Rect(size)), content(string, font, char_size)
 {
-	rect = Rect(size);
-	content = sf::Text(string, font, char_size);
 	resetToCenter();
 }
 
@@ -85,6 +76,11 @@ inline void engine::Button::setOrigin(const Vec2f origin)
 inline void engine::Button::setScale(const Vec2f scale)
 {
 	rect.setScale(scale);
+	content.setScale(scale);
+}
+
+inline void engine::Button::setFontScale(Vec2f scale)
+{
 	content.setScale(scale);
 }
 
@@ -269,51 +265,6 @@ inline float engine::Button::getFontOutlineThickness() const
 	return content.getOutlineThickness();
 }
 
-
-inline bool engine::Button::isPressed(sf::Keyboard::Key key) 
-{
-	const bool after = sf::Keyboard::isKeyPressed(key);
-	const bool out = before and !after;
-	before = after;
-	return out;
-}
-
-inline bool engine::Button::isPressed(sf::Mouse::Button button, const Vec2f &p) 
-{
-	const bool after = sf::Mouse::isButtonPressed(button);
-	const bool out = this->isIntersected(p) and before and !after;
-	before = after;
-	return out;
-}
-
-
-inline bool engine::Button::isClicked(sf::Keyboard::Key key)
-{
-	const bool after = sf::Keyboard::isKeyPressed(key);
-	const bool out = !before and after;
-	before = after;
-	return out;
-}
-
-inline bool engine::Button::isClicked(sf::Mouse::Button button, const Vec2f &p) 
-{
-	const bool after = sf::Mouse::isButtonPressed(button);
-	const bool out = this->isIntersected(p) and !before and after;
-	before = after;
-	return out;
-}
-
-
-inline bool engine::Button::isIntersected(const Vec2f &p) const
-{
-	return math::inside(p, rect);
-}
-
-
-inline bool engine::Button::isHold(const bool &after, const Vec2f &p) const
-{
-	return this->isIntersected(p) and after;
-}
 
 inline void engine::Button::resetToCenter()
 {

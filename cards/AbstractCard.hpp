@@ -23,11 +23,11 @@ struct engine::ACard : public sf::Drawable
 	bool isChoosed() const; // event when need to see the description
 	bool isTaked();
 	std::string getDescription() const;
-	static std::vector<Keywords> getKeyWords(const std::string &desc);
+	static std::vector<const Keywords> getKeyWords(const std::string &desc);
 	void onTake();
 protected:
 	Rect cover = Rect();
-	static Json load(const Types type);
+	static Json load(Types type);
 	std::string Description;
 	// json elements
 	inline const static std::string CostStr = "Cost";
@@ -40,12 +40,12 @@ private:
 };
 
 
-engine::ACard::ACard(const Vec2u &window_size)
+inline engine::ACard::ACard(const Vec2u &window_size)
 {
 	cover.setSize((Vec2f(static_cast<float>(window_size.x)/9.f, static_cast<float>(window_size.y)/4.f)));
 }
 
-nlohmann::json engine::ACard::load(const Types type)
+inline nlohmann::json engine::ACard::load(const Types type)
 {
 	std::string filename = "Ground"; // default
 	switch (type)
@@ -72,27 +72,27 @@ nlohmann::json engine::ACard::load(const Types type)
 
 
 
-bool engine::ACard::isChoosed() const
+inline bool engine::ACard::isChoosed() const
 {
 	return false;
 }
-bool engine::ACard::isTaked()
+inline bool engine::ACard::isTaked()
 {
 	return false;
 }
-void engine::ACard::onTake()
+inline void engine::ACard::onTake()
 {
 
 }
-void engine::ACard::setPosition(const Vec2f &p)
+inline void engine::ACard::setPosition(const Vec2f &p)
 {
 	cover.setPosition(p);
 }
-void engine::ACard::setOrigin(const Vec2f &origin)
+inline void engine::ACard::setOrigin(const Vec2f &origin)
 {
 	cover.setOrigin(origin);
 }
-void engine::ACard::setSize(const Vec2f &s)
+inline void engine::ACard::setSize(const Vec2f &s)
 {
 	cover.setSize(s);
 }
@@ -112,10 +112,6 @@ inline std::string engine::ACard::getDescription() const
 {
 	return Description;
 }
-inline std::vector<engine::ACard::Keywords> engine::ACard::getKeyWords(const std::string &desc)
-{
-	return {};
-}
 inline sf::Vector2f engine::ACard::getPosition() const
 {
 	return cover.getPosition();
@@ -128,7 +124,7 @@ inline sf::Vector2f engine::ACard::getOrigin() const
 {
 	return cover.getOrigin();
 }
-void engine::ACard::draw(sf::RenderTarget &window, sf::RenderStates states) const
+inline void engine::ACard::draw(sf::RenderTarget &window, sf::RenderStates states) const
 {
 	window.draw(cover);
 }
