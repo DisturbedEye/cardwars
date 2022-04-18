@@ -1,4 +1,5 @@
-﻿#include "Engine.hpp"
+﻿#include <SFML/Graphics.hpp>
+#include "Engine.hpp"
 
 
 template <typename T>
@@ -102,7 +103,7 @@ int main_menu(sf::RenderWindow &window)
 
 	while (window.isOpen())
 	{
-		float time = engine::math::time(); // surent time after start programm
+		float time = engine::math::time(); // current time after starting program
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
@@ -188,13 +189,13 @@ void game_settings(sf::RenderWindow &window)
 	Vector2f bsize = Vector2f(res.x / 9.6f, res.y / 18.f); // button size
 	Vector2f bsize2 = Vector2f(res.x / 4.8f, res.y / 18.f); // screen buttons size
 	Vector2f swsize = Vector2f(res.x / 32.f, res.y / 18.f); // switcher size
-	const sf::Color bcolor = sf::Color(115, 1, 4); // button color (reddish for me plz)
+	sf::Color bcolor = sf::Color(115, 1, 4); // button color (reddish for me plz)
 	auto &font = loadFont();
 	// buttons
 	Button backB = Button(bsize, "Back", font, ures.y / 27u); // save
 	Button resetB = Button(bsize, "Reset", font, ures.y / 27u); // reset
 	Button saveB = Button(Vector2f(bsize), "Save", font, ures.y / 27u);
-	Button switcherL = Button(swsize, "<", font, ures.y / 27u); // left resolution switcher 
+	Button switcherL = Button(swsize, "<", font, ures.y / 27u); // left resolution switcher
 	Button switcherR = Button(swsize, ">", font, ures.y / 27u); // right resolution switcher
 	std::string ressx = std::to_string(window.getSize().x); // string resolution x
 	std::string ressy = std::to_string(window.getSize().y); // string resolution y
@@ -206,7 +207,7 @@ void game_settings(sf::RenderWindow &window)
 	switch (mode_id)
 	{
 	case 1:
-		strmode = "Bordless";
+		strmode = "Borderless";
 		break;
 	case 2:
 		strmode = "Fullscreen";
@@ -239,12 +240,25 @@ void game_settings(sf::RenderWindow &window)
 	buttons.push_back(switcherRF);    // 9
 	buttons.push_back(switcherWMode); // 10
 	buttons.push_back(switcherVsync); // 11
+
+	sf::Text tres("Resolution", font);
+    sf::Text tfps("Framerate limit", font);
+    sf::Text twmode("Window mode", font);
+    sf::Text tvsync("Vsync", font);
+    std::vector<sf::Text> txts;
+    txts.push_back(tres);
+    txts.push_back(tfps);
+    txts.push_back(twmode);
+    txts.push_back(tvsync);
+    Vector2u bres = window.getSize();
+
 	float w;
-	uint8_t i, j, n, k;
+	uint8_t i, j, n, k, t;
 	int p1 = static_cast<int>(engine::math::get_index(resols, window.getSize()));
 	int p2 = 2; // p2 - framerate id
 	Vector2u r = window.getSize();
 	unsigned int fr = engine::getInfoFramerateLimit();
+	bool vsy = engine::getInfoVsync();
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -277,13 +291,16 @@ void game_settings(sf::RenderWindow &window)
 				buttons[9].setSize(bsize2); // wmode
 				buttons[10].setSize(swsize); // switcher vsync
 				for (auto &b : buttons)
-					b.setCharacterSize((uint32_t) abs(floor(engine::math::length(res))) / 54u);
+					b.setCharacterSize((uint32_t)abs(floor(engine::math::length(res))) / 54u);
 			}
 		}
 		mpos = Vector2f(m.getPosition(window));
 		window.clear();
 		//code
-		k = 1, j = i = 0, w = 0.f;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
+			return;
+
+		k = 1, j = i = t = 0, w = 0.f;
 		for (auto &b : buttons)
 		{
 			if (b.isIntersected(mpos) && k != ResolutionViewer && k != FramerateViewer)
@@ -295,12 +312,13 @@ void game_settings(sf::RenderWindow &window)
                 b.setPosition(Vector2f(0, 0));
 
 			else if (k == Save or k == Reset)
-				b.setPosition(Vector2f(res.x, (++i) * res.y / 10) - b.getSize());
+				b.setPosition(Vector2f((++i) * res.x/5.0f, res.y - res.y/10) - b.getSize());
 			else
 			{
 				n = static_cast<uint8_t>(abs(floor(j / 3.f)));
 				w = j % 3 == 0 ? 0 : w + buttons[k-2].getSize().x;
-				b.setPosition(Vector2f(bpos.x + w + (j % 3)*res.x/27.f, bpos.y + n*bsize.y + 100));
+				b.setPosition(Vector2f(bpos.x + w + (j % 3)*res.x/27.f + res.x/5.0f, bpos.y + n*bsize.y*1.5f));
+				if (k == VideoModeSwitcher or k == VsyncSwitcher) j+=2;
 				j++;
 			}
             if (b.isPressed(sf::Mouse::Button::Left, mpos))
@@ -342,6 +360,7 @@ void game_settings(sf::RenderWindow &window)
 					break;
 				case Reset:
 					engine::create_infof();
+
 					break;
 				case LeftResolutionSwitcher:
 					p1 = std::max(p1 - 1, 0);
@@ -361,8 +380,8 @@ void game_settings(sf::RenderWindow &window)
 				case FramerateViewer:
 					buttons[7].setString(":D");
 					break;
-				case RightFramerateSwitcher: 
-					p2 = (int) std::min(size_t(p2 + 1), framerates.size() - 1); 
+				case RightFramerateSwitcher:
+					p2 = (int) std::min(size_t(p2 + 1), framerates.size() - 1);
 					buttons[7].setString(std::to_string(framerates[p2]));
 					break;
 				case VideoModeSwitcher:
@@ -373,7 +392,7 @@ void game_settings(sf::RenderWindow &window)
 						b.setString("Windowed");
 						break;
 					case 1:
-						b.setString("Bordless");
+						b.setString("Borderless");
 						break;
 					case 2:
 						b.setString("Fullscreen");
@@ -389,6 +408,12 @@ void game_settings(sf::RenderWindow &window)
             k++;
             window.draw(b);
 		}
+		for (auto &txt : txts) {
+            txt.setScale(res.x / bres.x, res.y / bres.y);
+            txt.setPosition(Vector2f(res.x/5.0f, (++t) * res.y / 23.5f + res.y/10.5f));
+            t++;
+            window.draw(txt);
+        }
 		window.display();
 	}
 }
@@ -432,7 +457,7 @@ void start_game(sf::RenderWindow &window)
 			return;
 		senst = d1 != 0?  senst + sens / 4 : 0;
 		deck.setSliderPos(deck.getSliderPos().y - senst * d1);
-		if (deck.sliderIsClicked(sf::Mouse::Button::Left, mpos) or deck.sliderIsHold(sf::Mouse::Button::Left)) 
+		if (deck.sliderIsClicked(sf::Mouse::Button::Left, mpos) or deck.sliderIsHold(sf::Mouse::Button::Left))
 			deck.setSliderPos(mpos.y - deck.getSliderSize().y / 2);
 		window.draw(deck);
 		window.display();
@@ -485,7 +510,7 @@ void about_us(sf::RenderWindow &window)
 		if (back.isIntersected(mpos))
 			back.setColor(mix(bcolor, sf::Color::White));
 		else back.setColor(bcolor);
-		if (back.isPressed(sf::Mouse::Button::Left, mpos))
+		if (back.isPressed(sf::Mouse::Button::Left, mpos) or sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
 			return;
 		window.draw(rect);
 		window.draw(text);
