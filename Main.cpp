@@ -410,7 +410,7 @@ void start_game(sf::RenderWindow &window)
 	Vec2f mpos = Vec2f(m.getPosition(window));
 	engine::collections::SuperCollection supc(window.getSize());
 	engine::Deck deck(&supc, 3, res/30.f, res.y);
-	deck.setPosition(res.x/2.5f, 0);
+	deck.setPosition(res.x/3, 0);
 	float sens = 50; // slider speed
 	float senst = 0;
 	while (window.isOpen())

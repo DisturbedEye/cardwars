@@ -7,6 +7,8 @@ public:
 	void shuffle() const; // shuffle deck
 	void setPosition(const Vec2f &p);
 	void setSize(int card_count_by_width, const Vec2f &indents, const float &height);
+	void setOrigin(const Vec2f &_or) { origin = _or; }
+	Vec2f getOrigin() const { return origin; }
 	void setSliderPos(const float &y);
 	void setPosition(const float &x, const float &y);
 	void setWidthIndent(const float &indent);
@@ -32,6 +34,7 @@ public:
 	sf::FloatRect getGlobalBounds() const { return sf::FloatRect(position, Vec2f(size.x + slider.getSize().x, size.y)); }
 private:
 	Vec2f position; // deck position
+	Vec2f origin;
 	Vec2f size; // deck size
 	Vec2f ind; // indents
 	Vec2i n; // card count by width, height
