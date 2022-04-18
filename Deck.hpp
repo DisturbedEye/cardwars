@@ -54,6 +54,7 @@ inline engine::Deck::Deck(ACollection *col, int card_count_by_width, const Vec2f
 	: position(0, 0), collection(col)
 {
 	cs = collection->getCardSize();
+	std::cout << collection->getCardCount();
 	setSize(card_count_by_width, indents, height);
 }
 
@@ -95,7 +96,7 @@ inline void engine::Deck::setSize(int card_count_by_width, const Vec2f &indents,
 	const size_t card_count = collection->getCardCount();
 	ind = indents;
 	n.x = card_count_by_width;
-	n.y = static_cast<int>(ceil((card_count-1) / n.x));
+	n.y = static_cast<int>(ceil(card_count / n.x))+1;
 	ind = indents;
 	size.x = n.x*(cs.x + ind.x);
 	size.y = height;
@@ -104,7 +105,7 @@ inline void engine::Deck::setSize(int card_count_by_width, const Vec2f &indents,
 
 inline void engine::Deck::recount_slider_atr()
 {
-	const Vec2f sls = Vec2f(size.x/30, size.y/(cs.y + ind.y)*sqrt(n.y*(cs.y + ind.y))); // slider size
+	const Vec2f sls = Vec2f(size.x/30, powf(size.y, 2)/(n.y*(cs.y + ind.y))); // slider size
 	slider.setSize(sls);
 	slider.setLimit(position.y, position.y + size.y - sls.y);
 	slider.setPosition(position.x + n.x * (cs.x + ind.x), slider.getPosition().y);
@@ -123,6 +124,6 @@ inline void engine::Deck::draw(sf::RenderTarget &win, sf::RenderStates st) const
 			math::inside(Vec2f(x1, y1 + collection->getCardSize().y), position, size))
 			win.draw(*(*collection)[i]);
 	}
-	if (n.y * (cs.y + ind.y) / size.y >= 1)
+	if (slider.getSize().y < size.y)
 		win.draw(slider);
 }

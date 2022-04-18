@@ -38,9 +38,6 @@ inline engine::collections::SuperCollection::SuperCollection(const Vec2u &scr)
 		new WitherSkeleton(scr),
 		new WitherSkeleton(scr),
 		new WitherSkeleton(scr),
-		new WitherSkeleton(scr),
-		new WitherSkeleton(scr),
-		new WitherSkeleton(scr),
 		new WitherSkeleton(scr)
 	};
 }
