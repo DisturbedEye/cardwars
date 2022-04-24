@@ -1,5 +1,6 @@
 #pragma once
 
+
 template<class T>
 size_t engine::math::get_index(const std::vector<T> &v, const T n)
 {
@@ -39,6 +40,11 @@ inline bool engine::math::inside(const Vec2f &p, const Vec2f ro, const Vec2f rs)
 inline float engine::math::length(const Vec2f &v)
 {
 	return hypotf(v.x, v.y);
+}
+
+inline float engine::math::length(const float& x, const float& y)
+{
+	return hypotf(x, y);
 }
 
 inline bool engine::math::inside(const Vec2f &p, const Convex &polygon)

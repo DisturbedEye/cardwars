@@ -18,19 +18,13 @@ public:
 	void setOrigin(const float &x, const float &y) { setOrigin(Vec2f(x, y)); }
 	void setLimit(const float &, const float &);
 	void setFillColor(const sf::Color &clr) { rect.setFillColor(clr); }
-	void setOutlineColor(const sf::Color &clr) { rect.setOutlineColor(clr); }
-	void setOutlineThickness(const float &thickness) { rect.setOutlineThickness(thickness); }
 	Vec2f getPosition() const;
 	Vec2f getSize() const;
 	Vec2f getOrigin() const;
-	sf::Color getOutlineColor() const { return rect.getOutlineColor(); }
 	sf::Color getFillColor() const { return rect.getFillColor(); }
-	float getOutlineThickness() const { return rect.getOutlineThickness(); }
 	float getMin() const;
 	float getMax() const;
 	Type getType() const;
-	sf::FloatRect getLocalBounds() const { return rect.getLocalBounds(); }
-	sf::FloatRect getGlobalBounds() const { return rect.getGlobalBounds(); }
 	void draw(sf::RenderTarget &win, sf::RenderStates st) const override;
 private:
 	float minV = 0;

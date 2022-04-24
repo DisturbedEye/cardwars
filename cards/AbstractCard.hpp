@@ -1,6 +1,6 @@
 #pragma once
 
-struct engine::ACard : public sf::Drawable
+struct engine::ACard : sf::Drawable
 {
 	enum class Types
 	{ Ground, Air, Debuff, Buff, Water, Static };
@@ -24,6 +24,8 @@ struct engine::ACard : public sf::Drawable
 	bool isTaked();
 	std::string getDescription() const;
 	static std::vector<const Keywords> getKeyWords(const std::string &desc);
+	sf::FloatRect getGlobalBounds() const { return cover.getGlobalBounds(); }
+	sf::FloatRect getLocalBounds() const { return cover.getLocalBounds(); }
 	void onTake();
 protected:
 	Rect cover = Rect();
@@ -33,6 +35,7 @@ protected:
 	inline const static std::string CostStr = "Cost";
 	inline const static std::string DamageStr = "Damage";
 	inline const static std::string HealthStr = "Health";
+	inline const static std::string FileNameStr = "FileName";
 	inline const static std::string DescriptionStr = "Description";
 
 private:
