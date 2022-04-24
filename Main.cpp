@@ -85,21 +85,32 @@ int main_menu(sf::RenderWindow &window)
 	Vector2f bsize = Vector2f(res.x / 9.6f, res.y / 18.f); // button size
 	Vector2f bhalfsize = bsize / 2.f; // half of button size
 	sf::Font &font = loadFont();
+	sf::Texture bttex;
+	sf::Texture bctex;
+	if (bttex.loadFromFile("images\\button.png") && bctex.loadFromFile("images\\menu.png")){
+        bttex.setSmooth(true);
+        bctex.setSmooth(true);
+	}
+	sf::RectangleShape r = sf::RectangleShape();
+	r.setSize(Vector2f(res.x, res.y));
+	r.setTexture(&bctex);
 	// buttons
-	Button start = Button(bsize, "Start", font, (uint32_t)abs(floor(engine::math::length(res))) / 54u);
-	Button settings = Button(bsize, "Settings", font, (uint32_t)abs(floor(engine::math::length(res))) / 54u);
-	Button about_us = Button(bsize, "About Us", font, (uint32_t)abs(floor(engine::math::length(res))) / 54u);
-	Button exit = Button(bsize, "Exit", font, (uint32_t)abs(floor(engine::math::length(res))) / 54u);
+	Button start = Button(bsize, "Start", font, (uint32_t)abs(floor(engine::math::length(res))) / 64u);
+	Button settings = Button(bsize, "Settings", font, (uint32_t)abs(floor(engine::math::length(res))) / 64u);
+	Button about_us = Button(bsize, "About Us", font, (uint32_t)abs(floor(engine::math::length(res))) / 64u);
+	Button exit = Button(bsize, "Exit", font, (uint32_t)abs(floor(engine::math::length(res))) / 64u);
 	std::vector<Button> buttons; // buttons too
 	buttons.push_back(start);	 // 1
 	buttons.push_back(settings); // 2
 	buttons.push_back(about_us); // 3
 	buttons.push_back(exit);	 // 4
-	sf::Color bcolor = sf::Color(115, 101, 174); // button color
+	sf::Color bcolor = sf::Color(200, 200, 200); // button color
 	Vector2f mpos;
 	uint8_t k;
-	sf::Text txt("rescalable text", font);
+	sf::Text txt("Rune Wars", font);
+	txt.setPosition(res.x / 6, res.y / 4);
 	Vec2u bres = window.getSize();
+    txt.setScale(txt.getScale().x * 1.5f, txt.getScale().y * 1.5f);
 
 	while (window.isOpen())
 	{
@@ -124,20 +135,24 @@ int main_menu(sf::RenderWindow &window)
 					b.setScale(Vector2f(res.x / bres.x, res.y / bres.y));
 				}
 				txt.setScale(res.x / bres.x, res.y/bres.y);
+				r.setSize(Vector2f(res.x / bres.x, res.y / bres.y));
 			}
 		}
 		window.clear(); // clears screen
 		// code
 		mpos = Vector2f(mouse.getPosition(window));
+		window.draw(r);
 		k = 1;
 		for (auto &b : buttons)
 		{
+		    b.setTexture(&bttex);
 			if (b.isIntersected(mpos))
 				b.setColor(mix(bcolor, sf::Color::White));
 			else b.setColor(bcolor);
 			if (b.isPressed(sf::Mouse::Button::Left, mpos))
 				return k;
 			b.setPosition(Vector2f(bpos.x, bpos.y + (k - 1) * (res.y/24.f + bsize.y)));
+			b.setFontColor(sf::Color(0, 0, 0));
 			window.draw(b);
 			k++;
 		}
