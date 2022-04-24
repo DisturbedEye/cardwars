@@ -50,7 +50,7 @@ inline void engine::Deck::shuffle() const
 	srand(static_cast<unsigned int>(std::time(NULL)));
 	std::random_device rd;
 	std::mt19937 generator(rd());
-	std::shuffle(collection.cards.begin(), collection.cards.end(), generator);
+	//std::shuffle(collection.cards.begin(), collection.cards.end(), generator);
 }
 
 inline engine::Deck::Deck(const ACollection &col, int card_count_by_width, const Vec2f &indents, const float &height)

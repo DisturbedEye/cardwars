@@ -74,11 +74,13 @@ int main_menu(sf::RenderWindow &window)
 {
 	using engine::Button;
 	using engine::Vec2f;
+	using engine::Vec2u;
 	using engine::math::mix;
 	using namespace parametrs;
 	sf::Vector2u ures = window.getSize();
 	sf::Vector2f res = sf::Vector2f(ures);
 	sf::Mouse mouse;
+	Vec2f bsize = Vec2f(res.x / 9.6f, res.y / 18.f); // button size
 	Vec2f bpos = Vec2f(res.x / 12.f, res.y / 2.f); // button position
 	sf::Font &font = loadFont();
 	sf::Texture bttex;
@@ -88,7 +90,7 @@ int main_menu(sf::RenderWindow &window)
         bctex.setSmooth(true);
 	}
 	sf::RectangleShape r = sf::RectangleShape();
-	r.setSize(Vector2f(res.x, res.y));
+	r.setSize(Vec2f(res.x, res.y));
 	r.setTexture(&bctex);
 	// buttons
 	Button start = Button(bsize, "Start", font, (uint32_t)abs(floor(engine::math::length(res))) / 64u);
@@ -101,7 +103,7 @@ int main_menu(sf::RenderWindow &window)
 	buttons.push_back(about_us); // 3
 	buttons.push_back(exit);	 // 4
 	sf::Color bcolor = sf::Color(200, 200, 200); // button color
-	Vector2f mpos;
+	Vec2f mpos;
 	uint8_t k;
 	sf::Text txt("Rune Wars", font);
 	txt.setPosition(res.x / 6, res.y / 4);
@@ -123,7 +125,7 @@ int main_menu(sf::RenderWindow &window)
 		}
 		window.clear(); // clears screen
 		// code
-		mpos = Vector2f(mouse.getPosition(window));
+		mpos = Vec2f(mouse.getPosition(window));
 		window.draw(r);
 		k = 1;
 		for (auto &b : buttons)
@@ -134,7 +136,7 @@ int main_menu(sf::RenderWindow &window)
 			else b.setColor(bcolor);
 			if (b.isPressed(sf::Mouse::Button::Left, mpos))
 				return k;
-			b.setPosition(Vector2f(bpos.x, bpos.y + (k - 1) * (res.y/24.f + bsize.y)));
+			b.setPosition(Vec2f(bpos.x, bpos.y + (k - 1) * (res.y/24.f + bsize.y)));
 			b.setFontColor(sf::Color(0, 0, 0));
 			window.draw(b);
 			k++;
@@ -259,7 +261,7 @@ void game_settings(sf::RenderWindow &window)
 	Vector2u r = window.getSize();
 	unsigned int fr = engine::getInfoFramerateLimit();
 	auto win_resize([&buttons, &bsize, &swsize, &bsize2, &res, &bpos](const Vector2u &size)
-	{
+	{ // resizes a window
 		res = Vector2f(size);
 		bpos = Vector2f(res.x / 3.f, res.y / 8.f); // button position
 		bsize = Vector2f(res.x / 9.6f, res.y / 18.f); // button size
@@ -280,7 +282,7 @@ void game_settings(sf::RenderWindow &window)
 			b->setCharacterSize((uint32_t)abs(floor(engine::math::length(res))) / 54u);
 	});
 	auto reopen_window([&window, &r, &mode_id, &fr, &win_resize](const bool &vsync)
-	{
+	{ // reopens window
 		window.close();
 		window.create(sf::VideoMode(r.x, r.y, sf::VideoMode::getDesktopMode().bitsPerPixel), "Card Wars", engine::video_modes[mode_id]);
 		window.setVerticalSyncEnabled(vsync);
@@ -410,10 +412,10 @@ void game_settings(sf::RenderWindow &window)
 			window.draw(*txt);
 		}
 		for (auto &txt : txts) {
-            txt.setScale(res.x / bres.x, res.y / bres.y);
-            txt.setPosition(Vector2f(res.x/5.0f, (++t) * res.y / 23.5f + res.y/10.5f));
+            txt->setScale(res.x / bres.x, res.y / bres.y);
+            txt->setPosition(Vector2f(res.x/5.0f, (++t) * res.y / 23.5f + res.y/10.5f));
             t++;
-            window.draw(txt);
+            window.draw(*txt);
         }
 		window.display();
 	}
@@ -426,7 +428,7 @@ void start_game(sf::RenderWindow &window)
 	using engine::math::norm;
 	using engine::math::pi;
 	using engine::math::rad;
-	using Vec2f = sf::Vector2f;
+	using engine::Vec2f;
 	using engine::math::mix;
 	using engine::Rect;
 	using namespace engine::cards;
