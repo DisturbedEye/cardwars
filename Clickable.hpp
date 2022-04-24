@@ -18,13 +18,42 @@ public:
 	bool isClicked(sf::Keyboard::Key);
 	bool isHold(sf::Mouse::Button);
 	bool isHold(sf::Keyboard::Key);
+	sf::FloatRect getLocalBounds() const;
+	sf::FloatRect getGlobalBounds() const;
+	void setOutlineThickness(float thickness);
+	void setOutlineColor(const sf::Color &clr);
+	float getOutlineThickness() const;
+	sf::Color getOutlineColor() const;
 	// with shape
 	bool isPressed(sf::Mouse::Button, const Vec2f &p);
 	bool isClicked(sf::Mouse::Button, const Vec2f &p);
 	bool isIntersected(const Vec2f &p) const;
 	bool isHold(sf::Mouse::Button, const Vec2f &p);
 };
-
+inline sf::FloatRect engine::Clickable::getLocalBounds() const
+{
+	return rect.getLocalBounds();
+}
+inline sf::FloatRect engine::Clickable::getGlobalBounds() const
+{
+	return rect.getGlobalBounds();
+}
+inline void engine::Clickable::setOutlineThickness(float thickness)
+{
+	rect.setOutlineThickness(thickness);
+}
+inline void engine::Clickable::setOutlineColor(const sf::Color &clr)
+{
+	rect.setOutlineColor(clr);
+}
+inline float engine::Clickable::getOutlineThickness() const
+{
+	return rect.getOutlineThickness();
+}
+inline sf::Color engine::Clickable::getOutlineColor() const
+{
+	return rect.getOutlineColor();
+}
 inline bool engine::Clickable::isPressed(const sf::Mouse::Button button, const Vec2f &p)
 {
 	const bool after = sf::Mouse::isButtonPressed(button);

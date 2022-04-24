@@ -48,8 +48,11 @@ namespace engine
 	struct Button;
 	class Slider;
 	class CardTexture;
-	//    cards    //
+	template <class T>
+	class Scrollable;
+
 	class Deck;
+	//    cards    //
 	struct ACard;
 	namespace cards
 	{
@@ -75,19 +78,20 @@ namespace engine
 		bool inside(const Vec2f &point, const Rect &rect);
 		bool inside(const Vec2f &point, Vec2f ro, Vec2f rs);
 		float length(const Vec2f &v);
+		float length(const float &x, const float &y = 0);
 		float around(const float &x, int n);
 		bool belongs(const float &x, const float &m, const float &n);
 		bool inside(const Vec2f &point, const Convex &polygon);
 		bool inside(const Vec2f &point, const Circle &circle);
-		Vec2f norm(const Vec2f &v) { return v / length(v); }
+		inline Vec2f norm(const Vec2f &v) { return v / length(v); }
 		sf::Color mix(const sf::Color &c1, const sf::Color &c2);
 		float clamp(const float &x, const float &minX, float maxX);
 		template <class T>
 		size_t get_index(const std::vector<T> &v, T n);
-		template <class T>
-		bool inside(const std::vector<T> &v, T n);
 	}
 }
+
+namespace emath = engine::math;
 
 #include "FileManagement.hpp"
 
@@ -95,6 +99,7 @@ namespace engine
 #include "Clickable.hpp"
 #include "button.hpp"
 #include "Slider.hpp"
+#include "Scrollable.hpp"
 #include "CardTexture.hpp"
 // cards //
 

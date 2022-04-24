@@ -5,10 +5,10 @@ public:
 	ACollection(const std::vector<ACard*> &card_list);
 	ACollection(const ACollection &col);
 	ACollection() {}
-	~ACollection();
+	virtual ~ACollection();
 	const std::vector<ACard *> &getCards() const;
 	Vec2f getCardSize() const;
-	size_t getCardCount() const { return cards.size(); }
+	size_t size() const { return cards.size(); }
 	const std::vector<ACard *> &operator*() { return cards; }
 	ACard *operator[](const size_t &id) { return cards[id]; }
 protected:

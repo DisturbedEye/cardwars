@@ -1,6 +1,6 @@
 #pragma once
 
-struct engine::cards::Gladiator : public virtual ACard
+struct engine::cards::Gladiator : virtual ACard
 {
 	explicit Gladiator(const Vec2u &window_size);
 	int getDamage() const;
@@ -15,8 +15,8 @@ private:
 	int Cost;
 	inline const static CardTexture texture = CardTexture("images\\gladiator.jpg");
 
-	void movement() final;
-	void onUse() final;
+	void movement() final override;
+	void onUse() final override;
 };
 
 

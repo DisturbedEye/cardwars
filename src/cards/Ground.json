@@ -3,12 +3,14 @@
 		"Damage": 5,
 		"Health": 6,
 		"Cost": 2,
-		"Description": "Something..."
+		"Description": "Something...",
+		"FileName": "witherskeleton.jpg"
 	},
 	"Gladiator": {
 		"Damage": 7,
 		"Health": 8,
 		"Cost": 4,
-		"Description": "Just a Description"
+		"Description": "Just a Description",
+		"FileName": "gladiator.jpg"
 	}
 }

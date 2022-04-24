@@ -1,29 +1,38 @@
 #pragma once
 
-struct engine::Button : public sf::Drawable, public Clickable
+struct engine::Button : sf::Drawable, Clickable
 {
-	Button(const Vec2f&, const sf::String&, const sf::Font&, const unsigned int &char_size);
+	Button(const Vec2f &, const sf::String &, const sf::Font &, const unsigned int &char_size);
 	Button();
+	Button(const Button &b) : Clickable(b.rect),
+		content(b.content), indents(b.indents),
+		defaultIndent(b.defaultIndent), center(b.center)
+	{
+		if (center)
+			resetToCenter();
+	}
+	~Button() override = default;
 	void setPosition(Vec2f position);
+	void setPosition(const float &x, const float &y) { setPosition(Vec2f(x, y)); }
 	void setOrigin(Vec2f origin);
 	void setScale(Vec2f scale);
 	void setFontScale(Vec2f scale);
 	void setString(const sf::String &string);
-	void setIndents(const float&, const float&); // top, left, down, right 
-	void setIndents(const Vec2f&);
-	void setShapeSize(const Vec2f&);
-	void setSize(const Vec2f&); // size
-	void setOutlineColor(const sf::Color&); // outline color
+	void setIndents(const float &, const float &); // top, left, down, right 
+	void setIndents(const Vec2f &);
+	void setShapeSize(const Vec2f &);
+	void setSize(const Vec2f &); // size
+	void setOutlineColor(const sf::Color &); // outline color
 	void setOutlineThickness(const float &thickness); // thickness
-	void setColor(const sf::Color&);	// color 
-	void setFontColor(const sf::Color&); // font color 
+	void setColor(const sf::Color &);	// color 
+	void setFontColor(const sf::Color &); // font color 
 	void setStyle(sf::Uint32 style); // font style
 	void setLetterSpacing(float spacingFactor); // letter space 
 	void setLineSpacing(float spacingFactor); // line space
 	void setCharacterSize(unsigned int size); // charsize
-	void setFontOutline(const float&, const sf::Color&);
+	void setFontOutline(const float &, const sf::Color &);
 	void setTexture(sf::Texture *texture); // texturing 
-	void Centralize(const bool&);
+	void Centralize(const bool &);
 	Vec2f getIndents() const; // left, top
 	sf::FloatRect getTextGlobalBounds() const;
 	sf::FloatRect getShapeGlobalBounds() const;
@@ -45,7 +54,6 @@ private:
 	Vec2f indents = Vec2f();
 	Vec2f defaultIndent;
 	bool center = true;
-	bool before = false;
 	void resetToCenter();
 	void draw(sf::RenderTarget &window, sf::RenderStates states) const override;
 };
@@ -87,12 +95,11 @@ inline void engine::Button::setFontScale(Vec2f scale)
 inline void engine::Button::setString(const sf::String &string)
 {
 	/*
-	* sets a string to content, 
-	* with reseting to center 
+	* sets a string to content,
+	* with reseting to center
 	*/
 	content.setString(string);
-	if (center)
-		resetToCenter();
+	resetToCenter();
 }
 
 inline void engine::Button::setIndents(const float &left, const float &top)
@@ -110,15 +117,13 @@ inline void engine::Button::setIndents(const Vec2f &indents)
 inline void engine::Button::setShapeSize(const Vec2f &size)
 {
 	rect.setSize(size);
-	if (center)
-		resetToCenter();
+	resetToCenter();
 }
 
 inline void engine::Button::setSize(const Vec2f &size)
 {
 	rect.setSize(size);
-	if (center)
-		resetToCenter();
+	resetToCenter();
 }
 
 inline void engine::Button::setOutlineColor(const sf::Color &clr)
@@ -144,29 +149,25 @@ inline void engine::Button::setFontColor(const sf::Color &clr)
 inline void engine::Button::setStyle(sf::Uint32 style)
 {
 	content.setStyle(style);
-	if (center)
-		resetToCenter();
+	resetToCenter();
 }
 
 inline void engine::Button::setLetterSpacing(float spacingFactor)
 {
 	content.setLetterSpacing(spacingFactor);
-	if (center)
-		resetToCenter();
+	resetToCenter();
 }
 
 inline void engine::Button::setLineSpacing(float spacingFactor)
 {
 	content.setLineSpacing(spacingFactor);
-	if (center)
-		resetToCenter();
+	resetToCenter();
 }
 
 inline void engine::Button::setCharacterSize(const unsigned int size)
 {
 	content.setCharacterSize(size);
-	if (center)
-		resetToCenter();
+	resetToCenter();
 }
 
 inline void engine::Button::setFontOutline(const float &t, const sf::Color &clr)
