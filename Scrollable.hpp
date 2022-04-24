@@ -11,7 +11,7 @@ class engine::Scrollable : public sf::Drawable
 	Vec2f ind;
 	Slider slider;
 	Vec2f esize; // element size
-	Vec2u n; // elements count
+	Vec2u n; // elements count by width and height
 	std::vector<T*> elems;
 public:
 	Scrollable(const std::vector<T> &values, const unsigned int &count_by_width, const float &height)
@@ -22,13 +22,12 @@ public:
 		slider.setSize(Vec2f(30, 0));
 		setSize(count_by_width, height);
 	}
-	Scrollable(const T &val, const unsigned int &count, const unsigned int &count_by_width, const float &height)
+	Scrollable(const T &sc) : position(sc.position),
+		origin(sc.origin), ssize(sc.ssize), ind(sc.ind),
+		slider(sc.slider), esize(sc.esize), n(sc.n)
 	{
-		for (unsigned int i = 0; i < count; i++)
-			elems.push_back(new T(val));
-		esize = elems[0]->getSize();
-		slider.setSize(Vec2f(30, 0));
-		setSize(count_by_width, height);
+		for (auto &i : sc.elems)
+			elems.push_back(new T(*i));
 	}
 	~Scrollable() override 
 	{
@@ -85,7 +84,6 @@ public:
 		n.y = static_cast<int>(ceil(elems.size() / n.x)) + 1;
 		recount_slider();
 	}
-	T &getValue(const size_t &id) { return *elems[id]; }
 	bool sliderIsClicked(sf::Mouse::Button b, const Vec2f &p) { return slider.isClicked(b, p); }
 	bool sliderIsPressed(sf::Mouse::Button b, const Vec2f &p) { return slider.isPressed(b, p); }
 	bool sliderIsHold(sf::Mouse::Button b, const Vec2f &p) { return slider.isHold(b, p); }
@@ -105,6 +103,10 @@ public:
 	float getSliderOutlineThickness() const { return slider.getOutlineThickness(); }
 	sf::FloatRect getLocalBounds() const { return sf::FloatRect(position, ssize); }
 	sf::FloatRect getGlobalBounds() const { return sf::FloatRect(position, Vec2f(ssize.x + slider.getSize().x, ssize.y)); }
+	T &at(const size_t &id) { return *elems[id]; }
+	T &operator[](const size_t &id) { return *elems[id]; }
+	const T &operator[](const size_t &id) const { return *elems[id]; }
+
 private:
 	void recount_slider()
 	{
@@ -120,7 +122,6 @@ private:
 			size_t i = 0;
 			for (auto &el : elems)
 			{
-				el->setSize(esize);
 				const float x = static_cast<float>(i % n.x), y = floorf(static_cast<float>(i) / n.x);
 				const float x1 = position.x + x * (esize.x + ind.x), y1 = position.y + (esize.y + ind.y) * (y - t * n.y);
 				el->setPosition(x1, y1);

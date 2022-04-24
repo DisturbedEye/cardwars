@@ -458,9 +458,9 @@ void start_game(sf::RenderWindow &window)
 			deck.push_back(button);
 		for (size_t i = 0; i < deck.size(); i++)
 		{
-			if (deck.getValue(i).isIntersected(mpos))
-				deck.getValue(i).setColor(mix(bcolor, sf::Color::White));
-			else deck.getValue(i).setColor(bcolor);
+			if (deck[i].isIntersected(mpos))
+				deck[i].setColor(mix(bcolor, sf::Color::White));
+			else deck[i].setColor(bcolor);
 		}
 		window.draw(addb);
 		window.draw(deck);

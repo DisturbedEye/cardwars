@@ -98,7 +98,6 @@ namespace emath = engine::math;
 #include "emath.hpp"
 #include "Clickable.hpp"
 #include "button.hpp"
-#include "Slider.hpp"
 #include "Scrollable.hpp"
 #include "CardTexture.hpp"
 // cards //

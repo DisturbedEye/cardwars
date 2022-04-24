@@ -6,11 +6,11 @@ public:
 	ACollection(const ACollection &col);
 	ACollection() {}
 	virtual ~ACollection();
-	const std::vector<ACard *> &getCards() const;
 	Vec2f getCardSize() const;
 	size_t size() const { return cards.size(); }
-	const std::vector<ACard *> &operator*() { return cards; }
-	ACard *operator[](const size_t &id) { return cards[id]; }
+	void setCardPosition(const size_t &id, const Vec2f &pos) { cards[id]->setPosition(pos); }
+	ACard &operator[](const size_t &id) { return *cards[id]; }
+	const ACard &operator[](const size_t &id) const { return *cards[id]; }
 protected:
 	std::vector<ACard *> cards;
 private:
@@ -26,11 +26,6 @@ inline engine::ACollection::~ACollection()
 {
 	for (auto &card : cards)
 		delete card;
-}
-
-inline const std::vector<engine::ACard *> &engine::ACollection::getCards() const
-{
-	return cards;
 }
 
 inline sf::Vector2f engine::ACollection::getCardSize() const 
