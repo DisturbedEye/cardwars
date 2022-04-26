@@ -441,15 +441,16 @@ void start_game(sf::RenderWindow &window)
 	Button button(Vec2f(300, 60), "Some text", font, 24);
 	const sf::Color bcolor = sf::Color(230, 100, 100);
 	button.setColor(sf::Color(230, 100, 100));
-	std::vector buttons(10, button);
-	engine::Scrollable deck(buttons, 3u, res.y);
+	engine::collections::SuperCollection sup(window.getSize());
+	engine::Deck deck(&sup, 3u, res.y);
 	deck.setPosition(res.x/3, 0);
 	float sens = 50; // slider speed
 	float senst = 0;
 	bool a = false;
-	Button addb(Vec2f(300, 60), "ADD", font, 36);
-	addb.setPosition(res.x/9, res.y/2);
-	addb.setOrigin(addb.getSize()/2.f);
+	Button shuffleb(Vec2f(300, 60), "Shuffle", font, 36);
+
+	shuffleb.setPosition(res.x/9, res.y/2);
+	//addb.setOrigin(addb.getSize()/2.f);
 	while (window.isOpen())
 	{
 		float d1 = 0;
@@ -467,7 +468,7 @@ void start_game(sf::RenderWindow &window)
 		window.clear();
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
 			return;
-		senst = d1 != 0?  senst + sens / 4 : 0;
+		senst = d1 != 0 ?  senst + sens / 4 : 0;
 		deck.setSliderPos(deck.getSliderPos().y - senst * d1);
 		if (deck.sliderIsClicked(sf::Mouse::Button::Left, mpos))
 			a = true;
@@ -475,18 +476,14 @@ void start_game(sf::RenderWindow &window)
 			a = false;
 		if (a)
 			deck.setSliderPos(mpos.y - deck.getSliderSize().y / 2);
-		if (addb.isIntersected(mpos))
-			addb.setColor(mix(bcolor, sf::Color::White));
-		else addb.setColor(bcolor);
-		if (addb.isPressed(sf::Mouse::Left, mpos))
-			deck.push_back(button);
-		for (size_t i = 0; i < deck.size(); i++)
-		{
-			if (deck[i].isIntersected(mpos))
-				deck[i].setColor(mix(bcolor, sf::Color::White));
-			else deck[i].setColor(bcolor);
-		}
-		window.draw(addb);
+		if (shuffleb.isIntersected(mpos))
+			shuffleb.setColor(mix(bcolor, sf::Color::White));
+		else shuffleb.setColor(bcolor);
+
+		if (shuffleb.isPressed(sf::Mouse::Button::Left, mpos))
+			deck.shuffle();
+		
+		window.draw(shuffleb);
 		window.draw(deck);
 		window.display();
 	}

@@ -6,15 +6,15 @@ struct engine::Button : sf::Drawable, Clickable
 	Button();
 	Button(const Button &b) : Clickable(b.rect),
 		content(b.content), indents(b.indents),
-		defaultIndent(b.defaultIndent), center(b.center)
+		center(b.center)
 	{
 		if (center)
-			resetToCenter();
+			reset_to_center();
 	}
 	~Button() override = default;
 	void setPosition(Vec2f position);
 	void setPosition(const float &x, const float &y) { setPosition(Vec2f(x, y)); }
-	void setOrigin(Vec2f origin);
+	void setOrigin(const Vec2f &origin);
 	void setScale(Vec2f scale);
 	void setFontScale(Vec2f scale);
 	void setString(const sf::String &string);
@@ -22,9 +22,7 @@ struct engine::Button : sf::Drawable, Clickable
 	void setIndents(const Vec2f &);
 	void setShapeSize(const Vec2f &);
 	void setSize(const Vec2f &); // size
-	void setOutlineColor(const sf::Color &); // outline color
-	void setOutlineThickness(const float &thickness); // thickness
-	void setColor(const sf::Color &);	// color 
+	void setColor(const sf::Color &); // color 
 	void setFontColor(const sf::Color &); // font color 
 	void setStyle(sf::Uint32 style); // font style
 	void setLetterSpacing(float spacingFactor); // letter space 
@@ -52,9 +50,8 @@ struct engine::Button : sf::Drawable, Clickable
 private:
 	sf::Text content;
 	Vec2f indents = Vec2f();
-	Vec2f defaultIndent;
 	bool center = true;
-	void resetToCenter();
+	void reset_to_center();
 	void draw(sf::RenderTarget &window, sf::RenderStates states) const override;
 };
 
@@ -63,7 +60,7 @@ inline engine::Button::Button() : Clickable() {}
 inline engine::Button::Button(const Vec2f &size, const sf::String &string, const sf::Font &font, const unsigned int &char_size)
 	: Clickable(Rect(size)), content(string, font, char_size)
 {
-	resetToCenter();
+	reset_to_center();
 }
 
 
@@ -71,13 +68,14 @@ inline void engine::Button::setPosition(const Vec2f position)
 {
 	rect.setPosition(position);
 	content.setPosition(position);
+	reset_to_center();
 }
 
 
-inline void engine::Button::setOrigin(const Vec2f origin)
+inline void engine::Button::setOrigin(const Vec2f &origin)
 {
 	rect.setOrigin(origin);
-	content.setOrigin(origin);
+	reset_to_center();
 }
 
 
@@ -85,6 +83,7 @@ inline void engine::Button::setScale(const Vec2f scale)
 {
 	rect.setScale(scale);
 	content.setScale(scale);
+	reset_to_center();
 }
 
 inline void engine::Button::setFontScale(Vec2f scale)
@@ -99,41 +98,31 @@ inline void engine::Button::setString(const sf::String &string)
 	* with reseting to center
 	*/
 	content.setString(string);
-	resetToCenter();
+	reset_to_center();
 }
 
 inline void engine::Button::setIndents(const float &left, const float &top)
 {
 	indents = Vec2f(left, top);
-	content.setOrigin(defaultIndent + indents);
+	content.setOrigin(indents);
 }
 
 inline void engine::Button::setIndents(const Vec2f &indents)
 {
 	this->indents = Vec2f(indents);
-	content.setOrigin(defaultIndent + indents);
+	content.setOrigin(indents);
 }
 
 inline void engine::Button::setShapeSize(const Vec2f &size)
 {
 	rect.setSize(size);
-	resetToCenter();
+	reset_to_center();
 }
 
 inline void engine::Button::setSize(const Vec2f &size)
 {
 	rect.setSize(size);
-	resetToCenter();
-}
-
-inline void engine::Button::setOutlineColor(const sf::Color &clr)
-{
-	rect.setOutlineColor(clr);
-}
-
-inline void engine::Button::setOutlineThickness(const float &thickness)
-{
-	rect.setOutlineThickness(thickness);
+	reset_to_center();
 }
 
 inline void engine::Button::setColor(const sf::Color &clr)
@@ -149,25 +138,25 @@ inline void engine::Button::setFontColor(const sf::Color &clr)
 inline void engine::Button::setStyle(sf::Uint32 style)
 {
 	content.setStyle(style);
-	resetToCenter();
+	reset_to_center();
 }
 
 inline void engine::Button::setLetterSpacing(float spacingFactor)
 {
 	content.setLetterSpacing(spacingFactor);
-	resetToCenter();
+	reset_to_center();
 }
 
 inline void engine::Button::setLineSpacing(float spacingFactor)
 {
 	content.setLineSpacing(spacingFactor);
-	resetToCenter();
+	reset_to_center();
 }
 
 inline void engine::Button::setCharacterSize(const unsigned int size)
 {
 	content.setCharacterSize(size);
-	resetToCenter();
+	reset_to_center();
 }
 
 inline void engine::Button::setFontOutline(const float &t, const sf::Color &clr)
@@ -267,18 +256,18 @@ inline float engine::Button::getFontOutlineThickness() const
 }
 
 
-inline void engine::Button::resetToCenter()
+inline void engine::Button::reset_to_center()
 {
-	float x = (content.getGlobalBounds().width - rect.getGlobalBounds().width) / 2.f;
-	float y = 0.f;
-	defaultIndent = Vec2f(x, y);
-	content.setOrigin(defaultIndent);
+	float w = (rect.getGlobalBounds().width - content.getGlobalBounds().width) / 2.f;
+	float h = (rect.getGlobalBounds().height - content.getGlobalBounds().height) / 2.f;
+	Vec2f p = Vec2f(content.getGlobalBounds().left, content.getGlobalBounds().top) - content.getPosition();
+	Vec2f defaultIndent = Vec2f(w, h);
+	content.setPosition(rect.getPosition() + defaultIndent - p);
 }
 
 
 inline void engine::Button::draw(sf::RenderTarget &window, sf::RenderStates states) const
 {
 	window.draw(rect);
-	if (content.getFont() != 0)
-		window.draw(content);
+	window.draw(content);
 }

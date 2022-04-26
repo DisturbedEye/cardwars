@@ -86,21 +86,21 @@ inline bool engine::Clickable::isHold(sf::Mouse::Button b, const Vec2f &p)
 inline bool engine::Clickable::isPressed(sf::Mouse::Button b)
 {
 	const bool after = sf::Mouse::isButtonPressed(b);
-	const bool out = beforem and after;
+	const bool out = beforem and !after;
 	beforem = after;
 	return out;
 }
 inline bool engine::Clickable::isPressed(sf::Keyboard::Key k)
 {
 	const bool after = sf::Keyboard::isKeyPressed(k);
-	const bool out = beforek and after;
+	const bool out = beforek and !after;
 	beforek = after;
 	return out;
 }
 inline bool engine::Clickable::isClicked(sf::Mouse::Button b)
 {
 	const bool after = sf::Mouse::isButtonPressed(b);
-	const bool out = beforem and after;
+	const bool out = !beforem and after;
 	beforem = after;
 	return out;
 }

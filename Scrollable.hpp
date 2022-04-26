@@ -90,6 +90,7 @@ public:
 	bool sliderIsClicked(sf::Mouse::Button b) { return slider.isClicked(b); }
 	bool sliderIsPressed(sf::Mouse::Button b) { return slider.isPressed(b); }
 	bool sliderIsHold(sf::Mouse::Button b) { return slider.isHold(b); }
+	Slider getSlider() const { return slider; }
 	Vec2f getValueSize() const { return esize; }
 	size_t size() const { return elems.size(); }
 	Vec2f getIndents() const { return ind; }
