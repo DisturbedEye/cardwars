@@ -18,13 +18,23 @@ namespace engine
 {
 	class ACollection;
 	using namespace std::string_literals;
-	typedef sf::Vector2f Vec2f;
-	typedef sf::Vector2i Vec2i;
-	typedef sf::Vector2u Vec2u;
-	typedef sf::RectangleShape Rect;
-	typedef sf::CircleShape Circle;
+	template <class T> using Vec2 = sf::Vector2<T>;
+	template <class T> using Vec3 = sf::Vector3<T>;
+
+	using Vec3i = Vec3<int>;
+	using Vec3u = Vec3<unsigned int>;
+	using Vec3d = Vec3<double>;
+	using Vec3f = Vec3<float>;
+
+	using Vec2i = Vec2<int>;
+	using Vec2u = Vec2<unsigned int>;
+	using Vec2d = Vec2<double>;
+	using Vec2f = Vec2<float>;
+
+	using Rect = sf::RectangleShape;
+	using Circle = sf::CircleShape;
 	using Json = nlohmann::json;
-	typedef sf::ConvexShape Convex; // выпуклый многоугольник
+	using Convex = sf::ConvexShape; // выпуклый многоугольник
 	
 	std::vector<int> video_modes = { sf::Style::Close, sf::Style::None, sf::Style::Fullscreen };
 	std::map<int, int> reverse_modes = { {video_modes[0], 0}, {video_modes[1], 1}, {video_modes[2], 2} };
