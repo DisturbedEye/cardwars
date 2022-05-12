@@ -564,7 +564,7 @@ void about_us(sf::RenderWindow &window)
 	text.setPosition(res.x/2.f - text.getGlobalBounds().width /2.f, 0.f);
 	back.setPosition(bpos); // setting back button pos
 	Vector2f mpos;
-	engine::ShaderTexture sht("backg.frag", ures);
+	engine::ShaderTexture sht(ures, "backg.frag", sf::Shader::Fragment);
 	sht.setUniform("u_res", res);
 	while (window.isOpen())
 	{
@@ -588,7 +588,8 @@ void about_us(sf::RenderWindow &window)
 		else back.setColor(bcolor);
 		if (back.isPressed(sf::Mouse::Button::Left, mpos))
 			return;
-		rect.setTexture(sht.toTexture());
+		sht.render();
+		rect.setTexture(sht.getTexture());
 		window.draw(rect);
 		window.draw(text);
 		window.draw(back);

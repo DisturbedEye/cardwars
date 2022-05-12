@@ -39,3 +39,5 @@
 /local/info.txt
 /src/settings.json
 /x64/Release/vc143.pdb
+/x64/Release
+/packages.config
