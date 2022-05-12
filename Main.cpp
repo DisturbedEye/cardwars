@@ -1,5 +1,6 @@
 ﻿#include <SFML/Graphics.hpp>
 #include "Engine.hpp"
+#include <SFML/Audio.hpp>
 
 
 template <typename T>
@@ -56,6 +57,11 @@ int main()
 	sf::RenderWindow window(sf::VideoMode(default_resolution.x, default_resolution.y, mode.bitsPerPixel), "Card Wars", window_mode);
 	window.setFramerateLimit(frame_limit);
 	window.setVerticalSyncEnabled(vsync);
+	sf::Music ms;
+	ms.openFromFile("audio\\garazh_phonk.ogg");
+	ms.play();
+	ms.setLoop(true);
+	ms.setVolume(10.f);
 	int position = 0; // 0 - main menu, 1 - start game, 2 - in settings, 3 about us? 4 - exit
 	while (position != 4)
 	{
@@ -69,7 +75,6 @@ int main()
 	}
 	return 0;
 }
-
 int main_menu(sf::RenderWindow &window)
 {
 	using engine::Button;
@@ -83,6 +88,14 @@ int main_menu(sf::RenderWindow &window)
 	Vec2f bsize = Vec2f(res.x / 9.6f, res.y / 18.f); // button size
 	Vec2f bpos = Vec2f(res.x / 12.f, res.y / 2.f); // button position
 	sf::Font &font = loadFont();
+    sf::SoundBuffer sb1;
+    sf::SoundBuffer sb2;
+    sb1.loadFromFile("audio\\sound1.ogg");
+    sb2.loadFromFile("audio\\sound2.ogg");
+    sf::Sound s1;
+    sf::Sound s2;
+    s1.setBuffer(sb1);
+    s2.setBuffer(sb2);
 	sf::Texture bttex;
 	sf::Texture bctex;
 	if (bttex.loadFromFile("images\\button.png") && bctex.loadFromFile("images\\menu.png")){
@@ -104,12 +117,14 @@ int main_menu(sf::RenderWindow &window)
 	buttons.push_back(exit);	 // 4
 	sf::Color bcolor = sf::Color(200, 200, 200); // button color
 	Vec2f mpos;
-	uint8_t k;
+	uint8_t k, n, tmp;
 	sf::Text txt("Rune Wars", font);
-	txt.setPosition(res.x / 6, res.y / 4);
+	txt.setPosition(res.x / 6.f, res.y / 4.f);
 	Vec2u bres = window.getSize();
     txt.setScale(txt.getScale().x * 1.5f, txt.getScale().y * 1.5f);
 
+    n = 0;
+    tmp = 0;
 	while (window.isOpen())
 	{
 		float time = engine::math::time(); // current time after starting program
@@ -127,20 +142,33 @@ int main_menu(sf::RenderWindow &window)
 		// code
 		mpos = Vec2f(mouse.getPosition(window));
 		window.draw(r);
+		window.draw(txt);
 		k = 1;
 		for (auto &b : buttons)
 		{
 		    b.setTexture(&bttex);
-			if (b.isIntersected(mpos))
-				b.setColor(mix(bcolor, sf::Color::White));
-			else b.setColor(bcolor);
-			if (b.isPressed(sf::Mouse::Button::Left, mpos))
+			if (b.isIntersected(mpos)){
+                b.setColor(mix(bcolor, sf::Color::White));
+                while (n==0){
+                    n = 1;
+                    s2.play();
+                }
+			}
+			else {
+                b.setColor(bcolor);
+                tmp++;
+			}
+			if (b.isPressed(sf::Mouse::Button::Left, mpos)){
+                s1.play();
 				return k;
+			}
 			b.setPosition(Vec2f(bpos.x, bpos.y + (k - 1) * (res.y/24.f + bsize.y)));
 			b.setFontColor(sf::Color(0, 0, 0));
 			window.draw(b);
 			k++;
 		}
+		if (tmp==4) n = 0;
+		else tmp=0;
 		window.display();
 	}
 	return 4;
@@ -213,9 +241,9 @@ void game_settings(sf::RenderWindow &window)
 		}
 		return strmode;
 	});
-	
+
 	Button switcherWMode = Button(bsize2, get_mode_name(), font, ures.y / 27u); // window mode switcher
-	
+
 	Button switcherVsync = Button(swsize, "V", font, ures.y / 27u); // vsync mode switcher
 	std::string frp = std::to_string(frame_limit); // string frame limit
 	Button switcherLF = Button(swsize, "<", font, ures.y / 27u); // switchers for framerate
@@ -254,12 +282,23 @@ void game_settings(sf::RenderWindow &window)
 	txts.push_back(&tvsync);
 	Vector2u bres = window.getSize();
 
+	sf::SoundBuffer sb1;
+    sf::SoundBuffer sb2;
+    sb1.loadFromFile("audio\\sound1.ogg");
+    sb2.loadFromFile("audio\\sound2.ogg");
+    sf::Sound s1;
+    sf::Sound s2;
+    s1.setBuffer(sb1);
+    s2.setBuffer(sb2);
+
 	float w;
-	uint8_t i, j, n, k, t;
+	uint8_t i, j, n, k, t, tmp, pp;
 	int p1 = static_cast<int>(engine::math::get_index(resols, window.getSize()));
 	int p2 = 2; // p2 - framerate id
 	Vector2u r = window.getSize();
 	unsigned int fr = engine::getInfoFramerateLimit();
+	tmp = 0;
+	pp = 0;
 	auto win_resize([&buttons, &bsize, &swsize, &bsize2, &res, &bpos](const Vector2u &size)
 	{ // resizes a window
 		res = Vector2f(size);
@@ -316,9 +355,17 @@ void game_settings(sf::RenderWindow &window)
 		k = 1, j = i = t = 0, w = 0.f;
 		for (auto &b : buttons)
 		{
-			if (b->isIntersected(mpos) && k != ResolutionViewer && k != FramerateViewer)
-				b->setColor(mix(bcolor, sf::Color::White));
-			else b->setColor(bcolor);
+			if (b->isIntersected(mpos) && k != ResolutionViewer && k != FramerateViewer){
+                b->setColor(mix(bcolor, sf::Color::White));
+                while(pp==0){
+                    s2.play();
+                    pp=1;
+                }
+			}
+			else {
+                b->setColor(bcolor);
+                tmp++;
+			}
 
 			//button positioning
 			if (k == Back)
@@ -336,6 +383,7 @@ void game_settings(sf::RenderWindow &window)
 			}
 			if (b->isPressed(sf::Mouse::Button::Left, mpos))
 			{
+			    s1.play();
 				// button functions
 				switch (k)
 				{
@@ -404,7 +452,7 @@ void game_settings(sf::RenderWindow &window)
 			k++;
 			window.draw(*b);
 		}
-		for (auto &txt : txts) 
+		for (auto &txt : txts)
 		{
 			txt->setScale(res.x / bres.x, res.y / bres.y);
 			txt->setPosition(Vector2f(res.x / 5.0f, (++t) * res.y / 23.5f + res.y / 10.5f));
@@ -417,6 +465,8 @@ void game_settings(sf::RenderWindow &window)
             t++;
             window.draw(*txt);
         }
+        if(tmp==11) pp=0;
+        else tmp=0;
 		window.display();
 	}
 }
@@ -482,7 +532,7 @@ void start_game(sf::RenderWindow &window)
 
 		if (shuffleb.isPressed(sf::Mouse::Button::Left, mpos))
 			deck.shuffle();
-		
+
 		window.draw(shuffleb);
 		window.draw(deck);
 		window.display();
@@ -532,6 +582,8 @@ void about_us(sf::RenderWindow &window)
 		mpos = Vector2f(m.getPosition(window));
 		window.clear();
 		//code
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
+			return;
 		if (back.isIntersected(mpos))
 			back.setColor(mix(bcolor, sf::Color::White));
 		else back.setColor(bcolor);
