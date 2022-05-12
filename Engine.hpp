@@ -54,7 +54,7 @@ namespace engine
 	bool getInfoVsync();
 	// Input Actions
 	class Clickable;
-
+	class ShaderTexture;
 	struct Button;
 	class Slider;
 	class CardTexture;
@@ -104,8 +104,8 @@ namespace engine
 namespace emath = engine::math;
 
 #include "FileManagement.hpp"
-
 #include "emath.hpp"
+#include "ShaderTexture.hpp"
 #include "Clickable.hpp"
 #include "button.hpp"
 #include "Scrollable.hpp"

@@ -21,5 +21,5 @@ public:
 		delete texture; 
 	}
 	
-	const sf::Texture *operator*() const { return texture; }
+	const sf::Texture &operator*() const { return *texture; }
 };
