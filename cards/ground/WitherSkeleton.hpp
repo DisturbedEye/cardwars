@@ -27,7 +27,7 @@ inline engine::cards::WitherSkeleton::WitherSkeleton(const Vec2u &window_size)
 	Damage = js[CardName][DamageStr];
 	Health = js[CardName][HealthStr];
 	Description = js[CardName][DescriptionStr];
-	cover.setTexture(*texture);
+	cover.setTexture(&*texture);
 }
 
 inline int engine::cards::WitherSkeleton::getDamage() const

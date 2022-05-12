@@ -22,7 +22,7 @@ inline bool engine::math::belongs(const float &x, const float &m, const float &n
 
 inline float engine::math::time()
 {
-	return static_cast<float>(clock() / CLOCKS_PER_SEC);
+	return static_cast<float>(clock()) / CLOCKS_PER_SEC;
 }
 
 inline bool engine::math::inside(const Vec2f &p, const Rect &rect)

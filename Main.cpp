@@ -424,12 +424,9 @@ void game_settings(sf::RenderWindow &window)
 void start_game(sf::RenderWindow &window)
 {
 	using engine::Button;
-	using engine::math::clamp;
-	using engine::math::norm;
-	using engine::math::pi;
-	using engine::math::rad;
+	using emath::clamp;
 	using engine::Vec2f;
-	using engine::math::mix;
+	using emath::mix;
 	using engine::Rect;
 	using namespace engine::cards;
 	using namespace parametrs;
@@ -450,7 +447,6 @@ void start_game(sf::RenderWindow &window)
 	Button shuffleb(Vec2f(300, 60), "Shuffle", font, 36);
 
 	shuffleb.setPosition(res.x/9, res.y/2);
-	//addb.setOrigin(addb.getSize()/2.f);
 	while (window.isOpen())
 	{
 		float d1 = 0;
@@ -506,7 +502,6 @@ void about_us(sf::RenderWindow &window)
 	Rect rect = Rect(Vector2f(res.x * 2.f / 3.f, res.y));
 	rect.setOrigin(rect.getSize() / 2.f);
 	rect.setPosition(res.x / 2.f, res.y / 2.f);
-	rect.setFillColor(sf::Color(67, 67, 67));
 	sf::Texture texture;
 	texture.loadFromFile("images\\evolution.jpg");
 	sf::Sprite cardlol;
@@ -519,6 +514,8 @@ void about_us(sf::RenderWindow &window)
 	text.setPosition(res.x/2.f - text.getGlobalBounds().width /2.f, 0.f);
 	back.setPosition(bpos); // setting back button pos
 	Vector2f mpos;
+	engine::ShaderTexture sht("backg.frag", ures);
+	sht.setUniform("u_res", res);
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -529,6 +526,8 @@ void about_us(sf::RenderWindow &window)
 				window.close();
 				break;
 			}
+		float time = static_cast<float>(clock())/ CLOCKS_PER_SEC;
+		sht.setUniform("t", time);
 		mpos = Vector2f(m.getPosition(window));
 		window.clear();
 		//code
@@ -537,6 +536,7 @@ void about_us(sf::RenderWindow &window)
 		else back.setColor(bcolor);
 		if (back.isPressed(sf::Mouse::Button::Left, mpos))
 			return;
+		rect.setTexture(sht.toTexture());
 		window.draw(rect);
 		window.draw(text);
 		window.draw(back);
