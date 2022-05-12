@@ -459,12 +459,6 @@ void game_settings(sf::RenderWindow &window)
 			t++;
 			window.draw(*txt);
 		}
-		for (auto &txt : txts) {
-            txt->setScale(res.x / bres.x, res.y / bres.y);
-            txt->setPosition(Vector2f(res.x/5.0f, (++t) * res.y / 23.5f + res.y/10.5f));
-            t++;
-            window.draw(*txt);
-        }
         if(tmp==11) pp=0;
         else tmp=0;
 		window.display();
