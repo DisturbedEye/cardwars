@@ -5,10 +5,13 @@ struct engine::ACard : sf::Drawable
 	enum class Types
 	{ Ground, Air, Debuff, Buff, Water, Static };
 
-	enum class Keywords
+	/*enum class Keywords
 	{
-	};
+	};*/
 	ACard(const Vec2u &window_size);
+	ACard(const ACard &) = delete;
+	~ACard() override = default;
+	ACard(ACard &&) = delete;
 	virtual void onUse() = 0;
 	void setPosition(const Vec2f &p);
 	void setOrigin(const Vec2f &o);
@@ -23,10 +26,12 @@ struct engine::ACard : sf::Drawable
 	bool isChoosed() const; // event when need to see the description
 	bool isTaked();
 	std::string getDescription() const;
-	static std::vector<const Keywords> getKeyWords(const std::string &desc);
+	//static std::vector<const Keywords> getKeyWords(const std::string &desc); // founds a keywords
 	sf::FloatRect getGlobalBounds() const { return cover.getGlobalBounds(); }
 	sf::FloatRect getLocalBounds() const { return cover.getLocalBounds(); }
 	void onTake();
+	ACard &operator=(ACard &&) = delete;
+	ACard &operator=(const ACard &) = delete;
 protected:
 	Rect cover = Rect();
 	static Json load(Types type);
@@ -129,5 +134,5 @@ inline sf::Vector2f engine::ACard::getOrigin() const
 }
 inline void engine::ACard::draw(sf::RenderTarget &window, sf::RenderStates states) const
 {
-	window.draw(cover);
+	window.draw(cover, states);
 }

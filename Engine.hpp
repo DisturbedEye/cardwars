@@ -35,6 +35,10 @@ namespace engine
 	using Circle = sf::CircleShape;
 	using Json = nlohmann::json;
 	using Convex = sf::ConvexShape; // выпуклый многоугольник
+	enum class ScrollType
+	{
+		Vertical, Horizontal
+	};
 	
 	std::vector<int> video_modes = { sf::Style::Close, sf::Style::None, sf::Style::Fullscreen };
 	std::map<int, int> reverse_modes = { {video_modes[0], 0}, {video_modes[1], 1}, {video_modes[2], 2} };
@@ -56,34 +60,37 @@ namespace engine
 	class Clickable;
 	class ShaderTexture;
 	struct Button;
-	class Slider;
-	class CardTexture;
-	template <class T>
-	class Scrollable;
 
-	class Deck;
+	class Slider;
+	template <class T, const ScrollType scrpoll_type = ScrollType::Vertical>
+	class Scrollable;
+	sf::Shader *loadCutShader(sf::Shader *shader, const sf::Texture &texture, const Vec2f &ro, const Vec2f &rs);
 	//    cards    //
+	class CardTexture;
 	struct ACard;
+
+	using Card = ACard *;
 	namespace cards
 	{
 		struct Gladiator;
 		struct WitherSkeleton;
 	}
-
 	/////////////////
 	// collections //
-
 	class ACollection;
+	using Collection = ACollection *;
 	namespace collections
 	{
 		struct SuperCollection;
-	} 
+	}
+	template<ScrollType>
+	class Deck;
 	/////////////////
 	/// helpers vars
 	namespace math
 	{
-		const float pi = 3.14159265f;
-		const float rad = pi / 180; // radian
+		constexpr float pi = 3.14159265f;
+		constexpr float rad = pi / 180; // radian
 		float time(); // surent time after start programm
 		bool inside(const Vec2f &point, const Rect &rect);
 		bool inside(const Vec2f &point, Vec2f ro, Vec2f rs);
@@ -102,7 +109,7 @@ namespace engine
 }
 
 namespace emath = engine::math;
-
+#include "source.hpp"
 #include "FileManagement.hpp"
 #include "emath.hpp"
 #include "ShaderTexture.hpp"

@@ -478,18 +478,20 @@ void start_game(sf::RenderWindow &window)
 	sf::Mouse m;
 	Vec2f mpos = Vec2f(m.getPosition(window));
 	auto &font = loadFont();
-	engine::collections::SuperCollection supc(window.getSize());
 	Button button(Vec2f(300, 60), "Some text", font, 24);
 	const sf::Color bcolor = sf::Color(230, 100, 100);
 	button.setColor(sf::Color(230, 100, 100));
 	engine::collections::SuperCollection sup(window.getSize());
-	engine::Deck deck(&sup, 3u, res.y);
-	deck.setPosition(res.x/3, 0);
+	engine::Deck deck(&sup, 3u, res.y/3);
+	deck.setPosition(res.x/3, res.y/2.5);
+	Rect rect(deck.getSize());
+	rect.setPosition(deck.getPosition());
+	rect.setFillColor(sf::Color(50, 50, 50));
 	float sens = 50; // slider speed
 	float senst = 0;
 	bool a = false;
 	Button shuffleb(Vec2f(300, 60), "Shuffle", font, 36);
-
+	sf::Shader sh;
 	shuffleb.setPosition(res.x/9, res.y/2);
 	while (window.isOpen())
 	{
@@ -508,7 +510,7 @@ void start_game(sf::RenderWindow &window)
 		window.clear();
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
 			return;
-		senst = d1 != 0 ?  senst + sens / 4 : 0;
+		senst = d1 != 0.f ?  senst + sens / 4 : 0;
 		deck.setSliderPos(deck.getSliderPos().y - senst * d1);
 		if (deck.sliderIsClicked(sf::Mouse::Button::Left, mpos))
 			a = true;
@@ -522,7 +524,7 @@ void start_game(sf::RenderWindow &window)
 
 		if (shuffleb.isPressed(sf::Mouse::Button::Left, mpos))
 			deck.shuffle();
-
+		window.draw(rect);
 		window.draw(shuffleb);
 		window.draw(deck);
 		window.display();

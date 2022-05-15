@@ -4,13 +4,13 @@
 class engine::Slider : public sf::Drawable, public Clickable
 {
 public:
-	enum class Type
-	{
-		Vertical, Horizontal
-	};
-	Slider(const Rect &r, float, float, Type t);
-	Slider(const Vec2f &s, float, float, Type t);
+	Slider(const Rect &r, ScrollType t = ScrollType::Vertical, float = 0, float = 0);
+	Slider(const Vec2f &s, ScrollType t = ScrollType::Vertical, float = 0, float = 0);
+	Slider(const Slider &sl) : Clickable(sl.rect),
+		minV(sl.minV), maxV(sl.maxV), type(sl.type) {}
+	Slider(Slider &&sl) = default;
 	Slider() : Clickable() {}
+	~Slider() override = default;
 	void setPosition(const Vec2f &);
 	void setPosition(const float &x, const float &y) { setPosition(Vec2f(x, y)); }
 	void setSize(const Vec2f &);
@@ -18,31 +18,34 @@ public:
 	void setOrigin(const float &x, const float &y) { setOrigin(Vec2f(x, y)); }
 	void setLimit(const float &, const float &);
 	void setFillColor(const sf::Color &clr) { rect.setFillColor(clr); }
+	void setTexture(const sf::Texture *texture) { rect.setTexture(texture); }
 	Vec2f getPosition() const;
 	Vec2f getSize() const;
 	Vec2f getOrigin() const;
 	sf::Color getFillColor() const { return rect.getFillColor(); }
 	float getMin() const;
 	float getMax() const;
-	Type getType() const;
+	ScrollType getType() const;
 	void draw(sf::RenderTarget &win, sf::RenderStates st) const override;
+	Slider &operator=(const Slider &sl) = default;
+	Slider &operator=(Slider &&sl) = default;
 private:
 	float minV = 0;
 	float maxV = 0;
 	void clampPos();
-	Type type = Type::Vertical;
+	ScrollType type = ScrollType::Vertical;
 };
 
 
-inline engine::Slider::Slider(const Rect &r, const float _minV, const float _maxV, const Type t)
+inline engine::Slider::Slider(const Rect &r, ScrollType t, float _minV, float _maxV)
 	: Clickable(r), minV(_minV), maxV(_maxV), type(t) {}
 
-inline engine::Slider::Slider(const Vec2f &s, const float _minV, const float _maxV, const Type t)
+inline engine::Slider::Slider(const Vec2f &s, ScrollType t, float _minV, float _maxV)
 	: Clickable(s), minV(_minV), maxV(_maxV), type(t) {}
 
 inline void engine::Slider::setPosition(const Vec2f &pos)
 {
-	if (type == Type::Vertical)
+	if (type == ScrollType::Vertical)
 		rect.setPosition(pos.x, math::clamp(pos.y, minV, maxV));
 	else rect.setPosition(math::clamp(pos.x, minV, maxV), pos.y);
 }
@@ -88,19 +91,19 @@ inline float engine::Slider::getMax() const
 	return maxV;
 }
 
-inline engine::Slider::Type engine::Slider::getType() const
+inline engine::ScrollType engine::Slider::getType() const
 {
 	return type;
 }
 
 inline void engine::Slider::draw(sf::RenderTarget &win, sf::RenderStates st) const
 {
-	win.draw(rect);
+	win.draw(rect, st);
 }
 
 inline void engine::Slider::clampPos()
 {
-	if (type == Type::Horizontal)
+	if (type == ScrollType::Horizontal)
 		rect.setPosition(math::clamp(rect.getPosition().x, minV, maxV), rect.getPosition().y);
 	else 
 		rect.setPosition(rect.getPosition().x, math::clamp(rect.getPosition().y, minV, maxV));
