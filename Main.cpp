@@ -474,6 +474,7 @@ void start_game(sf::RenderWindow &window)
 	using engine::Rect;
 	using namespace engine::cards;
 	using namespace parametrs;
+	using emath::pi;
 	const Vec2f res = Vec2f(window.getSize());
 	sf::Mouse m;
 	Vec2f mpos = Vec2f(m.getPosition(window));
@@ -482,17 +483,25 @@ void start_game(sf::RenderWindow &window)
 	const sf::Color bcolor = sf::Color(230, 100, 100);
 	button.setColor(sf::Color(230, 100, 100));
 	engine::collections::SuperCollection sup(window.getSize());
-	engine::Deck deck(&sup, 3u, res.y/3);
-	deck.setPosition(res.x/3, res.y/2.5);
-	Rect rect(deck.getSize());
-	rect.setPosition(deck.getPosition());
+	engine::Deck<engine::ScrollType::Vertical> deck(&sup, 3u, res.y/2);
+	deck.setPosition(res.x/4, res.y/6);
+	Rect rect(Vec2f(deck.getSize().x + deck.getSliderSize().x, deck.getSize().y));
 	rect.setFillColor(sf::Color(50, 50, 50));
 	float sens = 50; // slider speed
 	float senst = 0;
 	bool a = false;
-	Button shuffleb(Vec2f(300, 60), "Shuffle", font, 36);
+	sf::RenderTexture rt;
+	rt.create(deck.getGlobalBounds().width, deck.getGlobalBounds().height);
+	rt.clear();
+	sf::Sprite spr(rt.getTexture());
+	spr.setPosition(deck.getPosition());
+	deck.setPosition(0, 0);
+	rt.setRepeated(true);
+	rt.setSmooth(true);
 	sf::Shader sh;
-	shuffleb.setPosition(res.x/9, res.y/2);
+	std::cout << deck.getValueCount().x*(deck.getValueCount().x + deck.getIndents().x)/deck.getSize().y << "\n";
+	Button shuffleb(Vec2f(300, 60), "Shuffle", font, 36);
+	shuffleb.setPosition(res.x/36, res.y/2);
 	while (window.isOpen())
 	{
 		float d1 = 0;
@@ -521,12 +530,16 @@ void start_game(sf::RenderWindow &window)
 		if (shuffleb.isIntersected(mpos))
 			shuffleb.setColor(mix(bcolor, sf::Color::White));
 		else shuffleb.setColor(bcolor);
-
 		if (shuffleb.isPressed(sf::Mouse::Button::Left, mpos))
 			deck.shuffle();
-		window.draw(rect);
+		sh.loadFromFile("reverse.frag", sf::Shader::Fragment);
+		sh.setUniform("res", Vec2f(rt.getSize()));
+		rt.clear();
+		sh.setUniform("uTexture", rt.getTexture());
+		rt.draw(rect); // deck background
+		rt.draw(deck);
+		window.draw(spr, &sh);
 		window.draw(shuffleb);
-		window.draw(deck);
 		window.display();
 	}
 }

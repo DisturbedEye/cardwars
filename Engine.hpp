@@ -61,10 +61,10 @@ namespace engine
 	class ShaderTexture;
 	struct Button;
 
+	template<engine::ScrollType ScType = engine::ScrollType::Vertical>
 	class Slider;
 	template <class T, const ScrollType scrpoll_type = ScrollType::Vertical>
 	class Scrollable;
-	sf::Shader *loadCutShader(sf::Shader *shader, const sf::Texture &texture, const Vec2f &ro, const Vec2f &rs);
 	//    cards    //
 	class CardTexture;
 	struct ACard;

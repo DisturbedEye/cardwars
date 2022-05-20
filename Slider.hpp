@@ -1,13 +1,13 @@
 #pragma once
 
-
+template<engine::ScrollType ScType>
 class engine::Slider : public sf::Drawable, public Clickable
 {
 public:
-	Slider(const Rect &r, ScrollType t = ScrollType::Vertical, float = 0, float = 0);
-	Slider(const Vec2f &s, ScrollType t = ScrollType::Vertical, float = 0, float = 0);
+	Slider(const Rect &r, float = 0, float = 0);
+	Slider(const Vec2f &s, float = 0, float = 0);
 	Slider(const Slider &sl) : Clickable(sl.rect),
-		minV(sl.minV), maxV(sl.maxV), type(sl.type) {}
+		minV(sl.minV), maxV(sl.maxV) {}
 	Slider(Slider &&sl) = default;
 	Slider() : Clickable() {}
 	~Slider() override = default;
@@ -32,79 +32,76 @@ public:
 private:
 	float minV = 0;
 	float maxV = 0;
-	void clampPos();
-	ScrollType type = ScrollType::Vertical;
 };
 
 
-inline engine::Slider::Slider(const Rect &r, ScrollType t, float _minV, float _maxV)
-	: Clickable(r), minV(_minV), maxV(_maxV), type(t) {}
+template<engine::ScrollType ScType>
+inline engine::Slider<ScType>::Slider(const Rect &r, float _minV, float _maxV)
+	: Clickable(r), minV(_minV), maxV(_maxV) {}
 
-inline engine::Slider::Slider(const Vec2f &s, ScrollType t, float _minV, float _maxV)
-	: Clickable(s), minV(_minV), maxV(_maxV), type(t) {}
+template<engine::ScrollType ScType>
+inline engine::Slider<ScType>::Slider(const Vec2f &s, float _minV, float _maxV)
+	: Clickable(s), minV(_minV), maxV(_maxV) {}
 
-inline void engine::Slider::setPosition(const Vec2f &pos)
+template<>
+inline void engine::Slider<engine::ScrollType::Vertical>::setPosition(const Vec2f &pos)
 {
-	if (type == ScrollType::Vertical)
-		rect.setPosition(pos.x, math::clamp(pos.y, minV, maxV));
-	else rect.setPosition(math::clamp(pos.x, minV, maxV), pos.y);
+	rect.setPosition(pos.x, math::clamp(pos.y, minV, maxV - getSize().y));
 }
-
-inline void engine::Slider::setSize(const Vec2f &s)
+template<>
+inline void engine::Slider<engine::ScrollType::Horizontal>::setPosition(const Vec2f &pos)
+{
+	rect.setPosition(math::clamp(pos.x, minV, maxV - getSize().x), pos.y);
+}
+template<engine::ScrollType ScType>
+inline void engine::Slider<ScType>::setSize(const Vec2f &s)
 {
 	rect.setSize(s);
 }
-
-inline void engine::Slider::setOrigin(const Vec2f &_or)
+template<engine::ScrollType ScType>
+inline void engine::Slider<ScType>::setOrigin(const Vec2f &_or)
 {
 	rect.setOrigin(_or);
 }
-
-inline void engine::Slider::setLimit(const float &_min, const float &_max)
+template<>
+inline void engine::Slider<engine::ScrollType::Vertical>::setLimit(const float &_min, const float &_max)
 {
-	minV = _min;
-	maxV = _max;
+	minV = std::min(_min, _max);
+	maxV = std::max(getSize().y, std::max(_min, _max)); // max value not less than slider size
 }
-
-inline engine::Vec2f engine::Slider::getPosition() const
+template<>
+inline void engine::Slider<engine::ScrollType::Horizontal>::setLimit(const float &_min, const float &_max)
+{
+	minV = std::min(_min, _max);
+	maxV = std::max(getSize().x, std::max(_min, _max)); // max value not less than slider size
+}
+template<engine::ScrollType ScType>
+inline engine::Vec2f engine::Slider<ScType>::getPosition() const
 {
 	return rect.getPosition();
 }
-
-inline engine::Vec2f engine::Slider::getSize() const
+template<engine::ScrollType ScType>
+inline engine::Vec2f engine::Slider<ScType>::getSize() const
 {
 	return rect.getSize();
 }
-
-inline engine::Vec2f engine::Slider::getOrigin() const
+template<engine::ScrollType ScType>
+inline engine::Vec2f engine::Slider<ScType>::getOrigin() const
 {
 	return rect.getOrigin();
 }
-
-inline float engine::Slider::getMin() const
+template<engine::ScrollType ScType>
+inline float engine::Slider<ScType>::getMin() const
 {
 	return minV;
 }
-
-inline float engine::Slider::getMax() const
+template<engine::ScrollType ScType>
+inline float engine::Slider<ScType>::getMax() const
 {
 	return maxV;
 }
-
-inline engine::ScrollType engine::Slider::getType() const
-{
-	return type;
-}
-
-inline void engine::Slider::draw(sf::RenderTarget &win, sf::RenderStates st) const
+template<engine::ScrollType ScType>
+inline void engine::Slider<ScType>::draw(sf::RenderTarget &win, sf::RenderStates st) const
 {
 	win.draw(rect, st);
-}
-
-inline void engine::Slider::clampPos()
-{
-	if (type == ScrollType::Horizontal)
-		rect.setPosition(math::clamp(rect.getPosition().x, minV, maxV), rect.getPosition().y);
-	else 
-		rect.setPosition(rect.getPosition().x, math::clamp(rect.getPosition().y, minV, maxV));
 }
