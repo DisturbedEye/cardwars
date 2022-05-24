@@ -10,10 +10,10 @@ class engine::Scrollable<T, engine::ScrollType::Vertical> : public sf::Drawable
 	Vec2f origin;
 	Vec2f ssize; // size
 	Vec2f ind; // indents between elements
-	Slider<engine::ScrollType::Vertical> slider;
+	Slider<Rect, ScrollType::Vertical> slider;
 	Vec2f esize; // element size
 	Vec2u n; // elements count by width and height
-	std::vector<T> *elems;
+	std::vector<T> *elems; // values is a pointers
 public:
 	Scrollable(std::vector<T> *values, const unsigned int &count, const float &length)
 		: elems(values)
@@ -23,18 +23,13 @@ public:
 			count - is number of elements by width or height, it depends on scroll type
 			values - it is that what will be copy by pointer!
 				size of first values element is a template for all of elements 
-			length - is a max height of slider
+			length - is a local height of slider
 		*/
 		if(!elems->empty())
 			esize = elems->front()->getSize();
-		slider = Slider<engine::ScrollType::Vertical>(Vec2f(30, 1));
+		slider = Slider(Rect(Vec2f(30, 1)));
 		setSize(count, length);
 	}
-	Scrollable(const Scrollable<T> &sc)
-	{
-		*this = sc;
-	}
-	~Scrollable() override = default;
 	void setOrigin(const Vec2f &or_)
 	{
 		origin = or_;
@@ -62,7 +57,8 @@ public:
 	void setPosition(const Vec2f &p)
 	{
 		position = p;
-		recount_slider();
+		slider.setPosition(position.x + n.x * (esize.x + ind.x), slider.getPosition().y);
+		slider.setLimit(position.y, position.y + ssize.y);
 	}
 
 	void setPosition(const float &x, const float &y)
@@ -72,9 +68,11 @@ public:
 
 	void setSize(unsigned int count, const float &length)
 	{
+		// count - count by width
+		// length - local height
 		const size_t val_count = elems->size();
 		n.x = count;
-		n.y = static_cast<int>(ceil(val_count / n.x)) + 1;
+		n.y = static_cast<unsigned>(ceil(val_count / n.x)) + 1;
 		ssize.x = n.x * (esize.x + ind.x);
 		ssize.y = length;
 		recount_slider();
@@ -92,7 +90,7 @@ public:
 	bool sliderIsPressed(sf::Mouse::Button b) { return slider.isPressed(b); }
 	bool sliderIsHold(sf::Mouse::Button b) { return slider.isHold(b); }
 	void setSliderTexture(const sf::Texture *texture) { slider.setTexture(texture); }
-	Slider<ScrollType::Vertical> getSlider() const { return slider; }
+	auto getSlider() const { return slider; }
 	Vec2f getValueSize() const { return esize; }
 	Vec2u getValueCount() const { return n; } // returns vector2 where x is val count by width, y - by height
 	size_t size() const { return elems->size(); }
@@ -107,18 +105,6 @@ public:
 	float getSliderOutlineThickness() const { return slider.getOutlineThickness(); }
 	sf::FloatRect getLocalBounds() const { return sf::FloatRect(Vec2f(), ssize); }
 	sf::FloatRect getGlobalBounds() const { return sf::FloatRect(position - origin, Vec2f(ssize.x + slider.getSize().x, ssize.y)); }
-	Scrollable<T, ScrollType::Vertical> &operator=(const Scrollable<T, ScrollType::Vertical> &sc)
-	{
-		position = sc.position;
-		origin = sc.origin;
-		ssize = sc.ssize;
-		ind = sc.ind;
-		slider = sc.slider;
-		esize = sc.esize;
-		n = sc.n;
-		elems = sc.elems;
-		return *this;
-	}
 private:
 	void recount_slider()
 	{
@@ -139,7 +125,7 @@ private:
 			win.draw(*el, st);
 			i++;
 		}
-		if (slider.getSize().y < ssize.y) // excepting a way when slider height >= this height 
+		if (slider.getSize().y < ssize.y) // excepting a way when slider height >= local height 
 			win.draw(slider, st);
 	}
 };
@@ -153,7 +139,7 @@ class engine::Scrollable<T, engine::ScrollType::Horizontal> : public sf::Drawabl
 	Vec2f origin;
 	Vec2f ssize; // size
 	Vec2f ind; // indents between elements
-	Slider<engine::ScrollType::Horizontal> slider;
+	Slider<Rect, ScrollType::Horizontal> slider;
 	Vec2f esize; // element size
 	Vec2u n; // elements count by width and height
 	std::vector<T> *elems;
@@ -170,15 +156,10 @@ public:
 		*/
 		if (!elems->empty())
 			esize = elems->front()->getSize();
-		slider = Slider<engine::ScrollType::Horizontal>(Vec2f(1, 30));
+		slider = Slider<Rect, ScrollType::Horizontal>(Rect(Vec2f(1, 30)));
 		setSize(count, length);
 		Vec2f sls = slider.getSize();
 	}
-	Scrollable(const Scrollable<T> &sc)
-	{
-		*this = sc;
-	}
-	~Scrollable() override = default;
 	void setOrigin(const Vec2f & or_)
 	{
 		origin = or_;
@@ -195,7 +176,7 @@ public:
 	void setSliderLength(const float &length)
 	{
 		slider.setSize(Vec2f(slider.getSize().x, length));
-		slider.setLimit(position.x, position.x + ssize.x - slider.getSize().x);
+		slider.setLimit(position.x, position.x + ssize.x);
 	}
 
 	void setSliderPos(const float &pos)
@@ -206,7 +187,8 @@ public:
 	void setPosition(const Vec2f & p)
 	{
 		position = p;
-		recount_slider();
+		slider.setPosition(slider.getPosition().x, position.y + n.y * (esize.y + ind.y));
+		slider.setLimit(position.x, position.x + ssize.x);
 	}
 
 	void setPosition(const float &x, const float &y)
@@ -216,16 +198,18 @@ public:
 
 	void setSize(unsigned int count, const float &length)
 	{
+		// count - count by height
+		// length - local length
 		const size_t val_count = elems->size();
 	
 		n.y = count;
-		n.x = static_cast<int>(ceil(val_count / n.y)) + 1;
+		n.x = static_cast<unsigned>(ceil(val_count / n.y)) + 1;
 		ssize.y = n.y * (esize.y + ind.y);
 		ssize.x = length;
 
 		recount_slider();
 	}
-	void push_back(const T & val)
+	void push_back(const T &val)
 	{
 		elems->push_back(&val);
 		n.x = static_cast<int>(ceil(elems->size() / n.y)) + 1;
@@ -238,7 +222,7 @@ public:
 	bool sliderIsPressed(sf::Mouse::Button b) { return slider.isPressed(b); }
 	bool sliderIsHold(sf::Mouse::Button b) { return slider.isHold(b); }
 	void setSliderTexture(const sf::Texture * texture) { slider.setTexture(texture); }
-	Slider<ScrollType::Horizontal> getSlider() const { return slider; }
+	auto getSlider() const { return slider; }
 	Vec2f getValueSize() const { return esize; }
 	size_t size() const { return elems->size(); }
 	Vec2f getIndents() const { return ind; }
@@ -251,28 +235,17 @@ public:
 	sf::Color getSliderOutlineColor() const { return slider.getOutlineColor(); }
 	float getSliderOutlineThickness() const { return slider.getOutlineThickness(); }
 	sf::FloatRect getLocalBounds() const { return sf::FloatRect(Vec2f(), ssize); }
-	sf::FloatRect getGlobalBounds() const { return sf::FloatRect(position - origin, Vec2f(ssize.x + slider.getSize().x, ssize.y)); }
-	Scrollable<T, ScrollType::Horizontal> &operator=(const Scrollable<T, ScrollType::Horizontal> &sc)
-	{
-		position = sc.position;
-		origin = sc.origin;
-		ssize = sc.ssize;
-		ind = sc.ind;
-		slider = sc.slider;
-		esize = sc.esize;
-		n = sc.n;
-		elems = sc.elems;
-		return *this;
-	}
+	sf::FloatRect getGlobalBounds() const { return sf::FloatRect(position - origin, Vec2f(ssize.x, ssize.y + slider.getSize().y)); }
+
 private:
 	void recount_slider()
 	{
 		const Vec2f sls = Vec2f(powf(ssize.x, 2) / (n.x * (esize.x + ind.x)), slider.getSize().y);
 		slider.setSize(sls);
 		slider.setPosition(slider.getPosition().x, position.y + n.y * (esize.y + ind.y));
-		slider.setLimit(position.x, position.x + ssize.x - sls.x);
+		slider.setLimit(position.x, position.x + ssize.x);
 	}
-	void draw(sf::RenderTarget & win, sf::RenderStates st) const override
+	void draw(sf::RenderTarget &win, sf::RenderStates st) const override
 	{
 		size_t i = 0;
 		const float t = (slider.getPosition().x - position.x) / ssize.x;
@@ -285,7 +258,7 @@ private:
 			win.draw(*el, st);
 			i++;
 		}
-		if (slider.getSize().x < ssize.x) // excepting a way when slider width >= this width
+		if (slider.getSize().x < ssize.x) // excepting a way when slider width >= local width
 			win.draw(slider, st);
 	}
 };

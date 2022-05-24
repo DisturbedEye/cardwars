@@ -1,39 +1,22 @@
 #pragma once
 
-struct engine::ACard : sf::Drawable
+struct engine::ACard : Rect
 {
 	enum class Types
 	{ Ground, Air, Debuff, Buff, Water, Static };
-
-	/*enum class Keywords
-	{
-	};*/
 	ACard(const Vec2u &window_size);
 	ACard(const ACard &) = delete;
-	~ACard() override = default;
 	ACard(ACard &&) = delete;
 	virtual void onUse() = 0;
-	void setPosition(const Vec2f &p);
-	void setOrigin(const Vec2f &o);
-	void setSize(const Vec2f &s);
-	void setPosition(const float &x, const float &y);
-	void setOrigin(const float &x, const float &y);
-	void setSize(const float &x, const float &y);
 	virtual void movement() = 0;
-	Vec2f getPosition() const;
-	Vec2f getOrigin() const;
-	Vec2f getSize() const;
 	bool isChoosed() const; // event when need to see the description
 	bool isTaked();
 	std::string getDescription() const;
 	//static std::vector<const Keywords> getKeyWords(const std::string &desc); // founds a keywords
-	sf::FloatRect getGlobalBounds() const { return cover.getGlobalBounds(); }
-	sf::FloatRect getLocalBounds() const { return cover.getLocalBounds(); }
 	void onTake();
 	ACard &operator=(ACard &&) = delete;
 	ACard &operator=(const ACard &) = delete;
 protected:
-	Rect cover = Rect();
 	static Json load(Types type);
 	std::string Description;
 	// json elements
@@ -42,15 +25,12 @@ protected:
 	inline const static std::string HealthStr = "Health";
 	inline const static std::string FileNameStr = "FileName";
 	inline const static std::string DescriptionStr = "Description";
-
-private:
-	void draw(sf::RenderTarget &window, sf::RenderStates states) const final override;
 };
 
 
 inline engine::ACard::ACard(const Vec2u &window_size)
 {
-	cover.setSize((Vec2f(static_cast<float>(window_size.x)/9.f, static_cast<float>(window_size.y)/4.f)));
+	setSize(Vec2f(static_cast<float>(window_size.x)/9.f, static_cast<float>(window_size.y)/4.f));
 }
 
 inline nlohmann::json engine::ACard::load(const Types type)
@@ -91,48 +71,4 @@ inline bool engine::ACard::isTaked()
 inline void engine::ACard::onTake()
 {
 
-}
-inline void engine::ACard::setPosition(const Vec2f &p)
-{
-	cover.setPosition(p);
-}
-inline void engine::ACard::setOrigin(const Vec2f &origin)
-{
-	cover.setOrigin(origin);
-}
-inline void engine::ACard::setSize(const Vec2f &s)
-{
-	cover.setSize(s);
-}
-inline void engine::ACard::setPosition(const float &x, const float &y)
-{
-	cover.setPosition(x, y);
-}
-inline void engine::ACard::setOrigin(const float &x, const float &y)
-{
-	cover.setOrigin(x, y);
-}
-inline void engine::ACard::setSize(const float &x, const float &y)
-{
-	cover.setSize(Vec2f(x, y));
-}
-inline std::string engine::ACard::getDescription() const
-{
-	return Description;
-}
-inline sf::Vector2f engine::ACard::getPosition() const
-{
-	return cover.getPosition();
-}
-inline sf::Vector2f engine::ACard::getSize() const
-{
-	return cover.getSize();
-}
-inline sf::Vector2f engine::ACard::getOrigin() const
-{
-	return cover.getOrigin();
-}
-inline void engine::ACard::draw(sf::RenderTarget &window, sf::RenderStates states) const
-{
-	window.draw(cover, states);
 }

@@ -1,7 +1,5 @@
 #version 120
 uniform vec2 res;
-uniform float dx;
-uniform float dy;
 uniform sampler2D uTexture;
 
 void main()

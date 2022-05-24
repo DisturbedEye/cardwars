@@ -1,17 +1,10 @@
 #pragma once
 
-struct engine::Button : sf::Drawable, Clickable
+struct engine::Button : ClickableRect, sf::Drawable
 {
-	Button(const Vec2f &, const sf::String &, const sf::Font &, const unsigned int &char_size);
-	Button();
-	Button(const Button &b) : Clickable(b.rect),
-		content(b.content), indents(b.indents),
-		center(b.center)
-	{
-		if (center)
-			reset_to_center();
-	}
-	~Button() override = default;
+	Button(const Rect &, const sf::String &, const sf::Font &, const unsigned &char_size = 38u);
+	Button(const Vec2f &, const sf::String &, const sf::Font &, const unsigned &char_size = 38u);
+	Button() = default;
 	void setPosition(Vec2f position);
 	void setPosition(const float &x, const float &y) { setPosition(Vec2f(x, y)); }
 	void setOrigin(const Vec2f &origin);
@@ -55,18 +48,20 @@ private:
 	void draw(sf::RenderTarget &window, sf::RenderStates states) const override;
 };
 
-inline engine::Button::Button() : Clickable() {}
-
-inline engine::Button::Button(const Vec2f &size, const sf::String &string, const sf::Font &font, const unsigned int &char_size)
-	: Clickable(Rect(size)), content(string, font, char_size)
+inline engine::Button::Button(const Rect &rect, const sf::String &string, const sf::Font &font, const unsigned &char_size)
+	: ClickableRect(rect), content(string, font, char_size)
+{
+	reset_to_center();
+}
+inline engine::Button::Button(const Vec2f &size, const sf::String &string, const sf::Font &font, const unsigned &char_size)
+	: ClickableRect(Rect(size)), content(string, font, char_size)
 {
 	reset_to_center();
 }
 
-
 inline void engine::Button::setPosition(const Vec2f position)
 {
-	rect.setPosition(position);
+	shape.setPosition(position);
 	content.setPosition(position);
 	reset_to_center();
 }
@@ -74,14 +69,14 @@ inline void engine::Button::setPosition(const Vec2f position)
 
 inline void engine::Button::setOrigin(const Vec2f &origin)
 {
-	rect.setOrigin(origin);
+	shape.setOrigin(origin);
 	reset_to_center();
 }
 
 
 inline void engine::Button::setScale(const Vec2f scale)
 {
-	rect.setScale(scale);
+	shape.setScale(scale);
 	content.setScale(scale);
 	reset_to_center();
 }
@@ -115,19 +110,19 @@ inline void engine::Button::setIndents(const Vec2f &indents)
 
 inline void engine::Button::setShapeSize(const Vec2f &size)
 {
-	rect.setSize(size);
+	shape.setSize(size);
 	reset_to_center();
 }
 
 inline void engine::Button::setSize(const Vec2f &size)
 {
-	rect.setSize(size);
+	shape.setSize(size);
 	reset_to_center();
 }
 
 inline void engine::Button::setColor(const sf::Color &clr)
 {
-	rect.setFillColor(clr);
+	shape.setFillColor(clr);
 }
 
 inline void engine::Button::setFontColor(const sf::Color &clr)
@@ -167,7 +162,7 @@ inline void engine::Button::setFontOutline(const float &t, const sf::Color &clr)
 
 inline void engine::Button::setTexture(sf::Texture *texture)
 {
-	rect.setTexture(texture);
+	shape.setTexture(texture);
 }
 
 inline void engine::Button::Centralize(const bool &b)
@@ -187,7 +182,7 @@ inline sf::FloatRect engine::Button::getTextGlobalBounds() const
 
 inline sf::FloatRect engine::Button::getShapeGlobalBounds() const
 {
-	return rect.getGlobalBounds();
+	return shape.getGlobalBounds();
 }
 
 inline sf::FloatRect engine::Button::getTextLocalBounds() const
@@ -197,27 +192,27 @@ inline sf::FloatRect engine::Button::getTextLocalBounds() const
 
 inline sf::FloatRect engine::Button::getShapeLocalBounds() const
 {
-	return rect.getLocalBounds();
+	return shape.getLocalBounds();
 }
 
 inline sf::Vector2f engine::Button::getSize() const
 {
-	return rect.getSize();
+	return shape.getSize();
 }
 
 inline sf::Color engine::Button::getOutLineColor() const
 {
-	return rect.getOutlineColor();
+	return shape.getOutlineColor();
 }
 
 inline float engine::Button::getOutLineThickness() const
 {
-	return rect.getOutlineThickness();
+	return shape.getOutlineThickness();
 }
 
 inline sf::Color engine::Button::getColor() const
 {
-	return rect.getFillColor();
+	return shape.getFillColor();
 }
 
 inline sf::Color engine::Button::getFontColor() const
@@ -258,16 +253,16 @@ inline float engine::Button::getFontOutlineThickness() const
 
 inline void engine::Button::reset_to_center()
 {
-	float w = (rect.getGlobalBounds().width - content.getGlobalBounds().width) / 2.f;
-	float h = (rect.getGlobalBounds().height - content.getGlobalBounds().height) / 2.f;
+	float w = (shape.getGlobalBounds().width - content.getGlobalBounds().width) / 2.f;
+	float h = (shape.getGlobalBounds().height - content.getGlobalBounds().height) / 2.f;
 	Vec2f p = Vec2f(content.getGlobalBounds().left, content.getGlobalBounds().top) - content.getPosition();
 	Vec2f defaultIndent = Vec2f(w, h);
-	content.setPosition(rect.getPosition() + defaultIndent - p);
+	content.setPosition(shape.getPosition() + defaultIndent - p);
 }
 
 
 inline void engine::Button::draw(sf::RenderTarget &window, sf::RenderStates states) const
 {
-	window.draw(rect);
+	window.draw(shape);
 	window.draw(content);
 }

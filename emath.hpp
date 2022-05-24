@@ -1,5 +1,16 @@
 #pragma once
 
+template<typename T>
+engine::Vec2<T> operator+(const engine::Vec2<T> &v, const T &c)
+{
+	return engine::Vec2<T>(v.x + c, v.y + c);
+}
+
+template<typename T>
+engine::Vec2<T> operator-(const engine::Vec2<T> &v, const T &c)
+{
+	return engine::Vec2<T>(v.x - c, v.y - c);
+}
 
 template<class T>
 size_t engine::math::get_index(const std::vector<T> &v, const T n)
@@ -25,29 +36,17 @@ inline float engine::math::time()
 	return static_cast<float>(clock()) / CLOCKS_PER_SEC;
 }
 
-inline bool engine::math::inside(const Vec2f &p, const Rect &rect)
+inline bool engine::math::contains(const Rect &rect, const Vec2f &p)
 {
-	const Vec2f rs = rect.getSize();
-	const Vec2f ro = rect.getPosition() - rect.getOrigin();
-	return p.x >= ro.x and p.x <= ro.x + rs.x and p.y >= ro.y and p.y <= ro.y + rs.y;
+	return rect.getGlobalBounds().contains(p);
 }
 
-inline bool engine::math::inside(const Vec2f &p, const Vec2f ro, const Vec2f rs)
+inline bool engine::math::contains(const Vec2f &ro, const Vec2f &rs, const Vec2f &p)
 { // ro - across left top point
-	return p.x >= ro.x and p.x <= ro.x + rs.x and p.y >= ro.y and p.y <= ro.y + rs.y;
+	return sf::FloatRect(ro, rs).contains(p);
 }
 
-inline float engine::math::length(const Vec2f &v)
-{
-	return hypotf(v.x, v.y);
-}
-
-inline float engine::math::length(const float& x, const float& y)
-{
-	return hypotf(x, y);
-}
-
-inline bool engine::math::inside(const Vec2f &p, const Convex &polygon)
+inline bool engine::math::contains(const Convex &polygon, const Vec2f &p)
 { // only for convex
 	bool ins = true;
 	const Vec2f pp = polygon.getPosition();
@@ -60,7 +59,7 @@ inline bool engine::math::inside(const Vec2f &p, const Convex &polygon)
 	}
 	return ins;
 }
-inline bool engine::math::inside(const Vec2f &point, const Circle &circle)
+inline bool engine::math::contains(const Circle &circle, const Vec2f &point)
 {
 	const float &x = point.x;
 	const float &y = point.y;
@@ -68,10 +67,20 @@ inline bool engine::math::inside(const Vec2f &point, const Circle &circle)
 	const float p = circle.getScale().x;
 	const float q = circle.getScale().y;
 	const Vec2f cor = circle.getOrigin();
-	const float x0 = circle.getPosition().x + r*p - cor.x;
-	const float y0 = circle.getPosition().y + r*q - cor.y;
-	return powf((x - x0)/p, 2.f) + powf((y - y0)/q, 2.f) <= powf(r, 2.f);
+	const float x0 = circle.getPosition().x + r * p - cor.x * p;
+	const float y0 = circle.getPosition().y + r * q - cor.y * q;
+	return powf((x - x0) / p, 2.f) + powf((y - y0) / q, 2.f) <= powf(r, 2.f);
 }
+inline float engine::math::length(const Vec2f &v)
+{
+	return hypotf(v.x, v.y);
+}
+
+inline float engine::math::length(const float& x, const float& y)
+{
+	return hypotf(x, y);
+}
+
 inline sf::Color engine::math::mix(const sf::Color &c1, const sf::Color &c2)
 {
 	return sf::Color((c1.r + c2.r) / 2, (c1.g + c2.g) / 2, (c1.b + c2.b) / 2, (c1.a + c2.a) / 2);

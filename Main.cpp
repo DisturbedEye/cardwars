@@ -54,7 +54,7 @@ int main()
 	using namespace parametrs;
 	using Rect = sf::RectangleShape;
 	sf::VideoMode mode = sf::VideoMode::getDesktopMode();
-	sf::RenderWindow window(sf::VideoMode(default_resolution.x, default_resolution.y, mode.bitsPerPixel), "Card Wars", window_mode);
+	sf::RenderWindow window(sf::VideoMode(default_resolution.x, default_resolution.y, mode.bitsPerPixel), "Rune Wars", window_mode);
 	window.setFramerateLimit(frame_limit);
 	window.setVerticalSyncEnabled(vsync);
 	sf::Music ms;
@@ -77,11 +77,11 @@ int main()
 }
 int main_menu(sf::RenderWindow &window)
 {
-	using engine::Button;
-	using engine::Vec2f;
-	using engine::Vec2u;
+	using engine::Vec2f, engine::Vec2u;
 	using engine::math::mix;
 	using namespace parametrs;
+	using engine::Circle, engine::ScrollType, engine::Rect,
+		  engine::Button;
 	sf::Vector2u ures = window.getSize();
 	sf::Vector2f res = sf::Vector2f(ures);
 	sf::Mouse mouse;
@@ -106,7 +106,7 @@ int main_menu(sf::RenderWindow &window)
 	r.setSize(Vec2f(res.x, res.y));
 	r.setTexture(&bctex);
 	// buttons
-	Button start = Button(bsize, "Start", font, (uint32_t)abs(floor(engine::math::length(res))) / 64u);
+	Button start = Button(Rect(bsize), "Start", font, (uint32_t)abs(floor(engine::math::length(res))) / 64u);
 	Button settings = Button(bsize, "Settings", font, (uint32_t)abs(floor(engine::math::length(res))) / 64u);
 	Button about_us = Button(bsize, "About Us", font, (uint32_t)abs(floor(engine::math::length(res))) / 64u);
 	Button exit = Button(bsize, "Exit", font, (uint32_t)abs(floor(engine::math::length(res))) / 64u);
@@ -122,7 +122,6 @@ int main_menu(sf::RenderWindow &window)
 	txt.setPosition(res.x / 6.f, res.y / 4.f);
 	Vec2u bres = window.getSize();
     txt.setScale(txt.getScale().x * 1.5f, txt.getScale().y * 1.5f);
-
     n = 0;
     tmp = 0;
 	while (window.isOpen())
@@ -182,19 +181,18 @@ void game_settings(sf::RenderWindow &window)
 	* audio (later add)
 	* other settings
 	*/
-
-	using engine::Button;
-	using sf::Vector2f, sf::Vector2u;
+	using engine::Vec2f, engine::Vec2u;
 	using std::min, std::max;
 	using engine::math::mix;
-
+	using engine::Circle, engine::ScrollType, engine::Rect,
+		engine::Button;
 	using namespace parametrs;
 	sf::Mouse m;
-	Vector2f mpos;
-	Vector2u ures = window.getSize();
-	Vector2f res = Vector2f(ures);
-	std::vector<Vector2u> resols = { {800, 600}, {1280, 720}, {1366, 768}, {1600, 900}, {1920, 1080}, {2560, 1440} }; // = resolutions
-	if (!std::any_of(resols.begin(), resols.end(), [ures](Vector2u v) {return v == ures; }))
+	Vec2f mpos;
+	Vec2u ures = window.getSize();
+	Vec2f res = Vec2f(ures);
+	std::vector<Vec2u> resols = { {800, 600}, {1280, 720}, {1366, 768}, {1600, 900}, {1920, 1080}, {2560, 1440} }; // = resolutions
+	if (!std::any_of(resols.begin(), resols.end(), [ures](Vec2u v) {return v == ures; }))
 	{
 		unsigned int n = window.getSize().x;
 		if (n < resols[0].x)
@@ -210,16 +208,16 @@ void game_settings(sf::RenderWindow &window)
 		}
 	}
 	std::vector<uint16_t> framerates = { 30, 59, 60, 75, 100, 120, 144, 240, 360 };
-	Vector2f bpos = Vector2f(res.x / 3.f, res.y / 8.f); // button position
-	Vector2f bsize = Vector2f(res.x / 9.6f, res.y / 18.f); // button size
-	Vector2f bsize2 = Vector2f(res.x / 4.8f, res.y / 18.f); // screen buttons size
-	Vector2f swsize = Vector2f(res.x / 32.f, res.y / 18.f); // switcher size
+	Vec2f bpos = Vec2f(res.x / 3.f, res.y / 8.f); // button position
+	Vec2f bsize = Vec2f(res.x / 9.6f, res.y / 18.f); // button size
+	Vec2f bsize2 = Vec2f(res.x / 4.8f, res.y / 18.f); // screen buttons size
+	Vec2f swsize = Vec2f(res.x / 32.f, res.y / 18.f); // switcher size
 	sf::Color bcolor = sf::Color(115, 1, 4); // button color (reddish for me plz)
 	auto &font = loadFont();
 	// buttons
 	Button backB = Button(bsize, "Back", font, ures.y / 27u); // save
 	Button resetB = Button(bsize, "Reset", font, ures.y / 27u); // reset
-	Button saveB = Button(Vector2f(bsize), "Save", font, ures.y / 27u);
+	Button saveB = Button(Vec2f(bsize), "Save", font, ures.y / 27u);
 	Button switcherL = Button(swsize, "<", font, ures.y / 27u); // left resolution switcher
 	Button switcherR = Button(swsize, ">", font, ures.y / 27u); // right resolution switcher
 	std::string ressx = std::to_string(window.getSize().x); // string resolution x
@@ -280,7 +278,7 @@ void game_settings(sf::RenderWindow &window)
 	txts.push_back(&tfps);
 	txts.push_back(&twmode);
 	txts.push_back(&tvsync);
-	Vector2u bres = window.getSize();
+	Vec2u bres = window.getSize();
 
 	sf::SoundBuffer sb1;
     sf::SoundBuffer sb2;
@@ -295,17 +293,17 @@ void game_settings(sf::RenderWindow &window)
 	uint8_t i, j, n, k, t, tmp, pp;
 	int p1 = static_cast<int>(engine::math::get_index(resols, window.getSize()));
 	int p2 = 2; // p2 - framerate id
-	Vector2u r = window.getSize();
+	Vec2u r = window.getSize();
 	unsigned int fr = engine::getInfoFramerateLimit();
 	tmp = 0;
 	pp = 0;
-	auto win_resize([&buttons, &bsize, &swsize, &bsize2, &res, &bpos](const Vector2u &size)
+	auto win_resize([&buttons, &bsize, &swsize, &bsize2, &res, &bpos](const Vec2u &size)
 	{ // resizes a window
-		res = Vector2f(size);
-		bpos = Vector2f(res.x / 3.f, res.y / 8.f); // button position
-		bsize = Vector2f(res.x / 9.6f, res.y / 18.f); // button size
-		bsize2 = Vector2f(res.x / 4.8f, res.y / 18.f); // screen buttons size
-		swsize = Vector2f(res.x / 32.f, res.y / 18.f); // switcher size
+		res = Vec2f(size);
+		bpos = Vec2f(res.x / 3.f, res.y / 8.f); // button position
+		bsize = Vec2f(res.x / 9.6f, res.y / 18.f); // button size
+		bsize2 = Vec2f(res.x / 4.8f, res.y / 18.f); // screen buttons size
+		swsize = Vec2f(res.x / 32.f, res.y / 18.f); // switcher size
 		buttons[0]->setSize(bsize); // back
 		buttons[1]->setSize(bsize); // save
 		buttons[2]->setSize(bsize); // reset
@@ -328,6 +326,14 @@ void game_settings(sf::RenderWindow &window)
 		window.setFramerateLimit(fr);
 		win_resize(window.getSize());
 	});
+	Vec2f slider_pos = { 3.f*res.x/5.f, 7.f* res.y / 12.f };
+	engine::Slider<Circle, ScrollType::Horizontal> example(Circle(25.f), slider_pos.x, res.x - res.x / 12.f);
+	example.setPosition(slider_pos);
+	sf::Texture textr;
+	textr.loadFromFile("images/floppa.png");
+
+	example.setTexture(&textr);
+	bool a = false;
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -346,7 +352,7 @@ void game_settings(sf::RenderWindow &window)
 				win_resize(window.getSize());
 			}
 		}
-		mpos = Vector2f(m.getPosition(window));
+		mpos = Vec2f(m.getPosition(window));
 		window.clear();
 		//code
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
@@ -369,15 +375,15 @@ void game_settings(sf::RenderWindow &window)
 
 			//button positioning
 			if (k == Back)
-				b->setPosition(Vector2f(0, 0));
+				b->setPosition(Vec2f(0, 0));
 
 			else if (k == Save or k == Reset)
-				b->setPosition(Vector2f((++i) * res.x / 5.0f, res.y - res.y / 10) - b->getSize());
+				b->setPosition(Vec2f((++i) * res.x / 5.0f, res.y - res.y / 10) - b->getSize());
 			else
 			{
 				n = static_cast<uint8_t>(abs(floor(j / 3.f)));
 				w = j % 3 == 0 ? 0 : w + buttons[k - 2]->getSize().x;
-				b->setPosition(Vector2f(bpos.x + w + (j % 3) * res.x / 27.f + res.x / 5.0f, bpos.y + n * bsize.y * 1.5f));
+				b->setPosition(Vec2f(bpos.x + w + j % 3 * res.x / 27.f + res.x / 5.0f, bpos.y + n * bsize.y * 1.5f));
 				if (k == VideoModeSwitcher or k == VsyncSwitcher) j += 2;
 				j++;
 			}
@@ -455,12 +461,20 @@ void game_settings(sf::RenderWindow &window)
 		for (auto &txt : txts)
 		{
 			txt->setScale(res.x / bres.x, res.y / bres.y);
-			txt->setPosition(Vector2f(res.x / 5.0f, (++t) * res.y / 23.5f + res.y / 10.5f));
+			txt->setPosition(Vec2f(res.x / 5.0f, (++t) * res.y / 23.5f + res.y / 10.5f));
 			t++;
 			window.draw(*txt);
 		}
         if(tmp==11) pp=0;
         else tmp=0;
+		if (example.isClicked(sf::Mouse::Button::Left, mpos))
+			a = true;
+		if (!example.isHold(sf::Mouse::Button::Left))
+			a = false;
+		if (a)
+			example.setPosition(mpos.x - example.getRadius(), slider_pos.y);
+		window.draw(example);
+
 		window.display();
 	}
 }
@@ -470,12 +484,14 @@ void start_game(sf::RenderWindow &window)
 	using engine::Button;
 	using emath::clamp;
 	using engine::Vec2f;
+	using engine::Vec2u;
 	using emath::mix;
 	using engine::Rect;
 	using namespace engine::cards;
 	using namespace parametrs;
 	using emath::pi;
-	const Vec2f res = Vec2f(window.getSize());
+	const Vec2u ures = window.getSize();
+	const Vec2f res = Vec2f(ures);
 	sf::Mouse m;
 	Vec2f mpos = Vec2f(m.getPosition(window));
 	auto &font = loadFont();
@@ -483,23 +499,14 @@ void start_game(sf::RenderWindow &window)
 	const sf::Color bcolor = sf::Color(230, 100, 100);
 	button.setColor(sf::Color(230, 100, 100));
 	engine::collections::SuperCollection sup(window.getSize());
-	engine::Deck<engine::ScrollType::Vertical> deck(&sup, 3u, res.y/2);
-	deck.setPosition(res.x/4, res.y/6);
-	Rect rect(Vec2f(deck.getSize().x + deck.getSliderSize().x, deck.getSize().y));
+	engine::Deck<engine::ScrollType::Horizontal> deck(&sup, 2u, res.y/2);
+	deck.setPosition(res.x/5, res.y/4);
+	Rect rect(Vec2f(deck.getSize().x, deck.getSize().y + deck.getSliderSize().y));
 	rect.setFillColor(sf::Color(50, 50, 50));
-	float sens = 50; // slider speed
+	float sens = 25; // slider speed
 	float senst = 0;
 	bool a = false;
-	sf::RenderTexture rt;
-	rt.create(deck.getGlobalBounds().width, deck.getGlobalBounds().height);
-	rt.clear();
-	sf::Sprite spr(rt.getTexture());
-	spr.setPosition(deck.getPosition());
-	deck.setPosition(0, 0);
-	rt.setRepeated(true);
-	rt.setSmooth(true);
-	sf::Shader sh;
-	std::cout << deck.getValueCount().x*(deck.getValueCount().x + deck.getIndents().x)/deck.getSize().y << "\n";
+	rect.setPosition(deck.getPosition());
 	Button shuffleb(Vec2f(300, 60), "Shuffle", font, 36);
 	shuffleb.setPosition(res.x/36, res.y/2);
 	while (window.isOpen())
@@ -513,32 +520,27 @@ void start_game(sf::RenderWindow &window)
 				window.close();
 				break;
 			case sf::Event::MouseWheelMoved:
-				d1 = clamp(static_cast<float>(event.mouseWheel.delta), -1, 1);
+				d1 = clamp(static_cast<float>(event.mouseWheel.delta), -1, 1); // slider move coefficient
 			}
 		mpos = Vec2f(m.getPosition(window));
 		window.clear();
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
 			return;
 		senst = d1 != 0.f ?  senst + sens / 4 : 0;
-		deck.setSliderPos(deck.getSliderPos().y - senst * d1);
+		deck.setSliderPos(deck.getSliderPos().x - senst * d1); // slider moving
 		if (deck.sliderIsClicked(sf::Mouse::Button::Left, mpos))
 			a = true;
 		else if (!deck.sliderIsHold(sf::Mouse::Button::Left))
 			a = false;
 		if (a)
-			deck.setSliderPos(mpos.y - deck.getSliderSize().y / 2);
+			deck.setSliderPos(mpos.x - deck.getSliderSize().x / 2);
 		if (shuffleb.isIntersected(mpos))
 			shuffleb.setColor(mix(bcolor, sf::Color::White));
 		else shuffleb.setColor(bcolor);
 		if (shuffleb.isPressed(sf::Mouse::Button::Left, mpos))
 			deck.shuffle();
-		sh.loadFromFile("reverse.frag", sf::Shader::Fragment);
-		sh.setUniform("res", Vec2f(rt.getSize()));
-		rt.clear();
-		sh.setUniform("uTexture", rt.getTexture());
-		rt.draw(rect); // deck background
-		rt.draw(deck);
-		window.draw(spr, &sh);
+		window.draw(rect);
+		window.draw(deck); // we need to cut this
 		window.draw(shuffleb);
 		window.display();
 	}

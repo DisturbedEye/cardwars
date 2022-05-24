@@ -1,7 +1,7 @@
 #pragma once
 
-template<engine::ScrollType T = engine::ScrollType::Vertical>
-class engine::Deck : public Scrollable<Card, T>
+template<const engine::ScrollType ScType = engine::ScrollType::Vertical>
+class engine::Deck : public Scrollable<Card, ScType>
 {
 public:
 	Deck(Collection col, int card_count, const float &height);
@@ -10,15 +10,15 @@ private:
 	Collection collection;
 };
 
-template<engine::ScrollType T>
-engine::Deck<T>::Deck(Collection col, int card_count, const float &length)
-	: Scrollable<Card, T>(&col->cards, card_count, length), collection(col)
+template<const engine::ScrollType ScType>
+engine::Deck<ScType>::Deck(Collection col, int card_count, const float &length)
+	: Scrollable<Card, ScType>(&col->cards, card_count, length), collection(col)
 {
 	this->setSize(card_count, length);
 }
 
-template<engine::ScrollType T> 
-void engine::Deck<T>::shuffle() const
+template<const engine::ScrollType ScType>
+void engine::Deck<ScType>::shuffle() const
 {
 	srand(static_cast<unsigned int>(std::time(NULL)));
 	std::random_device rd;

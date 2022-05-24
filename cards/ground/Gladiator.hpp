@@ -28,7 +28,7 @@ inline engine::cards::Gladiator::Gladiator(const Vec2u &window_size)
 	Damage = js[CardName][DamageStr];
 	Health = js[CardName][HealthStr];
 	Description = js[CardName][DescriptionStr];
-	cover.setTexture(&*texture);
+	setTexture(&*texture);
 }
 inline int engine::cards::Gladiator::getDamage() const
 {

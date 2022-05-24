@@ -57,13 +57,21 @@ namespace engine
 	unsigned int getInfoFramerateLimit();
 	bool getInfoVsync();
 	// Input Actions
-	class Clickable;
+	struct Clickable;
+	template<class Shape>
+	class ClickableShape;
+
+	using ClickableRect = ClickableShape<Rect>;
+	using ClickableConvex = ClickableShape<Convex>;
+	using ClickableCircle = ClickableShape<Circle>;
+
 	class ShaderTexture;
 	struct Button;
-
-	template<engine::ScrollType ScType = engine::ScrollType::Vertical>
+	template<class DrawableType>
+	class Cutter;
+	template<class Shape, ScrollType ScType = ScrollType::Vertical>
 	class Slider;
-	template <class T, const ScrollType scrpoll_type = ScrollType::Vertical>
+	template <class T, const ScrollType ScType = ScrollType::Vertical>
 	class Scrollable;
 	//    cards    //
 	class CardTexture;
@@ -83,7 +91,7 @@ namespace engine
 	{
 		struct SuperCollection;
 	}
-	template<ScrollType>
+	template<const ScrollType>
 	class Deck;
 	/////////////////
 	/// helpers vars
@@ -92,14 +100,14 @@ namespace engine
 		constexpr float pi = 3.14159265f;
 		constexpr float rad = pi / 180; // radian
 		float time(); // surent time after start programm
-		bool inside(const Vec2f &point, const Rect &rect);
-		bool inside(const Vec2f &point, Vec2f ro, Vec2f rs);
+		bool contains(const Rect &rect, const Vec2f &point);
+		bool contains(const Vec2f &ro, const Vec2f &rs, const Vec2f &point);
+		bool contains(const Convex &polygon, const Vec2f &point);
+		bool contains(const Circle &circle, const Vec2f &point);
 		float length(const Vec2f &v);
 		float length(const float &x, const float &y = 0);
 		float around(const float &x, int n);
 		bool belongs(const float &x, const float &m, const float &n);
-		bool inside(const Vec2f &point, const Convex &polygon);
-		bool inside(const Vec2f &point, const Circle &circle);
 		inline Vec2f norm(const Vec2f &v) { return v / length(v); }
 		sf::Color mix(const sf::Color &c1, const sf::Color &c2);
 		float clamp(const float &x, const float &minX, float maxX);
@@ -107,17 +115,19 @@ namespace engine
 		size_t get_index(const std::vector<T> &v, T n);
 	}
 }
-
+namespace ecolls = engine::collections;
+namespace ecards = engine::cards;
 namespace emath = engine::math;
 #include "source.hpp"
-#include "FileManagement.hpp"
 #include "emath.hpp"
+#include "FileManagement.hpp"
+#include "Cutter.hpp"
 #include "ShaderTexture.hpp"
 #include "Clickable.hpp"
 #include "button.hpp"
 #include "Scrollable.hpp"
 #include "CardTexture.hpp"
-// cards //
+//    cards    //
 
 #include "cards/AbstractCard.hpp"
 #include "cards/ground/WitherSkeleton.hpp"
