@@ -17,13 +17,14 @@ public:
 	{
 		rt->create(size.x, size.y);
 		full_spr->setTexture(rt->getTexture());
+		t.create(size.x, size.y);
 		reverse_shader->loadFromFile("reverse.frag", sf::Shader::Fragment);
 	}
 	void update(const sf::Window &win)
 	{
 		t.update(win);
 		bg_spr.setTexture(t);
-		bg_spr.setPosition(-full_spr->getPosition());
+		bg_spr.setPosition(-obj->getPosition());
 	}
 	~Cutter() override
 	{
@@ -34,10 +35,10 @@ public:
 private:
 	void draw(sf::RenderTarget &win, sf::RenderStates st) const override
 	{
+		full_spr->setPosition(obj->getPosition());
+		obj->setPosition(0, 0); // not safe
 		rt->clear();
 		rt->draw(bg_spr);
-		full_spr->setPosition(obj->getPosition());
-		obj->setPosition(0, 0);
 		rt->draw(*obj, st);
 		reverse_shader->setUniform("uTexture", rt->getTexture());
 		reverse_shader->setUniform("res", Vec2f(rt->getSize()));

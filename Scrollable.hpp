@@ -227,7 +227,7 @@ public:
 	size_t size() const { return elems->size(); }
 	Vec2f getIndents() const { return ind; }
 	Vec2f getOrigin() const { return origin; }
-	Vec2f getPosition() const { return position; }
+	Vec2f getPosition() const { return position - origin; }
 	Vec2f getSize() const { return ssize; }
 	Vec2f getSliderSize() const { return slider.getSize(); }
 	Vec2f getSliderPos() const { return slider.getPosition(); }
