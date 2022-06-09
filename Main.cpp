@@ -84,18 +84,16 @@ inline void menu::start(sf::RenderWindow &window)
 	const sf::Color bcolor = sf::Color(230, 100, 100);
 	button.setColor(sf::Color(230, 100, 100));
 	ecolls::SuperCollection sup(window.getSize());
-	engine::Deck deck(&sup, 2u, res.y/2);
-	deck.setPosition(res.x/5, res.y/4);
-	Rect rect(Vec2f(deck.getSize().x + deck.getSliderSize().x, deck.getSize().y));
-	rect.setFillColor(sf::Color(50, 50, 50));
+	engine::Deck deck(&sup, 3u, res.y/2.f);
+	deck.setPosition(res.x/3, res.y/4);
+	Rect rect(Vec2f(deck.getGlobalBounds().width, deck.getGlobalBounds().height));
+
+	rect.setFillColor(sf::Color(22, 22, 22));
 	float sens = 25; // slider speed
 	float senst = 0;
 	bool a = false;
 	rect.setPosition(deck.getPosition());
-	Vec2u u_decksize = Vec2u(static_cast<unsigned>(deck.getGlobalBounds().width + deck.getSliderSize().x), static_cast<unsigned>(deck.getGlobalBounds().height));
-	Button shuffleb(Vec2f(300, 60), "Shuffle", font, 36);
-	shuffleb.setPosition(res.x/36, res.y/2);
-	engine::Cutter cut(u_decksize, &deck);
+	Vec2u u_decksize = Vec2u(Vec2f(deck.getGlobalBounds().width, deck.getGlobalBounds().height));
 	while (window.isOpen())
 	{
 		float d1 = 0;
@@ -114,22 +112,15 @@ inline void menu::start(sf::RenderWindow &window)
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
 			return;
 		senst = d1 != 0.f ?  senst + sens / 4 : 0;
-		deck.setSliderPos(deck.getSliderPos().y - senst * d1); // slider moving
-		if (deck.sliderIsClicked(sf::Mouse::Button::Left, mpos))
+		deck.setSliderPos(deck.getSlider().getPosition().y - senst * d1); // slider moving
+		if (deck.getSlider().isClicked(sf::Mouse::Button::Left, mpos)) // if deck slider is clicked
 			a = true;
-		else if (!deck.sliderIsHold(sf::Mouse::Button::Left))
+		else if (!deck.getSlider().isHold(sf::Mouse::Button::Left)) // if deck slider is hold
 			a = false;
-		if (a)
-			deck.setSliderPos(mpos.y - deck.getSliderSize().y / 2);
-		if (shuffleb.isIntersected(mpos))
-			shuffleb.setColor(mix(bcolor, sf::Color::White));
-		else shuffleb.setColor(bcolor);
-		if (shuffleb.isPressed(sf::Mouse::Button::Left, mpos))
-			deck.shuffle();
+		if (a) // while slider is hold
+			deck.setSliderPos(mpos.y - deck.getSlider().getPosition().y / 2);
 		window.draw(rect);
-		cut.update(window);
-		window.draw(cut); // we need to cut this
-		window.draw(shuffleb);
+		window.draw(engine::clip(u_decksize, deck));
 		window.display();
 	}
 }

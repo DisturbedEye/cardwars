@@ -14,7 +14,6 @@ template<const engine::ScrollType ScType>
 engine::Deck<ScType>::Deck(Collection col, int card_count, const float &length)
 	: Scrollable<Card, ScType>(&col->cards, card_count, length), collection(col)
 {
-	this->setSize(card_count, length);
 }
 
 template<const engine::ScrollType ScType>

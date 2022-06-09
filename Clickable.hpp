@@ -1,68 +1,79 @@
 #pragma once
+
 struct engine::Clickable
 {
 	virtual ~Clickable() = default;
-	bool isClicked(sf::Mouse::Button b)
+	bool isClicked(sf::Mouse::Button b) const
 	{
 		const bool after = sf::Mouse::isButtonPressed(b);
 		const bool out = !beforem and after;
-		beforem = after;
+		const_cast<bool&>(beforem) = after;
 		return out;
 	}
-	bool isPressed(sf::Mouse::Button b)
+	bool isPressed(sf::Mouse::Button b) const
 	{
 		const bool after = sf::Mouse::isButtonPressed(b);
 		const bool out = beforem and !after;
-		beforem = after;
+		const_cast<bool &>(beforem) = after;
 		return out;
 	}
-	bool isPressed(sf::Keyboard::Key k)
+	bool isPressed(sf::Keyboard::Key k) const
 	{
 		const bool after = sf::Keyboard::isKeyPressed(k);
 		const bool out = beforek and !after;
-		beforek = after;
+		const_cast<bool &>(beforek) = after;
 		return out;
 	}
-	bool isClicked(sf::Keyboard::Key k)
+	bool isClicked(sf::Keyboard::Key k) const
 	{
 		const bool after = sf::Keyboard::isKeyPressed(k);
 		const bool out = !beforek and after;
-		beforek = after;
+		const_cast<bool &>(beforek) = after;
 		return out;
 	}
-	bool isHold(sf::Mouse::Button b)
+	bool isHold(sf::Mouse::Button b) const
 	{
 		const bool after = sf::Mouse::isButtonPressed(b);
 		const bool out = beforem and after;
-		beforem = after;
+		const_cast<bool &>(beforem) = after;
 		return out;
 	}
-	bool isHold(sf::Keyboard::Key k)
+	bool isHold(sf::Keyboard::Key k) const
 	{
 		const bool after = sf::Keyboard::isKeyPressed(k);
 		const bool out = beforek and after;
-		beforek = after;
+		const_cast<bool &>(beforek) = after;
 		return out;
 	}
-	bool isPressed(sf::Mouse::Button b, const Vec2f &p)
+	bool isPressed(sf::Mouse::Button b, const Vec2f &p) const 
 	{
 		const bool after = sf::Mouse::isButtonPressed(b);
 		const bool out = this->isIntersected(p) and beforem and !after;
-		beforem = after;
+		const_cast<bool &>(beforem) = after;
 		return out;
 	}
-	bool isClicked(sf::Mouse::Button b, const Vec2f &p)
+	bool isClicked(sf::Mouse::Button b, const Vec2f &p) const
 	{
+		/// <summary>
+		///  returns true if was pressed previous and wasn't pressed current time 
+		/// </summary>
+		/// <param name="b">mouse button</param>
+		/// <param name="p">point when hold</param>
 		const bool after = sf::Mouse::isButtonPressed(b);
 		const bool out = this->isIntersected(p) and !beforem and after;
-		beforem = after;
+		const_cast<bool &>(beforem) = after;
 		return out;
 	}
-	bool isHold(sf::Mouse::Button b, const Vec2f &p)
+	bool isHold(sf::Mouse::Button b, const Vec2f &p) const
 	{
+		/// <summary>
+		///  returns true if was pressed previous and current time 
+		/// </summary>
+		/// <param name="b">mouse button</param>
+		/// <param name="p">point when hold</param>
 		const bool after = sf::Mouse::isButtonPressed(b);
 		const bool out = this->isIntersected(p) and beforem and after;
-		beforem = after;
+		const_cast<bool &>(beforem) = after;
 		return out;
 	}
 	virtual bool isIntersected(const Vec2f &p) const = 0;
@@ -89,5 +100,5 @@ protected:
 public:
 	ClickableShape(Shape *sh) : shape(sh) {}
 	ClickableShape() = default;
-	bool isIntersected(const Vec2f &p) const override { return math::contains(*shape, p); }
+	bool isIntersected(const Vec2f &p) const override {return math::contains(*shape, p);}
 };

@@ -4,10 +4,8 @@
 
 // vertical scroll class specialization
  template <class T>
-class engine::Scrollable<T, engine::ScrollType::Vertical> : public sf::Drawable
+class engine::Scrollable<T, engine::ScrollType::Vertical> : public sf::Drawable, public sf::Transformable
 {
-	Vec2f position;
-	Vec2f origin;
 	Vec2f ssize; // size
 	Vec2f ind; // indents between elements
 	Slider<Rect, ScrollType::Vertical> slider;
@@ -29,10 +27,7 @@ public:
 			esize = elems->front()->getSize();
 		slider = Slider(Rect(Vec2f(30, 1)));
 		setSize(count, length);
-	}
-	void setOrigin(const Vec2f &or_)
-	{
-		origin = or_;
+		setSliderPos(0);
 	}
 	void setIndents(const Vec2f &inds)
 	{
@@ -46,19 +41,28 @@ public:
 	void setSliderLength(const float &length)
 	{
 		slider.setSize(Vec2f(length, slider.getSize().y));
-		slider.setLimit(position.y, position.y + ssize.y);
+		slider.setLimit(0, ssize.y);
 	}
 
 	void setSliderPos(const float &pos)
 	{
 		slider.setPosition(slider.getPosition().x, pos);
+		size_t i = 0;
+		const float t = slider.getPosition().y / ssize.y;
+		for (auto &el : *elems)
+		{
+			const float x = static_cast<float>(i % n.x), y = floorf(static_cast<float>(i) / n.x);
+			const float x1 = x * (esize.x + ind.x), y1 = (esize.y + ind.y) * (y - t * n.y);
+			el->setPosition(x1, y1);
+			i++;
+		}
 	}
 
 	void setPosition(const Vec2f &p)
 	{
-		position = p;
-		slider.setPosition(position.x + n.x * (esize.x + ind.x), slider.getPosition().y);
-		slider.setLimit(position.y, position.y + ssize.y);
+		Transformable::setPosition(p);
+		slider.setPosition(n.x * (esize.x + ind.x), slider.getPosition().y);
+		slider.setLimit(0, ssize.y);
 	}
 
 	void setPosition(const float &x, const float &y)
@@ -77,54 +81,34 @@ public:
 		ssize.y = length;
 		recount_slider();
 	}
-	void push_back(const T &val)
+	void push_back(T val)
 	{
 		elems->push_back(&val);
 		n.y = static_cast<int>(ceil(elems->size() / n.x)) + 1;
 		recount_slider();
 	}
-	bool sliderIsClicked(sf::Mouse::Button b, const Vec2f &p) { return slider.isClicked(b, p); }
-	bool sliderIsPressed(sf::Mouse::Button b, const Vec2f &p) { return slider.isPressed(b, p); }
-	bool sliderIsHold(sf::Mouse::Button b, const Vec2f &p) { return slider.isHold(b, p); }
-	bool sliderIsClicked(sf::Mouse::Button b) { return slider.isClicked(b); }
-	bool sliderIsPressed(sf::Mouse::Button b) { return slider.isPressed(b); }
-	bool sliderIsHold(sf::Mouse::Button b) { return slider.isHold(b); }
+	const auto &getSlider() { return slider; }
 	void setSliderTexture(const sf::Texture *texture) { slider.setTexture(texture); }
-	auto getSlider() const { return slider; }
 	Vec2f getValueSize() const { return esize; }
 	Vec2u getValueCount() const { return n; } // returns vector2 where x is val count by width, y - by height
 	size_t size() const { return elems->size(); }
 	Vec2f getIndents() const { return ind; }
-	Vec2f getOrigin() const { return origin; }
-	Vec2f getPosition() const { return position; }
 	Vec2f getSize() const { return ssize; }
-	Vec2f getSliderSize() const { return slider.getSize(); }
-	Vec2f getSliderPos() const { return slider.getPosition(); }
-	sf::Color getSliderFillColor() const { return slider.getFillColor(); }
-	sf::Color getSliderOutlineColor() const { return slider.getOutlineColor(); }
-	float getSliderOutlineThickness() const { return slider.getOutlineThickness(); }
 	sf::FloatRect getLocalBounds() const { return sf::FloatRect(Vec2f(), ssize); }
-	sf::FloatRect getGlobalBounds() const { return sf::FloatRect(position - origin, Vec2f(ssize.x + slider.getSize().x, ssize.y)); }
+	sf::FloatRect getGlobalBounds() const { return sf::FloatRect(getPosition(), Vec2f(ssize.x + slider.getSize().x, ssize.y)); }
 private:
 	void recount_slider()
 	{
 			const Vec2f sls = Vec2f(slider.getSize().x, powf(ssize.y, 2) / (n.y * (esize.y + ind.y))); // slider size
 			slider.setSize(sls);
-			slider.setPosition(position.x + n.x * (esize.x + ind.x), slider.getPosition().y);
-			slider.setLimit(position.y, position.y + ssize.y);
+			slider.setPosition(n.x * (esize.x + ind.x), slider.getPosition().y);
+			slider.setLimit(0, ssize.y);
 	}
 	void draw(sf::RenderTarget &win, sf::RenderStates st) const override
 	{
-		size_t i = 0;
-		const float t = (slider.getPosition().y - position.y) / ssize.y;
-		for (auto el : *elems)
-		{
-			const float x = static_cast<float>(i % n.x), y = floorf(static_cast<float>(i) / n.x);
-			const float x1 = position.x + x * (esize.x + ind.x), y1 = position.y + (esize.y + ind.y) * (y - t * n.y);
-			el->setPosition(x1, y1);
+		st.transform *= getTransform();
+		for (auto &el : *elems)
 			win.draw(*el, st);
-			i++;
-		}
 		if (slider.getSize().y < ssize.y) // excepting a way when slider height >= local height 
 			win.draw(slider, st);
 	}
@@ -133,10 +117,8 @@ private:
 
 // horizontal scroll class specialization 
 template<class T>
-class engine::Scrollable<T, engine::ScrollType::Horizontal> : public sf::Drawable
+class engine::Scrollable<T, engine::ScrollType::Horizontal> : public sf::Drawable, public sf::Transformable
 {
-	Vec2f position;
-	Vec2f origin;
 	Vec2f ssize; // size
 	Vec2f ind; // indents between elements
 	Slider<Rect, ScrollType::Horizontal> slider;
@@ -158,11 +140,7 @@ public:
 			esize = elems->front()->getSize();
 		slider = Slider<Rect, ScrollType::Horizontal>(Rect(Vec2f(1, 30)));
 		setSize(count, length);
-		Vec2f sls = slider.getSize();
-	}
-	void setOrigin(const Vec2f & or_)
-	{
-		origin = or_;
+		setSliderPos(0);
 	}
 	void setIndents(const Vec2f & inds)
 	{
@@ -176,19 +154,29 @@ public:
 	void setSliderLength(const float &length)
 	{
 		slider.setSize(Vec2f(slider.getSize().x, length));
-		slider.setLimit(position.x, position.x + ssize.x);
+		slider.setLimit(0, ssize.x);
 	}
 
 	void setSliderPos(const float &pos)
 	{
 		slider.setPosition(pos, slider.getPosition().y);
+		size_t i = 0;
+		const float t = slider.getPosition().x / ssize.x;
+		for (auto el : *elems)
+		{
+			const float x = floorf(static_cast<float>(i) / n.y), // card id by width
+				y = static_cast<float>(i % n.y); // card id by height
+			const float x1 = (esize.x + ind.x) * (x - t * n.x), y1 = y * (esize.y + ind.y);
+			el->setPosition(x1, y1);
+			i++;
+		}
 	}
 
 	void setPosition(const Vec2f & p)
 	{
-		position = p;
-		slider.setPosition(slider.getPosition().x, position.y + n.y * (esize.y + ind.y));
-		slider.setLimit(position.x, position.x + ssize.x);
+		Transformable::setPosition(p);
+		slider.setPosition(slider.getPosition().x, n.y * (esize.y + ind.y));
+		slider.setLimit(0, ssize.x);
 	}
 
 	void setPosition(const float &x, const float &y)
@@ -209,55 +197,34 @@ public:
 
 		recount_slider();
 	}
-	void push_back(const T &val)
+	void push_back(T val)
 	{
 		elems->push_back(&val);
 		n.x = static_cast<int>(ceil(elems->size() / n.y)) + 1;
 		recount_slider();
 	}
-	bool sliderIsClicked(sf::Mouse::Button b, const Vec2f & p) { return slider.isClicked(b, p); }
-	bool sliderIsPressed(sf::Mouse::Button b, const Vec2f & p) { return slider.isPressed(b, p); }
-	bool sliderIsHold(sf::Mouse::Button b, const Vec2f & p) { return slider.isHold(b, p); }
-	bool sliderIsClicked(sf::Mouse::Button b) { return slider.isClicked(b); }
-	bool sliderIsPressed(sf::Mouse::Button b) { return slider.isPressed(b); }
-	bool sliderIsHold(sf::Mouse::Button b) { return slider.isHold(b); }
+	const auto &getSlider() { return slider; }
 	void setSliderTexture(const sf::Texture * texture) { slider.setTexture(texture); }
-	auto getSlider() const { return slider; }
 	Vec2f getValueSize() const { return esize; }
 	size_t size() const { return elems->size(); }
 	Vec2f getIndents() const { return ind; }
-	Vec2f getOrigin() const { return origin; }
-	Vec2f getPosition() const { return position - origin; }
 	Vec2f getSize() const { return ssize; }
-	Vec2f getSliderSize() const { return slider.getSize(); }
-	Vec2f getSliderPos() const { return slider.getPosition(); }
-	sf::Color getSliderFillColor() const { return slider.getFillColor(); }
-	sf::Color getSliderOutlineColor() const { return slider.getOutlineColor(); }
-	float getSliderOutlineThickness() const { return slider.getOutlineThickness(); }
 	sf::FloatRect getLocalBounds() const { return sf::FloatRect(Vec2f(), ssize); }
-	sf::FloatRect getGlobalBounds() const { return sf::FloatRect(position - origin, Vec2f(ssize.x, ssize.y + slider.getSize().y)); }
+	sf::FloatRect getGlobalBounds() const { return sf::FloatRect(getPosition(), Vec2f(ssize.x, ssize.y + slider.getSize().y)); }
 
 private:
 	void recount_slider()
 	{
 		const Vec2f sls = Vec2f(powf(ssize.x, 2) / (n.x * (esize.x + ind.x)), slider.getSize().y);
 		slider.setSize(sls);
-		slider.setPosition(slider.getPosition().x, position.y + n.y * (esize.y + ind.y));
-		slider.setLimit(position.x, position.x + ssize.x);
+		slider.setPosition(slider.getPosition().x, n.y * (esize.y + ind.y));
+		slider.setLimit(0, ssize.x);
 	}
 	void draw(sf::RenderTarget &win, sf::RenderStates st) const override
 	{
-		size_t i = 0;
-		const float t = (slider.getPosition().x - position.x) / ssize.x;
+		st.transform *= getTransform();
 		for (auto el : *elems)
-		{
-			const float x = floorf(static_cast<float>(i) / n.y), // card id by width
-				y = static_cast<float>(i % n.y); // card id by height
-			const float x1 = position.x + (esize.x + ind.x) * (x - t * n.x), y1 = position.y + y * (esize.y + ind.y);
-			el->setPosition(x1, y1);
 			win.draw(*el, st);
-			i++;
-		}
 		if (slider.getSize().x < ssize.x) // excepting a way when slider width >= local width
 			win.draw(slider, st);
 	}

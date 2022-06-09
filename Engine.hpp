@@ -67,8 +67,8 @@ namespace engine
 
 	class ShaderTexture;
 	struct Button;
-	template<class DrawableType>
-	class Cutter;
+	template<class>
+	class clip;
 	template<class Shape, ScrollType ScType = ScrollType::Vertical>
 	class Slider;
 	template <class T, const ScrollType ScType = ScrollType::Vertical>
@@ -121,7 +121,7 @@ namespace emath = engine::math;
 #include "source.hpp"
 #include "emath.hpp"
 #include "FileManagement.hpp"
-#include "Cutter.hpp"
+#include "clip.hpp"
 #include "ShaderTexture.hpp"
 #include "Clickable.hpp"
 #include "button.hpp"

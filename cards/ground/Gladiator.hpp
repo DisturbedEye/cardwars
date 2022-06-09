@@ -8,7 +8,7 @@ struct engine::cards::Gladiator : virtual ACard
 	int getCost() const;
 
 	inline const static std::string CardName = "Gladiator";
-	inline const static Types CardType = Types::Ground;
+	inline const static Type CardType = Type::Ground;
 private:
 	int Damage;
 	int Health; 
@@ -21,14 +21,13 @@ private:
 
 
 inline engine::cards::Gladiator::Gladiator(const Vec2u &window_size)
-	: ACard(window_size)
+	: ACard(window_size, *texture)
 {
 	Json js = load(CardType);
 	Cost = js[CardName][CostStr];
 	Damage = js[CardName][DamageStr];
 	Health = js[CardName][HealthStr];
 	Description = js[CardName][DescriptionStr];
-	setTexture(&*texture);
 }
 inline int engine::cards::Gladiator::getDamage() const
 {
