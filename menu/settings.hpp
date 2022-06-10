@@ -1,4 +1,4 @@
-
+#pragma once
 inline void menu::settings(sf::RenderWindow &window)
 {
 	/*

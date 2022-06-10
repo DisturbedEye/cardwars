@@ -1,4 +1,4 @@
-
+#pragma once
 inline int menu::main(sf::RenderWindow &window)
 {
 	using engine::Vec2f, engine::Vec2u;

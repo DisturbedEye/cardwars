@@ -1,3 +1,4 @@
+#pragma once
 
 inline void menu::about_us(sf::RenderWindow &window)
 {

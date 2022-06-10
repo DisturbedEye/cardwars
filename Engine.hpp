@@ -16,7 +16,6 @@
 
 namespace engine
 {
-	class ACollection;
 	using namespace std::string_literals;
 	template <class T> using Vec2 = sf::Vector2<T>;
 	template <class T> using Vec3 = sf::Vector3<T>;
@@ -45,17 +44,7 @@ namespace engine
 	
 	class JsonFile;
 
-	size_t getVideoModesCount() { return video_modes.size(); }
-	void create_infof();
-	Json load_infof();
-	void resetInfoResolution(unsigned int x, unsigned int y);
-	void resetInfoFramerateLimit(unsigned int lim);
-	void resetInfoVsync(bool b);
-	void resetInfoVideoMode(int mode);
-	int getInfoVideoMode();
-	Vec2u getInfoResolution();
-	unsigned int getInfoFramerateLimit();
-	bool getInfoVsync();
+	inline size_t getVideoModesCount() { return video_modes.size(); }
 	// Input Actions
 	struct Clickable;
 	template<class Shape>
@@ -64,7 +53,6 @@ namespace engine
 	using ClickableRect = ClickableShape<Rect>;
 	using ClickableConvex = ClickableShape<Convex>;
 	using ClickableCircle = ClickableShape<Circle>;
-
 	class ShaderTexture;
 	struct Button;
 	template<class>
@@ -75,31 +63,12 @@ namespace engine
 	class Scrollable;
 	//    cards    //
 	class CardTexture;
-	struct ACard;
-
-	using Card = ACard *;
-	namespace cards
-	{
-		struct Gladiator;
-		struct WitherSkeleton;
-	}
 	/////////////////
-	// collections //
-	class ACollection;
-	using Collection = ACollection *;
-	namespace collections
-	{
-		struct SuperCollection;
-	}
-	template<const ScrollType>
-	class Deck;
-	/////////////////
-	/// helpers vars
 	namespace math
 	{
 		constexpr float pi = 3.14159265f;
 		constexpr float rad = pi / 180; // radian
-		float time(); // surent time after start programm
+		float time(); // current time after start program
 		bool contains(const Rect &rect, const Vec2f &point);
 		bool contains(const Vec2f &ro, const Vec2f &rs, const Vec2f &point);
 		bool contains(const Convex &polygon, const Vec2f &point);
@@ -115,8 +84,9 @@ namespace engine
 		size_t get_index(const std::vector<T> &v, T n);
 	}
 }
-namespace ecolls = engine::collections;
-namespace ecards = engine::cards;
+#include "RuneWars.hpp"
+namespace rcolls = rune::collections;
+namespace rcards = rune::cards;
 namespace emath = engine::math;
 #include "source.hpp"
 #include "emath.hpp"
@@ -140,3 +110,5 @@ namespace emath = engine::math;
 
 /////////////////
 #include "Deck.hpp"
+#include "Field.hpp"
+#include "Player.hpp"

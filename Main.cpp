@@ -72,7 +72,6 @@ inline void menu::start(sf::RenderWindow &window)
 	using engine::Vec2u;
 	using emath::mix;
 	using engine::Rect;
-	using namespace engine::cards;
 	using namespace parametrs;
 	using emath::pi;
 	const Vec2u ures = window.getSize();
@@ -83,11 +82,12 @@ inline void menu::start(sf::RenderWindow &window)
 	Button button(Vec2f(300, 60), "Some text", font, 24);
 	const sf::Color bcolor = sf::Color(230, 100, 100);
 	button.setColor(sf::Color(230, 100, 100));
-	ecolls::SuperCollection sup(window.getSize());
-	engine::Deck deck(&sup, 3u, res.y/2.f);
-	deck.setPosition(res.x/3, res.y/4);
+	rcolls::SuperCollection sup(window.getSize());
+	rune::Deck deck(&sup, 2u, res.y);
+	Vec2f inds = Vec2f(deck.getSize().x/9.f, deck.getSize().y/32.f);
+	deck.setPosition(0, 0);
+	deck.setIndents(deck.getSize()/9.f);
 	Rect rect(Vec2f(deck.getGlobalBounds().width, deck.getGlobalBounds().height));
-
 	rect.setFillColor(sf::Color(22, 22, 22));
 	float sens = 25; // slider speed
 	float senst = 0;
