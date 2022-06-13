@@ -11,16 +11,14 @@ namespace rune::cards
 		inline const static std::string CardName = "Gladiator";
 		inline const static Type CardType = Type::Ground;
 	private:
-		int Damage;
-		int Health; 
-		int Cost;
+		inline static int Damage;
+		inline static int Health;
+		inline static int Cost;
 		inline const static engine::CardTexture texture = engine::CardTexture("images\\gladiator.jpg");
 
 		void movement() final override;
 		void onUse() final override;
 	};
-
-
 	inline Gladiator::Gladiator(const Vec2u &window_size)
 		: ACard(window_size, *texture)
 	{

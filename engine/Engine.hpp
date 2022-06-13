@@ -1,4 +1,7 @@
+#pragma once
+
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <iostream>
 #include <functional>
 #include <iterator>
@@ -84,31 +87,15 @@ namespace engine
 		size_t get_index(const std::vector<T> &v, T n);
 	}
 }
-#include "RuneWars.hpp"
-namespace rcolls = rune::collections;
-namespace rcards = rune::cards;
 namespace emath = engine::math;
+namespace ngn = engine;
 #include "source.hpp"
-#include "emath.hpp"
-#include "FileManagement.hpp"
-#include "clip.hpp"
-#include "ShaderTexture.hpp"
-#include "Clickable.hpp"
-#include "button.hpp"
-#include "Scrollable.hpp"
-#include "CardTexture.hpp"
-//    cards    //
+#include "Math/math.hpp"
+#include "Files/FileManagement.hpp"
+#include "Texturing/clip.hpp"
+#include "Texturing/ShaderTexture.hpp"
+#include "Texturing/CardTexture.hpp"
+#include "Buttons/Clickable.hpp"
 
-#include "cards/AbstractCard.hpp"
-#include "cards/ground/WitherSkeleton.hpp"
-#include "cards/ground/Gladiator.hpp"
-// collections //
-
-#include "AbstractCollection.hpp"
-
-#include "SuperCollection.hpp"
-
-/////////////////
-#include "Deck.hpp"
-#include "Field.hpp"
-#include "Player.hpp"
+#include "Buttons/button.hpp"
+#include "Buttons/Scrollable.hpp"

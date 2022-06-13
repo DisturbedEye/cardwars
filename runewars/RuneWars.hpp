@@ -1,4 +1,6 @@
 #pragma once
+#include "../engine/Engine.hpp"
+
 namespace rune
 {
 	using engine::Vec2i;
@@ -29,8 +31,30 @@ namespace rune
 	using Collection = ACollection *;
 	namespace collections
 	{
-		struct SuperCollection;
+		struct Mixed;
+		struct Super;
 	}
 	template<const engine::ScrollType ScType = engine::ScrollType::Vertical>
 	class Deck;
 }
+namespace rcolls = rune::collections;
+namespace rcards = rune::cards;
+
+//    cards    //
+
+#include "cards/AbstractCard.hpp"
+
+#include "cards/ground/Gladiator.hpp"
+#include "cards/ground/WitherSkeleton.hpp"
+
+// collections //
+
+#include "collections/AbstractCollection.hpp"
+
+#include "collections/Mixed/Mixed.hpp"
+#include "collections/Super/Super.hpp"
+
+/////////////////
+#include "Deck.hpp"
+#include "Field.hpp"
+#include "Player.hpp"

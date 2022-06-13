@@ -6,7 +6,7 @@
 namespace engine
 {
 	template <class T>
-   class Scrollable<T, ScrollType::Vertical> : public sf::Drawable, public sf::Transformable
+	class Scrollable<T, ScrollType::Vertical> : public sf::Drawable, public sf::Transformable
 	{
 		Vec2f ssize; // size
 		Vec2f ind; // indents between elements
@@ -14,7 +14,7 @@ namespace engine
 		Vec2f esize; // element size
 		Vec2u n; // elements count by width and height
 		std::vector<T> *elems; // values is a pointers
-		public:
+	public:
 		Scrollable(std::vector<T> *values, const unsigned int &count, const float &length)
 			: elems(values)
 		{

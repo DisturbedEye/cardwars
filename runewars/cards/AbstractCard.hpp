@@ -2,7 +2,7 @@
 
 namespace rune
 {
-	struct ACard : sf::Drawable, sf::Transformable
+	struct ACard : sf::Drawable, sf::Transformable, ngn::ClickableRect
 	{
 		enum class Type
 		{ Ground, Air, Debuff, Buff, Water, Static };
@@ -21,7 +21,7 @@ namespace rune
 		ACard &operator=(const ACard &) = delete;
 	protected:
 		static Json load(Type type);
-		std::string Description;
+		inline static std::string Description;
 		// json elements
 
 		inline const static std::string CostStr = "Cost";

@@ -1,6 +1,4 @@
-﻿#include <SFML/Graphics.hpp>
-#include "Engine.hpp"
-#include <SFML/Audio.hpp>
+﻿#include "runewars/RuneWars.hpp"
 
 template <typename T>
 std::ostream &operator<<(std::ostream &out, const sf::Vector2<T> &v)
@@ -82,16 +80,18 @@ inline void menu::start(sf::RenderWindow &window)
 	Button button(Vec2f(300, 60), "Some text", font, 24);
 	const sf::Color bcolor = sf::Color(230, 100, 100);
 	button.setColor(sf::Color(230, 100, 100));
-	rcolls::SuperCollection sup(window.getSize());
+	rcolls::Super sup(window.getSize());
 	rune::Deck deck(&sup, 2u, res.y);
+	std::vector<rune::Card> cards = sup.getCards();
 	Vec2f inds = Vec2f(deck.getSize().x/9.f, deck.getSize().y/32.f);
 	deck.setPosition(0, 0);
+	
 	deck.setIndents(deck.getSize()/9.f);
 	Rect rect(Vec2f(deck.getGlobalBounds().width, deck.getGlobalBounds().height));
 	rect.setFillColor(sf::Color(22, 22, 22));
 	float sens = 25; // slider speed
 	float senst = 0;
-	bool a = false;
+	bool condition = false;
 	rect.setPosition(deck.getPosition());
 	Vec2u u_decksize = Vec2u(Vec2f(deck.getGlobalBounds().width, deck.getGlobalBounds().height));
 	while (window.isOpen())
@@ -114,10 +114,10 @@ inline void menu::start(sf::RenderWindow &window)
 		senst = d1 != 0.f ?  senst + sens / 4 : 0;
 		deck.setSliderPos(deck.getSlider().getPosition().y - senst * d1); // slider moving
 		if (deck.getSlider().isClicked(sf::Mouse::Button::Left, mpos)) // if deck slider is clicked
-			a = true;
+			condition = true;
 		else if (!deck.getSlider().isHold(sf::Mouse::Button::Left)) // if deck slider is hold
-			a = false;
-		if (a) // while slider is hold
+			condition = false;
+		if (condition) // while slider is hold
 			deck.setSliderPos(mpos.y - deck.getSlider().getPosition().y / 2);
 		window.draw(rect);
 		window.draw(engine::clip(u_decksize, deck));

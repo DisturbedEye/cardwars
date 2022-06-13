@@ -117,13 +117,10 @@ inline void menu::settings(sf::RenderWindow &window)
 	s2.setBuffer(sb2);
 
 	float w;
-	uint8_t i, j, n, k, t, tmp, pp;
 	int p1 = static_cast<int>(engine::math::get_index(resols, window.getSize()));
 	int p2 = 2; // p2 - framerate id
 	Vec2u r = window.getSize();
 	unsigned int fr = engine::getInfoFramerateLimit();
-	tmp = 0;
-	pp = 0;
 	auto win_resize([&buttons, &bsize, &swsize, &bsize2, &res, &bpos](const Vec2u &size)
 	{ // resizes a window
 		res = Vec2f(size);
@@ -161,6 +158,7 @@ inline void menu::settings(sf::RenderWindow &window)
 
 	example.setTexture(&textr);
 	bool a = false;
+	uint8_t i, j, n, k, t, tmp = 0, pp = 0;
 	while (window.isOpen())
 	{
 		sf::Event event;

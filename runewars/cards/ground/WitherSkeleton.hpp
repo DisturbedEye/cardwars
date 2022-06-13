@@ -1,4 +1,5 @@
 #pragma once
+
 namespace rune::cards
 {
 	struct cards::WitherSkeleton : virtual ACard
@@ -11,16 +12,15 @@ namespace rune::cards
 		inline const static std::string CardName = "WitherSkeleton";
 		inline const static Type CardType = Type::Ground;
 	private:
-		int Damage; 
-		int Health; 
+		int Damage;
+		int Health;
 		int Cost;
 		inline const static engine::CardTexture texture = engine::CardTexture("images\\witherskeleton.jpg");
 
 		void movement() final override;
 		void onUse() final override;
 	};
-
-	inline cards::WitherSkeleton::WitherSkeleton(const Vec2u &window_size)
+	inline WitherSkeleton::WitherSkeleton(const Vec2u &window_size)
 		: ACard(window_size, *texture)
 	{
 		Json js = load(CardType);
@@ -47,7 +47,7 @@ namespace rune::cards
 
 	inline void WitherSkeleton::onUse()
 	{
-	
+
 	}
 	inline void WitherSkeleton::movement()
 	{
