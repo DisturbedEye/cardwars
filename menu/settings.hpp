@@ -161,7 +161,6 @@ inline void menu::settings(sf::RenderWindow &window)
 		tab.setColumnWidth(1, left_switchers[0]->getSize().x + res.x/16.f); // left_switchers[0] is pointer on left screen switcher
 		tab.setColumnWidth(0, txts[0]->getSize().x + res.x / 32.f); // txt[0] is pointer on resolution text
 		Vec2f tsize = tab.getSize();
-		std::cout << tsize << "\n";
 		tab.setPosition({ abs(res.x - tsize.x)/2.f, abs(res.y - tsize.y)/4.f});
 		uint8_t l1, l2, l3, l4; // lines
 		l1 = l2 = l3 = l4 = 0;
@@ -240,9 +239,7 @@ inline void menu::settings(sf::RenderWindow &window)
 
 		k = 1;
 		for (auto &txt : txts)
-		{
 			window.draw(*txt);
-		}
 		for (auto &b : buttons)
 		{
 			if (b->isIntersected(mpos) && k != ResolutionViewer && k != FramerateViewer) 
