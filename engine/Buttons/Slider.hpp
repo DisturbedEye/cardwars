@@ -2,28 +2,27 @@
 
 namespace engine
 {
-	template<class Shape, engine::ScrollType ScType>
+	template<class Shape, ScrollType ScType>
 	class Slider : public Clickable, public Shape
 	{
-		float minV = 0.f; // min value
 		float maxV = 0.f; // max value
-
-		public:
-		Slider(const Shape &sh, float _minV = 0, float _maxV = 0) : Shape(sh), minV(_minV), maxV(_maxV) {}
+		Vec2f start;
+	public:
+		Slider(const Shape &sh, const Vec2f &start, float _maxV) : Shape(sh), start(start)
+		{
+			setPosition(start);
+			setLimit(_maxV);
+		}
 		Slider() = default;
-		float getMin() const { return minV; }
 		float getMax() const { return maxV; }
-		void setLimit(const float &_min, const float &_max)
+		Vec2f getStart() const { return start; }
+		void setStart(const Vec2f &p) const { start = p; }
+		void setLimit(const float &_max)
 		{
 			if (ScType == ScrollType::Vertical) 
-			{
-				minV = std::min(_min, _max);
-				maxV = std::max(this->getGlobalBounds().top, std::max(_min, _max)); // max value not less than slider size
-			} else
-			{
-				minV = std::min(_min, _max);
-				maxV = std::max(this->getGlobalBounds().left, std::max(_min, _max)); // max value not less than slider size
-			}
+				maxV = std::max(this->getGlobalBounds().height, _max) - this->getGlobalBounds().height; // max value not less than slider size
+			else
+				maxV = std::max(this->getGlobalBounds().width, _max) - this->getGlobalBounds().height; // max value not less than slider size
 		}
 		void setPosition(const Vec2f &pos)
 		{
@@ -35,7 +34,12 @@ namespace engine
 		{
 			setPosition(Vec2f(x, y));
 		}
-		Vec2f coef() const { return Vec2f(Shape::getPosition() / maxV); }
+		float coef() const
+		{
+			if (ScType == ScrollType::Vertical)
+				return abs((Shape::getPosition().y - start.y) / maxV);
+			return abs((Shape::getPosition().x - start.x) / maxV);
+		}
 		bool isIntersected(const Vec2f &p) const override
 		{
 			Shape shape(*this);
@@ -44,11 +48,11 @@ namespace engine
 	private:
 		float clampY(const Vec2f &p) const
 		{
-			return math::clamp(p.y, this->minV, this->maxV - this->getGlobalBounds().height);
+			return math::clamp(p.y, start.y, start.y + this->maxV);
 		}
 		float clampX(const Vec2f &p) const
 		{
-			return math::clamp(p.x, this->minV, this->maxV - this->getGlobalBounds().width);
+			return math::clamp(p.x, start.x, start.x + this->maxV);
 		}
 	};
 }

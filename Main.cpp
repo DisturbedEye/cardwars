@@ -7,12 +7,21 @@ std::ostream &operator<<(std::ostream &out, const sf::Vector2<T> &v)
 	return out;
 }
 
+template<typename T>
+std::ostream &operator<<(std::ostream &out, const sf::Rect<T> &rect)
+{
+	out << "{ " << sf::Vector2<T>(rect.left, rect.top) << ", " << sf::Vector2<T>(rect.width, rect.height) << " }";
+	return out;
+}
+
 namespace parametrs
 {
-	sf::Vector2u default_resolution = engine::getInfoResolution();
-	bool vsync = engine::getInfoVsync();
-	unsigned int frame_limit = engine::getInfoFramerateLimit();
-	int window_mode = engine::getInfoVideoMode();
+	static sf::Vector2u resolution = engine::getInfoResolution();
+	static bool vsync = engine::getInfoVsync();
+	static unsigned int frame_limit = engine::getInfoFramerateLimit();
+	static int window_mode = engine::getInfoVideoMode();
+	static sf::Music soundtrack;
+	static float default_volume = 10.f;
 }
 sf::Font &loadFont()
 {
@@ -40,14 +49,13 @@ int main()
 {
 	using namespace parametrs;
 	sf::VideoMode mode = sf::VideoMode::getDesktopMode();
-	sf::RenderWindow window(sf::VideoMode(default_resolution.x, default_resolution.y, mode.bitsPerPixel), "Rune Wars", window_mode);
+	sf::RenderWindow window(sf::VideoMode(resolution.x, resolution.y, mode.bitsPerPixel), "Rune Wars", window_mode);
 	window.setFramerateLimit(frame_limit);
 	window.setVerticalSyncEnabled(vsync);
-	sf::Music ms;
-	ms.openFromFile("audio\\garazh_phonk.ogg");
-	ms.play();
-	ms.setLoop(true);
-	ms.setVolume(10.f);
+	soundtrack.openFromFile("audio\\garazh_phonk.wav");
+	soundtrack.play();
+	soundtrack.setLoop(true);
+	soundtrack.setVolume(default_volume);
 	int position = 0; // 0 - main menu, 1 - start game, 2 - settings, 3 about us, 4 - exit
 	while (position != 4)
 	{
@@ -77,23 +85,10 @@ inline void menu::start(sf::RenderWindow &window)
 	sf::Mouse m;
 	Vec2f mpos = Vec2f(m.getPosition(window));
 	auto &font = loadFont();
-	Button button(Vec2f(300, 60), "Some text", font, 24);
-	const sf::Color bcolor = sf::Color(230, 100, 100);
-	button.setColor(sf::Color(230, 100, 100));
-	rcolls::Super sup(window.getSize());
-	rune::Deck deck(&sup, 2u, res.y);
-	std::vector<rune::Card> cards = sup.getCards();
-	Vec2f inds = Vec2f(deck.getSize().x/9.f, deck.getSize().y/32.f);
-	deck.setPosition(0, 0);
-	
-	deck.setIndents(deck.getSize()/9.f);
-	Rect rect(Vec2f(deck.getGlobalBounds().width, deck.getGlobalBounds().height));
-	rect.setFillColor(sf::Color(22, 22, 22));
-	float sens = 25; // slider speed
-	float senst = 0;
-	bool condition = false;
-	rect.setPosition(deck.getPosition());
-	Vec2u u_decksize = Vec2u(Vec2f(deck.getGlobalBounds().width, deck.getGlobalBounds().height));
+	ngn::Table table(6, 4, { 200, 50 });
+	table.setColumnWidth(1, 60);
+	table.setColumnWidth(2, 30);
+	table.setPosition(300, 300);
 	while (window.isOpen())
 	{
 		float d1 = 0;
@@ -104,23 +99,12 @@ inline void menu::start(sf::RenderWindow &window)
 			case sf::Event::Closed:
 				window.close();
 				break;
-			case sf::Event::MouseWheelMoved:
-				d1 = clamp(static_cast<float>(event.mouseWheel.delta), -1, 1); // slider move coefficient
 			}
 		mpos = Vec2f(m.getPosition(window));
 		window.clear();
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
 			return;
-		senst = d1 != 0.f ?  senst + sens / 4 : 0;
-		deck.setSliderPos(deck.getSlider().getPosition().y - senst * d1); // slider moving
-		if (deck.getSlider().isClicked(sf::Mouse::Button::Left, mpos)) // if deck slider is clicked
-			condition = true;
-		else if (!deck.getSlider().isHold(sf::Mouse::Button::Left)) // if deck slider is hold
-			condition = false;
-		if (condition) // while slider is hold
-			deck.setSliderPos(mpos.y - deck.getSlider().getPosition().y / 2);
-		window.draw(rect);
-		window.draw(engine::clip(u_decksize, deck));
+		window.draw(table);
 		window.display();
 	}
 }

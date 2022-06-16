@@ -27,7 +27,7 @@ namespace engine
 			*/
 			if(!elems->empty())
 				esize = elems->front()->getSize();
-			slider = Slider(Rect(Vec2f(30, 1)));
+			slider = Slider(Rect(Vec2f(30, 1)), Vec2f(0, 0), 0);
 			setSize(count, length);
 			setSliderPos(0);
 		}
@@ -44,14 +44,14 @@ namespace engine
 		void setSliderLength(const float &length)
 		{
 			slider.setSize(Vec2f(length, slider.getSize().y));
-			slider.setLimit(0, ssize.y);
+			slider.setLimit(ssize.y);
 		}
 
 		void setSliderPos(const float &pos)
 		{
 			slider.setPosition(slider.getPosition().x, pos);
 			size_t i = 0;
-			const float t = slider.getPosition().y / ssize.y;
+			const float t = slider.coef();
 			for (auto &el : *elems)
 			{
 				const float x = static_cast<float>(i % n.x), y = floorf(static_cast<float>(i) / n.x);
@@ -65,7 +65,7 @@ namespace engine
 		{
 			Transformable::setPosition(p);
 			slider.setPosition(n.x * (esize.x + ind.x), slider.getPosition().y);
-			slider.setLimit(0, ssize.y);
+			slider.setLimit(ssize.y);
 		}
 
 		void setPosition(const float &x, const float &y)
@@ -109,7 +109,7 @@ namespace engine
 			const Vec2f sls = Vec2f(slider.getSize().x, powf(ssize.y, 2) / (n.y * (esize.y + ind.y))); // slider size
 			slider.setSize(sls);
 			slider.setPosition(n.x * (esize.x + ind.x), slider.getPosition().y);
-			slider.setLimit(0, ssize.y);
+			slider.setLimit(ssize.y);
 		}
 		void draw(sf::RenderTarget &win, sf::RenderStates st) const override
 		{
@@ -145,7 +145,7 @@ namespace engine
 			*/
 			if (!elems->empty())
 				esize = elems->front()->getSize();
-			slider = Slider<Rect, ScrollType::Horizontal>(Rect(Vec2f(1, 30)));
+			slider = Slider<Rect, ScrollType::Horizontal>(Rect(Vec2f(1, 30)), Vec2f(0, 0), 0);
 			setSize(count, length);
 			setSliderPos(0);
 		}
@@ -161,14 +161,14 @@ namespace engine
 		void setSliderLength(const float &length)
 		{
 			slider.setSize(Vec2f(slider.getSize().x, length));
-			slider.setLimit(0, ssize.x);
+			slider.setLimit(ssize.x);
 		}
 
 		void setSliderPos(const float &pos)
 		{
 			slider.setPosition(pos, slider.getPosition().y);
 			size_t i = 0;
-			const float t = slider.getPosition().x / ssize.x;
+			const float t = slider.coef();
 			for (auto el : *elems)
 			{
 				const float x = floorf(static_cast<float>(i) / n.y), // card id by width
@@ -183,7 +183,7 @@ namespace engine
 		{
 			Transformable::setPosition(p);
 			slider.setPosition(slider.getPosition().x, n.y * (esize.y + ind.y));
-			slider.setLimit(0, ssize.x);
+			slider.setLimit(ssize.x);
 		}
 
 		void setPosition(const float &x, const float &y)
@@ -225,7 +225,7 @@ namespace engine
 			const Vec2f sls = Vec2f(powf(ssize.x, 2) / (n.x * (esize.x + ind.x)), slider.getSize().y);
 			slider.setSize(sls);
 			slider.setPosition(slider.getPosition().x, n.y * (esize.y + ind.y));
-			slider.setLimit(0, ssize.x);
+			slider.setLimit(ssize.x);
 		}
 		void draw(sf::RenderTarget &win, sf::RenderStates st) const override
 		{

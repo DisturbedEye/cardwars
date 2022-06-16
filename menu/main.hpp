@@ -14,8 +14,8 @@ inline int menu::main(sf::RenderWindow &window)
 	sf::Font &font = loadFont();
 	sf::SoundBuffer sb1;
 	sf::SoundBuffer sb2;
-	sb1.loadFromFile("audio\\sound1.ogg");
-	sb2.loadFromFile("audio\\sound2.ogg");
+	sb1.loadFromFile("audio\\sound1.wav");
+	sb2.loadFromFile("audio\\sound2.wav");
 	sf::Sound s1;
 	sf::Sound s2;
 	s1.setBuffer(sb1);
@@ -26,14 +26,13 @@ inline int menu::main(sf::RenderWindow &window)
 		bttex.setSmooth(true);
 		bctex.setSmooth(true);
 	}
-	sf::RectangleShape r = sf::RectangleShape();
-	r.setSize(Vec2f(res.x, res.y));
+	sf::RectangleShape r(Vec2f(res.x, res.y));
 	r.setTexture(&bctex);
 	// buttons
-	Button start = Button(Rect(bsize), "Start", font, (uint32_t)abs(floor(engine::math::length(res))) / 64u);
-	Button settings = Button(bsize, "Settings", font, (uint32_t)abs(floor(engine::math::length(res))) / 64u);
-	Button about_us = Button(bsize, "About Us", font, (uint32_t)abs(floor(engine::math::length(res))) / 64u);
-	Button exit = Button(bsize, "Exit", font, (uint32_t)abs(floor(engine::math::length(res))) / 64u);
+	Button start = Button(bsize, "Start", font);
+	Button settings = Button(bsize, "Settings", font);
+	Button about_us = Button(bsize, "About Us", font);
+	Button exit = Button(bsize, "Exit", font);
 	std::vector<Button> buttons; // buttons too
 	buttons.push_back(start);	 // 1
 	buttons.push_back(settings); // 2
@@ -71,14 +70,14 @@ inline int menu::main(sf::RenderWindow &window)
 		{
 			b.setTexture(&bttex);
 			if (b.isIntersected(mpos)) {
-				b.setColor(mix(bcolor, sf::Color::White));
+				b.setFillColor(mix(bcolor, sf::Color::White));
 				while (n == 0) {
 					n = 1;
 					s2.play();
 				}
 			}
 			else {
-				b.setColor(bcolor);
+				b.setFillColor(bcolor);
 				tmp++;
 			}
 			if (b.isPressed(sf::Mouse::Button::Left, mpos)) {
@@ -86,7 +85,7 @@ inline int menu::main(sf::RenderWindow &window)
 				return k;
 			}
 			b.setPosition(Vec2f(bpos.x, bpos.y + (k - 1) * (res.y / 24.f + bsize.y)));
-			b.setFontColor(sf::Color(0, 0, 0));
+			b.content.setFillColor(sf::Color(0, 0, 0));
 			window.draw(b);
 			k++;
 		}

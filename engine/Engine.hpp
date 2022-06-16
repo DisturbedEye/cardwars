@@ -46,8 +46,7 @@ namespace engine
 	std::map<int, int> reverse_modes = { {video_modes[0], 0}, {video_modes[1], 1}, {video_modes[2], 2} };
 	
 	class JsonFile;
-
-	inline size_t getVideoModesCount() { return video_modes.size(); }
+	
 	// Input Actions
 	struct Clickable;
 	template<class Shape>
@@ -57,6 +56,7 @@ namespace engine
 	using ClickableConvex = ClickableShape<Convex>;
 	using ClickableCircle = ClickableShape<Circle>;
 	class ShaderTexture;
+	class Table;
 	struct Button;
 	template<class>
 	class clip;
@@ -79,23 +79,29 @@ namespace engine
 		float length(const Vec2f &v);
 		float length(const float &x, const float &y = 0);
 		float around(const float &x, int n);
+		inline float sgn(float x) { return x == 0.f ? 0.f : x / abs(x); } // returns a sign of number
 		bool belongs(const float &x, const float &m, const float &n);
 		inline Vec2f norm(const Vec2f &v) { return v / length(v); }
 		sf::Color mix(const sf::Color &c1, const sf::Color &c2);
 		float clamp(const float &x, const float &minX, float maxX);
-		template <class T>
-		size_t get_index(const std::vector<T> &v, T n);
+		
+	}
+	namespace algorithm
+	{
+		template<class T>
+		bool in(const T &value, const std::vector<T> &values);
 	}
 }
 namespace emath = engine::math;
 namespace ngn = engine;
 #include "source.hpp"
 #include "Math/math.hpp"
+#include "algorithm.hpp"
+#include "Table.hpp"
 #include "Files/FileManagement.hpp"
 #include "Texturing/clip.hpp"
 #include "Texturing/ShaderTexture.hpp"
 #include "Texturing/CardTexture.hpp"
 #include "Buttons/Clickable.hpp"
-
 #include "Buttons/button.hpp"
 #include "Buttons/Scrollable.hpp"

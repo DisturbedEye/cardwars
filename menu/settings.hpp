@@ -1,4 +1,5 @@
 #pragma once
+
 inline void menu::settings(sf::RenderWindow &window)
 {
 	/*
@@ -13,13 +14,14 @@ inline void menu::settings(sf::RenderWindow &window)
 	using engine::math::mix;
 	using engine::Circle, engine::ScrollType, engine::Rect,
 		engine::Button;
+	using namespace engine::algorithm;
 	using namespace parametrs;
 	sf::Mouse m;
 	Vec2f mpos;
 	Vec2u ures = window.getSize();
 	Vec2f res = Vec2f(ures);
 	std::vector<Vec2u> resols = { {800, 600}, {1280, 720}, {1366, 768}, {1600, 900}, {1920, 1080}, {2560, 1440} }; // = resolutions
-	if (!std::any_of(resols.begin(), resols.end(), [ures](Vec2u v) {return v == ures; }))
+	if (!in(ures, resols))
 	{ // sorting a resolutions
 		unsigned int n = window.getSize().x;
 		if (n < resols[0].x)
@@ -34,24 +36,7 @@ inline void menu::settings(sf::RenderWindow &window)
 			resols.insert(a, window.getSize());
 		}
 	}
-	std::vector<uint16_t> framerates = { 30, 59, 60, 75, 100, 120, 144, 240, 360 };
-	Vec2f bpos = Vec2f(res.x / 3.f, res.y / 8.f); // button position
-	Vec2f bsize = Vec2f(res.x / 9.6f, res.y / 18.f); // button size
-	Vec2f bsize2 = Vec2f(res.x / 4.8f, res.y / 18.f); // screen buttons size
-	Vec2f swsize = Vec2f(res.x / 32.f, res.y / 18.f); // switcher size
-	sf::Color bcolor = sf::Color(115, 1, 4); // button color (reddish for me plz)
 	auto &font = loadFont();
-	// buttons
-	Button backB = Button(bsize, "Back", font, ures.y / 27u); // save
-	Button resetB = Button(bsize, "Reset", font, ures.y / 27u); // reset
-	Button saveB = Button(Vec2f(bsize), "Save", font, ures.y / 27u);
-	Button switcherL = Button(swsize, "<", font, ures.y / 27u); // left resolution switcher
-	Button switcherR = Button(swsize, ">", font, ures.y / 27u); // right resolution switcher
-	std::string ressx = std::to_string(window.getSize().x); // string resolution x
-	std::string ressy = std::to_string(window.getSize().y); // string resolution y
-	Button rScreen = Button(bsize2, ressx + " x " + ressy, font, ures.y / 27u); // resolution display through button
-
-
 	int mode_id = engine::reverse_modes[engine::getInfoVideoMode()]; // video mode index
 	auto get_mode_name([&mode_id]()
 	{
@@ -67,13 +52,26 @@ inline void menu::settings(sf::RenderWindow &window)
 		return strmode;
 	});
 
-	Button switcherWMode = Button(bsize2, get_mode_name(), font, ures.y / 27u); // window mode switcher
-
-	Button switcherVsync = Button(swsize, "V", font, ures.y / 27u); // vsync mode switcher
-	std::string frp = std::to_string(frame_limit); // string frame limit
-	Button switcherLF = Button(swsize, "<", font, ures.y / 27u); // switchers for framerate
-	Button switcherRF = Button(swsize, ">", font, ures.y / 27u);
-	Button fScreen = Button(bsize2, frp, font, ures.y / 27u); // framerate display through button
+	std::vector<uint16_t> framerates = { 30, 59, 60, 75, 100, 120, 144, 240, 360 };
+	Vec2f bsize = Vec2f(res.x / 9.6f, res.y / 18.f);	// button size
+	Vec2f lrg_bsize = Vec2f(res.x / 4.8f, bsize.y);		// screen buttons size (large button size)
+	Vec2f sml_bsize = Vec2f(res.x / 32.f, bsize.y);		// switcher size (small button size)
+	sf::Color bcolor = sf::Color(115, 1, 4);			// button color (reddish for me plz)
+	// buttons
+	Button backB = Button(bsize, "Back", font);						// back button
+	Button resetB = Button(bsize, "Reset", font);						// reset button
+	Button saveB = Button(bsize, "Save", font);						// save button
+	Button switcherL{sml_bsize, "<", font };							// left resolution switcher
+	Button switcherR{sml_bsize, ">", font};							// right resolution switcher
+	std::string ressx = std::to_string(window.getSize().x);			// string resolution x
+	std::string ressy = std::to_string(window.getSize().y);			// string resolution y
+	Button rScreen = Button(lrg_bsize, ressx + " x " + ressy, font);	// resolution display through button
+	Button switcherWMode = Button(lrg_bsize, get_mode_name(), font);	// window mode switcher
+	Button switcherVsync = Button(sml_bsize, "V", font);				// vsync mode switcher
+	std::string frp = std::to_string(frame_limit);					// string frame limit
+	Button switcherLF = Button(sml_bsize, "<", font);					// left switcher for framerate
+	Button switcherRF = Button(sml_bsize, ">", font);					// right switcher for framerate
+	Button fScreen = Button(lrg_bsize, frp, font);					// framerate display through button
 
 	enum Buttons
 	{
@@ -82,83 +80,140 @@ inline void menu::settings(sf::RenderWindow &window)
 		LeftFramerateSwicher = 7, FramerateViewer = 8, RightFramerateSwitcher = 9,
 		VideoModeSwitcher = 10, VsyncSwitcher = 11
 	};
+	//  to settings
+	Button tres(lrg_bsize, "Resolution", font); // 1
+	Button tfps(lrg_bsize, "Framerate limit", font); // 2
+	Button twmode(lrg_bsize, "Window mode", font);	// 3
+	Button tvsync(lrg_bsize, "Vsync", font);	// 4
+	Button tmusicv(lrg_bsize, "Music", font);	// 5
 
-	std::vector<Button *> buttons;
-	buttons.push_back(&backB);	      // 1
-	buttons.push_back(&saveB);         // 2
-	buttons.push_back(&resetB);        // 3
-	buttons.push_back(&switcherL);     // 4
-	buttons.push_back(&rScreen);       // 5
-	buttons.push_back(&switcherR);     // 6
-	buttons.push_back(&switcherLF);    // 7
-	buttons.push_back(&fScreen);       // 8
-	buttons.push_back(&switcherRF);    // 9
-	buttons.push_back(&switcherWMode); // 10
-	buttons.push_back(&switcherVsync); // 11
+	// volume slider
+	struct VolumeSlider : engine::Slider<Circle, ScrollType::Horizontal>
+	{
+		VolumeSlider(const Slider<Circle, ScrollType::Horizontal> &slider) : Slider<Circle, ScrollType::Horizontal>(slider)
+		{
+			float rv = getRadius(); // radius of volume slider
+			volume_line = Rect({ getMax() - rv / 2.f, rv });
+			float rl = rv / 2.f;// volume line radius (half of height)
+			Vec2f line_pos = { getStart().x + rv, getStart().y + rv / 2.f };
+			c1 = c2 = Circle(rl);
+			c1.setPosition(line_pos);
+			c2.setPosition(c1.getPosition() + Vec2f(volume_line.getSize().x, 0));
+			volume_line.setPosition(line_pos.x + rl, line_pos.y);
+			setPosition(getStart().x + getMax() * default_volume / 100.f, getStart().y);
+		}
+		Circle c1;
+		Circle c2;
+		Rect volume_line;
+	private:
+		void draw(sf::RenderTarget &target, sf::RenderStates states) const override
+		{
+			target.draw(c1, states);
+			target.draw(c2, states);
+			target.draw(volume_line, states);
+			target.draw(engine::Slider(*this), states);
+		}
+	};
+	VolumeSlider volume_slider({ Circle(15.f), Vec2f(0, 0), res.x / 3.f});
+	sf::Text volume_percent(std::to_string(default_volume) + "%", font);
+	volume_percent.setPosition(volume_slider.getStart().x + volume_slider.getMax() + res.x / 39.f, volume_slider.getStart().y);
+	//
+	// sorting buttons in vectors
+	std::vector txts{ &tres, &tfps, &twmode, &tvsync, &tmusicv };
+	for (auto &txt : txts)
+		txt->setFillColor(sf::Color(27, 27, 27));
+	std::vector left_switchers{&switcherL, &switcherLF};
+	std::vector right_switchers{ &switcherR, &switcherRF };
+	std::vector central_buttons{ &rScreen, &fScreen, &switcherWMode, &switcherVsync };
+	std::vector menu_buttons{ &backB, &saveB, &resetB };
 
-	sf::Text tres("Resolution", font);
-	sf::Text tfps("Framerate limit", font);
-	sf::Text twmode("Window mode", font);
-	sf::Text tvsync("Vsync", font);
-	std::vector<sf::Text *> txts;
-	txts.push_back(&tres);
-	txts.push_back(&tfps);
-	txts.push_back(&twmode);
-	txts.push_back(&tvsync);
-	Vec2u bres = window.getSize();
-
+	std::vector sbuttons{ // settings buttons (and button names)
+		&tres, &switcherL, &rScreen, &switcherR,
+		&tfps, &switcherLF, &fScreen, &switcherRF,
+		&twmode, &switcherWMode,
+		&tvsync, &switcherVsync,
+		&tmusicv
+	};
+	std::vector middle_size_buttons = {
+		&backB, &resetB, &saveB
+	};
+	// sounds
 	sf::SoundBuffer sb1;
 	sf::SoundBuffer sb2;
-	sb1.loadFromFile("audio\\sound1.ogg");
-	sb2.loadFromFile("audio\\sound2.ogg");
+	sb1.loadFromFile("audio\\sound1.wav");
+	sb2.loadFromFile("audio\\sound2.wav");
 	sf::Sound s1;
 	sf::Sound s2;
 	s1.setBuffer(sb1);
 	s2.setBuffer(sb2);
-
-	float w;
-	int p1 = static_cast<int>(engine::math::get_index(resols, window.getSize()));
-	int p2 = 2; // p2 - framerate id
-	Vec2u r = window.getSize();
-	unsigned int fr = engine::getInfoFramerateLimit();
-	auto win_resize([&buttons, &bsize, &swsize, &bsize2, &res, &bpos](const Vec2u &size)
+	std::vector buttons{
+		&backB, &saveB, &resetB,
+		&switcherL, &rScreen, &switcherR,
+		&switcherLF, &fScreen, &switcherRF,
+		&switcherWMode, &switcherVsync
+	};
+	
+	auto set_settings_buttons_position([&sbuttons, &left_switchers, &right_switchers, &central_buttons, &txts, &menu_buttons, &volume_slider](const Vec2f &res)
+	{
+		Vec2f default_cell_size = { 5.f * res.x / 24.f, res.y / 10.f };
+		ngn::Table tab(4, 5, default_cell_size); // table
+		tab.setColumnWidth(2, central_buttons[0]->getSize().x + res.x/16.f); // central_buttons[0] is pointer on screen viewer 
+		tab.setColumnWidth(1, left_switchers[0]->getSize().x + res.x/16.f); // left_switchers[0] is pointer on left screen switcher
+		tab.setColumnWidth(0, txts[0]->getSize().x + res.x / 32.f); // txt[0] is pointer on resolution text
+		Vec2f tsize = tab.getSize();
+		std::cout << tsize << "\n";
+		tab.setPosition({ abs(res.x - tsize.x)/2.f, abs(res.y - tsize.y)/4.f});
+		uint8_t l1, l2, l3, l4; // lines
+		l1 = l2 = l3 = l4 = 0;
+		Vec2f mp = tab.getPosition();
+		Vec2f vs_pos = Vec2f(mp + tab.getCellPosition(1, 4)); // volume slider point
+		volume_slider = VolumeSlider({Circle(volume_slider.getRadius()), Vec2f(vs_pos.x, vs_pos.y + tab.getCellSize(1, 4).y/6.f), volume_slider.getMax()});
+		for (auto &button : sbuttons) // sorting by columns
+		{
+			if (in(button, txts))
+				button->setPosition(mp + tab.getCellPosition(0, l1++));
+			else if (in(button, left_switchers))
+				button->setPosition(mp + tab.getCellPosition(1, l2++));
+			else if (in(button, central_buttons))
+				button->setPosition(mp + tab.getCellPosition(2, l3++));
+			else if (in(button, right_switchers))
+				button->setPosition(mp + tab.getCellPosition(3, l4++));
+		}
+		auto &mb = menu_buttons;
+		mb.at(0)->setPosition(res.x/32.f, res.y/18.f);
+		mb.at(1)->setPosition(res.x - mb.at(0)->getPosition().x - mb.at(1)->getSize().x, res.y - mb.at(0)->getPosition().y - mb.at(1)->getSize().y);
+		mb.at(2)->setPosition(mb.at(1)->getPosition().x - mb.at(2)->getSize().x - mb.at(0)->getPosition().x, res.y - mb.at(0)->getPosition().y - mb.at(2)->getSize().y);
+	});
+	auto win_resize([&set_settings_buttons_position, &menu_buttons, &bsize, &sml_bsize, &lrg_bsize, &res, &left_switchers, &right_switchers, &central_buttons](const Vec2u &size)
 	{ // resizes a window
 		res = Vec2f(size);
-		bpos = Vec2f(res.x / 3.f, res.y / 8.f); // button position
-		bsize = Vec2f(res.x / 9.6f, res.y / 18.f); // button size
-		bsize2 = Vec2f(res.x / 4.8f, res.y / 18.f); // screen buttons size
-		swsize = Vec2f(res.x / 32.f, res.y / 18.f); // switcher size
-		buttons[0]->setSize(bsize); // back
-		buttons[1]->setSize(bsize); // save
-		buttons[2]->setSize(bsize); // reset
-		buttons[3]->setSize(swsize); // switcher l
-		buttons[4]->setSize(bsize2); // rtarget
-		buttons[5]->setSize(swsize); // switcher r
-		buttons[6]->setSize(swsize); // fswitcher l
-		buttons[7]->setSize(bsize2); // ftarget
-		buttons[8]->setSize(swsize); // fswitcher r
-		buttons[9]->setSize(bsize2); // wmode
-		buttons[10]->setSize(swsize); // switcher vsync
-		for (auto &b : buttons)
-			b->setCharacterSize((uint32_t)abs(floor(engine::math::length(res))) / 54u);
+		bsize = Vec2f(res.x / 9.6f, res.y / 18.f);		// button size
+		lrg_bsize = Vec2f(res.x / 4.8f, res.y / 18.f);	// screen buttons size
+		sml_bsize = Vec2f(res.x / 32.f, res.y / 18.f);	// switcher size
+		for (auto &b : menu_buttons)
+			b->setSize(bsize);
+		for (auto &b : left_switchers + right_switchers)
+			b->setSize(sml_bsize);
+		for (auto &b : central_buttons)
+			b->setSize(lrg_bsize);
+		set_settings_buttons_position(res);
 	});
-	auto reopen_window([&window, &r, &mode_id, &fr, &win_resize](const bool &vsync)
+	auto reopen_window([&window, &win_resize]
 	{ // reopens window
 		window.close();
-		window.create(sf::VideoMode(r.x, r.y, sf::VideoMode::getDesktopMode().bitsPerPixel), "Card Wars", engine::video_modes[mode_id]);
+		window.create(sf::VideoMode(resolution.x, resolution.y, sf::VideoMode::getDesktopMode().bitsPerPixel), "Rune Wars", window_mode);
 		window.setVerticalSyncEnabled(vsync);
-		window.setFramerateLimit(fr);
+		window.setFramerateLimit(frame_limit);
 		win_resize(window.getSize());
 	});
-	Vec2f slider_pos = { 3.f * res.x / 5.f, 7.f * res.y / 12.f };
-	engine::Slider<Circle, ScrollType::Horizontal> example(Circle(25.f), slider_pos.x, res.x - res.x / 12.f);
-	example.setPosition(slider_pos);
-	sf::Texture textr;
-	textr.loadFromFile("images/floppa.png");
 
-	example.setTexture(&textr);
+	set_settings_buttons_position(res);
+	
 	bool a = false;
-	uint8_t i, j, n, k, t, tmp = 0, pp = 0;
+	uint8_t k;
+	auto p1 = std::find(resols.begin(), resols.end(), ures);
+	auto p2 = std::find(framerates.begin(), framerates.end(), frame_limit); // p2 - framerate id
+	std::vector is_played = std::vector(9, false);
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -170,11 +225,11 @@ inline void menu::settings(sf::RenderWindow &window)
 				window.close();
 				break;
 			case sf::Event::Resized: // if screen was resized
-			{
-				sf::FloatRect varea = sf::FloatRect(0, 0, (float)event.size.width, (float)event.size.height);
-				window.setView(sf::View(varea));
-			}
-			win_resize(window.getSize());
+				{
+					sf::FloatRect varea = sf::FloatRect(0, 0, (float)event.size.width, (float)event.size.height);
+					window.setView(sf::View(varea));
+				}
+				win_resize(window.getSize());
 			}
 		}
 		mpos = Vec2f(m.getPosition(window));
@@ -183,34 +238,28 @@ inline void menu::settings(sf::RenderWindow &window)
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
 			return;
 
-		k = 1, j = i = t = 0, w = 0.f;
+		k = 1;
+		for (auto &txt : txts)
+		{
+			window.draw(*txt);
+		}
 		for (auto &b : buttons)
 		{
-			if (b->isIntersected(mpos) && k != ResolutionViewer && k != FramerateViewer) {
-				b->setColor(mix(bcolor, sf::Color::White));
-				while (pp == 0) {
+			if (b->isIntersected(mpos) && k != ResolutionViewer && k != FramerateViewer) 
+			{
+				b->setFillColor(mix(bcolor, sf::Color::White));
+				if (!is_played[k - 1])
+				{
+					if (s2.getStatus() == sf::Sound::Playing)
+						s2.pause();
 					s2.play();
-					pp = 1;
+					is_played[k - 1] = true;
 				}
 			}
-			else {
-				b->setColor(bcolor);
-				tmp++;
-			}
-
-			//button positioning
-			if (k == Back)
-				b->setPosition(Vec2f(0, 0));
-
-			else if (k == Save or k == Reset)
-				b->setPosition(Vec2f((++i) * res.x / 5.0f, res.y - res.y / 10) - b->getSize());
-			else
+			if(!b->isIntersected(mpos))
 			{
-				n = static_cast<uint8_t>(abs(floor(j / 3.f)));
-				w = j % 3 == 0 ? 0 : w + buttons[k - 2]->getSize().x;
-				b->setPosition(Vec2f(bpos.x + w + j % 3 * res.x / 27.f + res.x / 5.0f, bpos.y + n * bsize.y * 1.5f));
-				if (k == VideoModeSwitcher or k == VsyncSwitcher) j += 2;
-				j++;
+				b->setFillColor(bcolor);
+				is_played[k - 1] = false;
 			}
 			if (b->isPressed(sf::Mouse::Button::Left, mpos))
 			{
@@ -221,85 +270,85 @@ inline void menu::settings(sf::RenderWindow &window)
 				case Back:
 					return;
 				case Save:
-					r = resols[p1];
-					fr = framerates[p2];
-					engine::resetInfoResolution(r.x, r.y);
+					ures = *p1;
+					resolution = ures;
+					frame_limit = *p2;
+					engine::resetInfoResolution(resolution.x, resolution.y);
 					engine::resetInfoVsync(vsync);
-					engine::resetInfoFramerateLimit(fr);
+					engine::resetInfoFramerateLimit(frame_limit);
 					engine::resetInfoVideoMode(mode_id);
-					reopen_window(vsync);
+					reopen_window();
 					break;
 				case Reset:
 					engine::create_infof();
-					r = engine::getInfoResolution();
-					fr = engine::getInfoFramerateLimit();
+					ures = engine::getInfoResolution();
+					resolution = ures;
+					frame_limit = engine::getInfoFramerateLimit();
+					p1 = std::find(resols.begin(), resols.end(), resolution);
+					p2 = std::find(framerates.begin(), framerates.end(), frame_limit);
 					vsync = engine::getInfoVsync();
-					mode_id = engine::reverse_modes[engine::getInfoVideoMode()];
-					reopen_window(vsync);
+					window_mode = engine::getInfoVideoMode();
+					reopen_window();
 					break;
 				case LeftResolutionSwitcher:
-					p1 = std::max(p1 - 1, 0);
-					buttons[4]->setString(std::to_string(resols[p1].x) + " x " + std::to_string(resols[p1].y));
+					if (p1 != resols.begin())
+						p1--;
+					rScreen.content.setString(std::to_string(p1->x) + " x " + std::to_string(p1->y));
 					break;
 				case ResolutionViewer:
-					buttons[4]->setString(":P");
+					rScreen.content.setString(":P");
 					break;
 				case RightResolutionSwitcher:
-					p1 = (int)std::min(size_t(p1 + 1), resols.size() - 1);
-					buttons[4]->setString(std::to_string(resols[p1].x) + " x " + std::to_string(resols[p1].y));
+					if (p1 != --resols.end()) p1++;
+					rScreen.content.setString(std::to_string(p1->x) + " x " + std::to_string(p1->y));
 					break;
 				case LeftFramerateSwicher:
-					p2 = std::max(p2 - 1, 0);
-					buttons[7]->setString(std::to_string(framerates[p2]));
+					if (p2 != framerates.begin()) p2--;
+					fScreen.content.setString(std::to_string(*p2));
 					break;
 				case FramerateViewer:
-					buttons[7]->setString(":D");
+					fScreen.content.setString(":D");
 					break;
 				case RightFramerateSwitcher:
-					p2 = (int)std::min(size_t(p2 + 1), framerates.size() - 1);
-					buttons[7]->setString(std::to_string(framerates[p2]));
+					if (p2 != --framerates.end()) p2++;
+					fScreen.content.setString(std::to_string(*p2));
 					break;
 				case VideoModeSwitcher:
-					++mode_id %= engine::getVideoModesCount();
+					++mode_id %= static_cast<int>(engine::video_modes.size());
 					switch (mode_id)
 					{
 					case 0:
-						b->setString("Windowed");
+						b->content.setString("Windowed");
 						break;
 					case 1:
-						b->setString("Borderless");
+						b->content.setString("Borderless");
 						break;
 					case 2:
-						b->setString("Fullscreen");
+						b->content.setString("Fullscreen");
 					}
 					break;
 				case VsyncSwitcher:
 					vsync = !vsync;
-					if (vsync) b->setString("V");
-					else if (!vsync) b->setString("");
+					if (vsync) b->content.setString("V");
+					else if (!vsync) b->content.setString("");
 					break;
 				}
 			}
 			k++;
 			window.draw(*b);
 		}
-		for (auto &txt : txts)
-		{
-			txt->setScale(res.x / bres.x, res.y / bres.y);
-			txt->setPosition(Vec2f(res.x / 5.0f, (++t) * res.y / 23.5f + res.y / 10.5f));
-			t++;
-			window.draw(*txt);
-		}
-		if (tmp == 11) pp = 0;
-		else tmp = 0;
-		if (example.isClicked(sf::Mouse::Button::Left, mpos))
+		// volume slider moving 
+		if (volume_slider.isClicked(sf::Mouse::Button::Left, mpos)) // if clicked
 			a = true;
-		if (!example.isHold(sf::Mouse::Button::Left))
+		if (!volume_slider.isHold(sf::Mouse::Button::Left)) // and while hold
 			a = false;
-		if (a)
-			example.setPosition(mpos.x - example.getRadius(), slider_pos.y);
-		window.draw(example);
-
+		if (a) // do this
+		{
+			volume_slider.setPosition(mpos.x - volume_slider.getRadius(), volume_slider.getPosition().y);
+			float volume = volume_slider.coef() * 100;
+			soundtrack.setVolume(volume);
+		}
+		window.draw(volume_slider);
 		window.display();
 	}
 }

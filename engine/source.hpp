@@ -15,3 +15,28 @@ std::vector<T> &operator+=(std::vector<T> &left, const std::vector<T> &right)
 	left = left + right;
 	return left;
 }
+template<class T>
+ngn::Vec2<T> operator+(const ngn::Vec2<T> &left, const T &right)
+{
+	return ngn::Vec2<T>(left.x + right, left.y + right);
+}
+
+template<class T>
+ngn::Vec2<T> &operator+=(ngn::Vec2<T> &left, const T &right)
+{
+	left = left + right;
+	return left;
+}
+
+template<class T>
+ngn::Vec2<T> operator-(const ngn::Vec2<T> &left, const T &right)
+{
+	return ngn::Vec2<T>(left.x - right, left.y - right);
+}
+
+template<class T>
+ngn::Vec2<T> &operator-=(ngn::Vec2<T> &left, const T &right)
+{
+	left = left - right;
+	return left;
+}

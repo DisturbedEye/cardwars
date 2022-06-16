@@ -11,7 +11,7 @@ inline void menu::about_us(sf::RenderWindow &window)
 	sf::Vector2u ures = window.getSize();
 	Vector2f res = Vector2f(ures);
 	Vector2f bsize = Vector2f(res.x / 9.6f, res.y / 18.f);
-	Button back(bsize, "Back", font, ures.y / 27u);
+	Button back(bsize, "Back", font);
 	Vector2f bpos = Vector2f(0, 0);
 	sf::Mouse m;
 	Rect rect = Rect(Vector2f(res.x * 2.f / 3.f, res.y));
@@ -49,8 +49,8 @@ inline void menu::about_us(sf::RenderWindow &window)
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
 			return;
 		if (back.isIntersected(mpos))
-			back.setColor(mix(bcolor, sf::Color::White));
-		else back.setColor(bcolor);
+			back.setFillColor(mix(bcolor, sf::Color::White));
+		else back.setFillColor(bcolor);
 		if (back.isPressed(sf::Mouse::Button::Left, mpos))
 			return;
 		sht.render();

@@ -214,7 +214,7 @@ namespace engine
 	inline sf::Vector2u getInfoResolution() 
 	{
 		const Json js = load_infof();
-		const auto arrv = js.at("Resolution");
+		const auto &arrv = js.at("Resolution");
 		return Vec2u(arrv[0], arrv[1]);
 	}
 

@@ -3,9 +3,9 @@ namespace engine
 {
 	class CardTexture
 	{
-		sf::Texture *texture = new sf::Texture();
+		sf::Texture *texture;
 	public:
-		CardTexture(const std::string &path)
+		CardTexture(const std::string &path) : texture(new sf::Texture())
 		{
 			if (!texture->loadFromFile(path))
 			{
@@ -17,11 +17,21 @@ namespace engine
 		{
 			texture = new sf::Texture(*another_texture.texture);
 		}
+		CardTexture(CardTexture &&ct) noexcept
+		{
+			texture = new sf::Texture(*ct.texture);
+			ct.texture = nullptr;
+		}
 		~CardTexture() 
 		{
 			delete texture; 
 		}
-	
 		const sf::Texture &operator*() const { return *texture; }
+		sf::Texture *operator->() const
+		{
+			return texture;
+		}
+		CardTexture &operator=(const CardTexture &) = default;
+		CardTexture &operator=(CardTexture &&) = default;
 	};
 }

@@ -1,7 +1,7 @@
 #pragma once
 namespace engine
 {
-	struct engine::Clickable
+	struct Clickable
 	{
 		virtual ~Clickable() = default;
 		bool isClicked(sf::Mouse::Button b) const
@@ -48,10 +48,7 @@ namespace engine
 		}
 		bool isPressed(sf::Mouse::Button b, const Vec2f &p) const 
 		{
-			const bool after = sf::Mouse::isButtonPressed(b);
-			const bool out = this->isIntersected(p) and beforem and !after;
-			const_cast<bool &>(beforem) = after;
-			return out;
+			return isIntersected(p) and isClicked(b);
 		}
 		bool isClicked(sf::Mouse::Button b, const Vec2f &p) const
 		{
@@ -60,10 +57,7 @@ namespace engine
 			/// </summary>
 			/// <param name="b">mouse button</param>
 			/// <param name="p">point when hold</param>
-			const bool after = sf::Mouse::isButtonPressed(b);
-			const bool out = this->isIntersected(p) and !beforem and after;
-			const_cast<bool &>(beforem) = after;
-			return out;
+			return isIntersected(p) and isClicked(b);
 		}
 		bool isHold(sf::Mouse::Button b, const Vec2f &p) const
 		{
@@ -72,11 +66,46 @@ namespace engine
 			/// </summary>
 			/// <param name="b">mouse button</param>
 			/// <param name="p">point when hold</param>
-			const bool after = sf::Mouse::isButtonPressed(b);
-			const bool out = this->isIntersected(p) and beforem and after;
-			const_cast<bool &>(beforem) = after;
-			return out;
+			return isIntersected(p) and isHold(b);
 		}
+		void waitForAction(sf::Mouse::Button button, const Vec2f &p)
+		{
+			if (isIntersected(p))
+			{
+				onIntersection();
+				if (isClicked(button))
+					onClick();
+				else if (isHold(button))
+					onHold();
+				else if (isPressed(button))
+					onPress();
+			}
+			else noIntersection();
+		}
+		void waitForAction(sf::Keyboard::Key key)
+		{
+			if (isClicked(key))
+			{
+				onIntersection();
+				onClick();
+			}
+			else if (isHold(key))
+			{
+				onIntersection();
+				onHold();
+			}
+			else if (isPressed(key))
+			{
+				onIntersection();
+				onPress();
+			}
+			else noIntersection();
+		}
+		virtual void noIntersection() {}
+		virtual void onIntersection() {}
+		virtual void onHold() {}
+		virtual void onClick() {}
+		virtual void onPress() {}
 		virtual bool isIntersected(const Vec2f &p) const = 0;
 	private:
 		bool beforek = false; // for keyboard
@@ -84,7 +113,7 @@ namespace engine
 	};
 
 	template<class Shape>
-	class engine::ClickableShape : public Clickable
+	class ClickableShape : public Clickable
 	{
 	protected:
 		Shape shape;
@@ -94,7 +123,7 @@ namespace engine
 		bool isIntersected(const Vec2f &p) const override { return math::contains(shape, p); }
 	};
 	template<class Shape>
-	class engine::ClickableShape<Shape*> : public Clickable
+	class ClickableShape<Shape*> : public Clickable
 	{
 	protected:
 		Shape *shape;

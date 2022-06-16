@@ -14,15 +14,6 @@ namespace engine
 	}
 	namespace math
 	{
-		template<class T>
-		size_t get_index(const std::vector<T> &v, const T n)
-		{
-			for (int i = 0; i < v.size(); i++)
-				if (v[i] == n)
-					return i;
-			return -1;
-		}
-
 		inline float around(const float &x, const int n) // округление до n-ого чисела после запятой
 		{
 			return std::roundf(x * powf(10, static_cast<float>(n))) / powf(10, static_cast<float>(n));
