@@ -14,7 +14,7 @@ namespace engine
 	}
 	namespace math
 	{
-		inline float around(const float &x, const int n) // округление до n-ого чисела после запятой
+		inline float around(const float &x, const int n)
 		{
 			return std::roundf(x * powf(10, static_cast<float>(n))) / powf(10, static_cast<float>(n));
 		}
@@ -34,9 +34,9 @@ namespace engine
 			return rect.getGlobalBounds().contains(p);
 		}
 
-		inline bool contains(const Vec2f &ro, const Vec2f &rs, const Vec2f &p)
-		{ // ro - across left top point
-			return sf::FloatRect(ro, rs).contains(p);
+		inline bool contains(const sf::FloatRect &rect, const Vec2f &p)
+		{
+			return rect.contains(p);
 		}
 
 		inline bool contains(const Convex &polygon, const Vec2f &p)

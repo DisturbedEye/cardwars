@@ -6,17 +6,16 @@
 namespace engine
 {
 	template <class T>
-	class Scrollable<T, ScrollType::Vertical> : public sf::Drawable, public sf::Transformable
+	class Scrollable<T, ScrollType::Vertical> : public sf::Drawable, public sf::Transformable, public std::vector<T>
 	{
 		Vec2f ssize; // size
 		Vec2f ind; // indents between elements
 		Slider<Rect, ScrollType::Vertical> slider;
 		Vec2f esize; // element size
 		Vec2u n; // elements count by width and height
-		std::vector<T> *elems; // values is a pointers
 	public:
-		Scrollable(std::vector<T> *values, const unsigned int &count, const float &length)
-			: elems(values)
+		Scrollable(const std::vector<T> &values, const unsigned &count, const float &length)
+			: std::vector<T>(values)
 		{
 			/*
 				scroll_type - type of generating (vertical, horizontal)
@@ -25,13 +24,13 @@ namespace engine
 					size of first values element is a template for all of elements 
 				length - is a local height of slider
 			*/
-			if(!elems->empty())
-				esize = elems->front()->getSize();
+			if(!this->empty())
+				esize = this->front()->getSize();
 			slider = Slider(Rect(Vec2f(30, 1)), Vec2f(0, 0), 0);
 			setSize(count, length);
 			setSliderPos(0);
 		}
-		Scrollable() : elems() {}
+		Scrollable() {}
 		void setIndents(const Vec2f &inds)
 		{
 			ind = inds;
@@ -52,7 +51,7 @@ namespace engine
 			slider.setPosition(slider.getPosition().x, pos);
 			size_t i = 0;
 			const float t = slider.coef();
-			for (auto &el : *elems)
+			for (auto &el : *this)
 			{
 				const float x = static_cast<float>(i % n.x), y = floorf(static_cast<float>(i) / n.x);
 				const float x1 = x * (esize.x + ind.x), y1 = (esize.y + ind.y) * (y - t * n.y);
@@ -80,24 +79,17 @@ namespace engine
 			/// </summary>
 			/// <param name="count">a value of cards by width</param>
 			/// <param name="length">local list height</param>
-			const size_t val_count = elems->size();
+			const size_t val_count = this->size();
 			n.x = count;
 			n.y = static_cast<unsigned>(ceil(val_count / n.x)) + 1;
 			ssize.x = n.x * (esize.x + ind.x);
 			ssize.y = length;
 			recount_slider();
 		}
-		void push_back(T val)
-		{
-			elems->push_back(&val);
-			n.y = static_cast<int>(ceil(elems->size() / n.x)) + 1;
-			recount_slider();
-		}
 		const auto &getSlider() { return slider; }
 		void setSliderTexture(const sf::Texture *texture) { slider.setTexture(texture); }
 		Vec2f getValueSize() const { return esize; }
 		Vec2u getValueCount() const { return n; } // returns vector2 where x is val count by width, y - by height
-		size_t size() const { return elems->size(); }
 		Vec2f getIndents() const { return ind; }
 		Vec2f getSize() const { return ssize; }
 		sf::FloatRect getLocalBounds() const { return sf::FloatRect(Vec2f(), ssize); }
@@ -114,7 +106,7 @@ namespace engine
 		void draw(sf::RenderTarget &win, sf::RenderStates st) const override
 		{
 			st.transform *= getTransform();
-			for (auto &el : *elems)
+			for (auto &el : *this)
 				win.draw(*el, st);
 			if (slider.getSize().y < ssize.y) // excepting a way when slider height >= local height 
 				win.draw(slider, st);
@@ -124,17 +116,16 @@ namespace engine
 
 	// horizontal scroll class specialization 
 	template<class T>
-	class Scrollable<T, ScrollType::Horizontal> : public sf::Drawable, public sf::Transformable
+	class Scrollable<T, ScrollType::Horizontal> : public sf::Drawable, public sf::Transformable, std::vector<T>
 	{
 		Vec2f ssize; // size
 		Vec2f ind; // indents between elements
 		Slider<Rect, ScrollType::Horizontal> slider;
 		Vec2f esize; // element size
 		Vec2u n; // elements count by width and height
-		std::vector<T> *elems;
 	public:
-		Scrollable(std::vector<T> *values, const unsigned int &count, const float &length)
-			: elems(values)
+		Scrollable(const std::vector<T> &values, const unsigned int &count, const float &length)
+			: std::vector<T>(values)
 		{
 			/*
 				scroll_type - type of generating (vertical, horizontal)
@@ -143,8 +134,8 @@ namespace engine
 					size of first values element is a template for all of elements
 				length - is a max width of slider
 			*/
-			if (!elems->empty())
-				esize = elems->front()->getSize();
+			if (!this->empty())
+				esize = this->front()->getSize();
 			slider = Slider<Rect, ScrollType::Horizontal>(Rect(Vec2f(1, 30)), Vec2f(0, 0), 0);
 			setSize(count, length);
 			setSliderPos(0);
@@ -169,7 +160,7 @@ namespace engine
 			slider.setPosition(pos, slider.getPosition().y);
 			size_t i = 0;
 			const float t = slider.coef();
-			for (auto el : *elems)
+			for (auto el : *this)
 			{
 				const float x = floorf(static_cast<float>(i) / n.y), // card id by width
 					y = static_cast<float>(i % n.y); // card id by height
@@ -195,7 +186,7 @@ namespace engine
 		{
 			// count - count by height
 			// length - local length
-			const size_t val_count = elems->size();
+			const size_t val_count = this->size();
 	
 			n.y = count;
 			n.x = static_cast<unsigned>(ceil(val_count / n.y)) + 1;
@@ -204,16 +195,9 @@ namespace engine
 
 			recount_slider();
 		}
-		void push_back(T val)
-		{
-			elems->push_back(&val);
-			n.x = static_cast<int>(ceil(elems->size() / n.y)) + 1;
-			recount_slider();
-		}
 		const auto &getSlider() { return slider; }
 		void setSliderTexture(const sf::Texture * texture) { slider.setTexture(texture); }
 		Vec2f getValueSize() const { return esize; }
-		size_t size() const { return elems->size(); }
 		Vec2f getIndents() const { return ind; }
 		Vec2f getSize() const { return ssize; }
 		sf::FloatRect getLocalBounds() const { return sf::FloatRect(Vec2f(), ssize); }
@@ -230,7 +214,7 @@ namespace engine
 		void draw(sf::RenderTarget &win, sf::RenderStates st) const override
 		{
 			st.transform *= getTransform();
-			for (auto el : *elems)
+			for (auto el : *this)
 				win.draw(*el, st);
 			if (slider.getSize().x < ssize.x) // excepting a way when slider width >= local width
 				win.draw(slider, st);

@@ -41,7 +41,7 @@ namespace rune
 
 	inline ACard::ACard(const Vec2u &window_size, const sf::Texture &t)
 	{
-		cover.setSize(Vec2f(static_cast<float>(window_size.x)/9.f, static_cast<float>(window_size.y)/4.f));
+		cover.setSize(Vec2f(static_cast<float>(window_size.x)/12.f, static_cast<float>(window_size.y)/5.f));
 		cover.setTexture(&t);
 	}
 

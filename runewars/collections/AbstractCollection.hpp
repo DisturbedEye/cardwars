@@ -8,7 +8,7 @@ namespace rune
 		ACollection(const std::vector<Card> &card_list) : cards(card_list) {}
 		ACollection(const ACollection &col) = delete;
 		ACollection() = default;
-		virtual ~ACollection() override;
+		~ACollection() override;
 		Vec2f getCardSize() const;
 		size_t size() const { return cards.size(); }
 		ACard &operator[](const size_t &id) { return *cards[id]; }

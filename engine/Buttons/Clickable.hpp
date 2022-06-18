@@ -4,97 +4,97 @@ namespace engine
 	struct Clickable
 	{
 		virtual ~Clickable() = default;
-		bool isClicked(sf::Mouse::Button b) const
+		bool isClicked(sf::Mouse::Button what)
 		{
-			const bool after = sf::Mouse::isButtonPressed(b);
+			const bool after = sf::Mouse::isButtonPressed(what);
 			const bool out = !beforem and after;
-			const_cast<bool&>(beforem) = after;
+			beforem = after;
 			return out;
 		}
-		bool isPressed(sf::Mouse::Button b) const
+		bool isPressed(sf::Mouse::Button what)
 		{
-			const bool after = sf::Mouse::isButtonPressed(b);
+			const bool after = sf::Mouse::isButtonPressed(what);
 			const bool out = beforem and !after;
-			const_cast<bool &>(beforem) = after;
+			beforem = after;
 			return out;
 		}
-		bool isPressed(sf::Keyboard::Key k) const
+		bool isPressed(sf::Keyboard::Key what)
 		{
-			const bool after = sf::Keyboard::isKeyPressed(k);
+			const bool after = sf::Keyboard::isKeyPressed(what);
 			const bool out = beforek and !after;
-			const_cast<bool &>(beforek) = after;
+			beforek = after;
 			return out;
 		}
-		bool isClicked(sf::Keyboard::Key k) const
+		bool isClicked(sf::Keyboard::Key what)
 		{
-			const bool after = sf::Keyboard::isKeyPressed(k);
+			const bool after = sf::Keyboard::isKeyPressed(what);
 			const bool out = !beforek and after;
-			const_cast<bool &>(beforek) = after;
+			beforek = after;
 			return out;
 		}
-		bool isHold(sf::Mouse::Button b) const
+		bool isHold(sf::Mouse::Button what)
 		{
-			const bool after = sf::Mouse::isButtonPressed(b);
+			const bool after = sf::Mouse::isButtonPressed(what);
 			const bool out = beforem and after;
-			const_cast<bool &>(beforem) = after;
+			beforem = after;
 			return out;
 		}
-		bool isHold(sf::Keyboard::Key k) const
+		bool isHold(sf::Keyboard::Key what)
 		{
-			const bool after = sf::Keyboard::isKeyPressed(k);
+			const bool after = sf::Keyboard::isKeyPressed(what);
 			const bool out = beforek and after;
-			const_cast<bool &>(beforek) = after;
+			beforek = after;
 			return out;
 		}
-		bool isPressed(sf::Mouse::Button b, const Vec2f &p) const 
+		bool isPressed(sf::Mouse::Button what, const Vec2f &where)  
 		{
-			return isIntersected(p) and isClicked(b);
+			return isIntersected(where) and isPressed(what);
 		}
-		bool isClicked(sf::Mouse::Button b, const Vec2f &p) const
+		bool isClicked(sf::Mouse::Button what, const Vec2f &where)
 		{
 			/// <summary>
 			///  returns true if was pressed previous and wasn't pressed current time 
 			/// </summary>
 			/// <param name="b">mouse button</param>
 			/// <param name="p">point when hold</param>
-			return isIntersected(p) and isClicked(b);
+			return isIntersected(where) and isClicked(what);
 		}
-		bool isHold(sf::Mouse::Button b, const Vec2f &p) const
+		bool isHold(sf::Mouse::Button what, const Vec2f &where) 
 		{
 			/// <summary>
 			///  returns true if was pressed previous and current time 
 			/// </summary>
 			/// <param name="b">mouse button</param>
 			/// <param name="p">point when hold</param>
-			return isIntersected(p) and isHold(b);
+			return isIntersected(where) and isHold(what);
 		}
-		void waitForAction(sf::Mouse::Button button, const Vec2f &p)
+		void waitForAction(sf::Mouse::Button what, const Vec2f &where)
 		{
-			if (isIntersected(p))
+			if (isIntersected(where))
 			{
 				onIntersection();
-				if (isClicked(button))
+				if (isClicked(what))
 					onClick();
-				else if (isHold(button))
+				else if (isHold(what))
 					onHold();
-				else if (isPressed(button))
+				else if (isPressed(what))
 					onPress();
 			}
 			else noIntersection();
 		}
-		void waitForAction(sf::Keyboard::Key key)
+		void waitForAction(sf::Keyboard::Key what)
 		{
-			if (isClicked(key))
+			if (isClicked(what))
 			{
 				onIntersection();
 				onClick();
 			}
-			else if (isHold(key))
+			else if (isHold(what))
 			{
 				onIntersection();
 				onHold();
 			}
-			else if (isPressed(key))
+			else if (isPressed(what))
 			{
 				onIntersection();
 				onPress();

@@ -58,6 +58,7 @@ namespace engine
 	class ShaderTexture;
 	class Table;
 	struct Button;
+	struct random;
 	template<class>
 	class clip;
 	template<class Shape, ScrollType ScType = ScrollType::Vertical>
@@ -72,13 +73,14 @@ namespace engine
 		constexpr float pi = 3.14159265f;
 		constexpr float rad = pi / 180; // radian
 		float time(); // current time after start program
-		bool contains(const Rect &rect, const Vec2f &point);
-		bool contains(const Vec2f &ro, const Vec2f &rs, const Vec2f &point);
+		bool chance(const float &x); // x in interval from 0.0 to 1.0
+		bool contains(const Rect &rect, const Vec2f &point); // if point in rect, then returns true 
+		bool contains(const sf::FloatRect &rect, const Vec2f &point); // ro - left top point of rect
 		bool contains(const Convex &polygon, const Vec2f &point);
 		bool contains(const Circle &circle, const Vec2f &point);
 		float length(const Vec2f &v);
 		float length(const float &x, const float &y = 0);
-		float around(const float &x, int n);
+		float around(const float &x, int n); // rounds to n'th number after the decimal point
 		inline float sgn(float x) { return x == 0.f ? 0.f : x / abs(x); } // returns a sign of number
 		bool belongs(const float &x, const float &m, const float &n);
 		inline Vec2f norm(const Vec2f &v) { return v / length(v); }
@@ -98,6 +100,7 @@ namespace ngn = engine;
 #include "Math/math.hpp"
 #include "algorithm.hpp"
 #include "Table.hpp"
+#include "Random.hpp"
 #include "Files/FileManagement.hpp"
 #include "Texturing/clip.hpp"
 #include "Texturing/ShaderTexture.hpp"
