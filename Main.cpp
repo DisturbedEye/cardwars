@@ -21,7 +21,7 @@ namespace parametrs
 	static unsigned int frame_limit = engine::getInfoFramerateLimit();
 	static int window_mode = engine::getInfoVideoMode();
 	static sf::Music soundtrack;
-	static float default_volume = 10.f;
+	static float volume = engine::getInfoMusic();
 }
 sf::Font &loadFont()
 {
@@ -55,7 +55,7 @@ int main()
 	soundtrack.openFromFile("audio\\garazh_phonk.wav");
 	soundtrack.play();
 	soundtrack.setLoop(true);
-	soundtrack.setVolume(default_volume);
+	soundtrack.setVolume(volume);
 	int position = 0; // 0 - main menu, 1 - start game, 2 - settings, 3 about us, 4 - exit
 	while (position != 4)
 	{
@@ -119,7 +119,7 @@ inline void menu::start(sf::RenderWindow &window)
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
 			return;
 		window.draw(shuffle);
-		window.draw(deck);
+		window.draw(engine::clip( Vec2u(deck.getGlobalBounds().width, deck.getGlobalBounds().height), deck));
 		window.display();
 	}
 }

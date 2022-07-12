@@ -1,0 +1,10 @@
+{
+    "Framerate-limit": 60,
+    "Music": 50,
+    "Resolution": [
+        1920,
+        1080
+    ],
+    "Video-mode": 2,
+    "Vsync": true
+}

@@ -36,7 +36,7 @@ namespace engine
 	using Rect = sf::RectangleShape;
 	using Circle = sf::CircleShape;
 	using Json = nlohmann::json;
-	using Convex = sf::ConvexShape; // выпуклый многоугольник
+	using Convex = sf::ConvexShape; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	enum class ScrollType
 	{
 		Vertical, Horizontal

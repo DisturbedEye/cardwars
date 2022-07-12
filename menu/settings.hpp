@@ -58,20 +58,20 @@ inline void menu::settings(sf::RenderWindow &window)
 	Vec2f sml_bsize = Vec2f(res.x / 32.f, bsize.y);		// switcher size (small button size)
 	sf::Color bcolor = sf::Color(115, 1, 4);			// button color (reddish for me plz)
 	// buttons
-	Button backB = Button(bsize, "Back", font);						// back button
-	Button resetB = Button(bsize, "Reset", font);						// reset button
-	Button saveB = Button(bsize, "Save", font);						// save button
-	Button switcherL{sml_bsize, "<", font };							// left resolution switcher
-	Button switcherR{sml_bsize, ">", font};							// right resolution switcher
-	std::string ressx = std::to_string(window.getSize().x);			// string resolution x
-	std::string ressy = std::to_string(window.getSize().y);			// string resolution y
-	Button rScreen = Button(lrg_bsize, ressx + " x " + ressy, font);	// resolution display through button
-	Button switcherWMode = Button(lrg_bsize, get_mode_name(), font);	// window mode switcher
-	Button switcherVsync = Button(sml_bsize, "V", font);				// vsync mode switcher
-	std::string frp = std::to_string(frame_limit);					// string frame limit
-	Button switcherLF = Button(sml_bsize, "<", font);					// left switcher for framerate
-	Button switcherRF = Button(sml_bsize, ">", font);					// right switcher for framerate
-	Button fScreen = Button(lrg_bsize, frp, font);					// framerate display through button
+	Button backB = Button(bsize, "Back", font);						    // back button
+	Button resetB = Button(bsize, "Reset", font);					    // reset button
+	Button saveB = Button(bsize, "Save", font);						    // save button
+	Button switcherL{sml_bsize, "<", font };						    // left resolution switcher
+	Button switcherR{sml_bsize, ">", font};							    // right resolution switcher
+	std::string ressx = std::to_string(window.getSize().x);			    // string resolution x
+	std::string ressy = std::to_string(window.getSize().y);			    // string resolution y
+	Button rScreen = Button(lrg_bsize, ressx + " x " + ressy, font);    // resolution display through button
+	Button switcherWMode = Button(lrg_bsize, get_mode_name(), font);    // window mode switcher
+	Button switcherVsync = Button(sml_bsize, "V", font);			    // vsync mode switcher
+	std::string frp = std::to_string(frame_limit);					    // string frame limit
+	Button switcherLF = Button(sml_bsize, "<", font);				    // left switcher for framerate
+	Button switcherRF = Button(sml_bsize, ">", font);				    // right switcher for framerate
+	Button fScreen = Button(lrg_bsize, frp, font);					    // framerate display through button
 
 	enum Buttons
 	{
@@ -100,7 +100,7 @@ inline void menu::settings(sf::RenderWindow &window)
 			c1.setPosition(line_pos);
 			c2.setPosition(c1.getPosition() + Vec2f(volume_line.getSize().x, 0));
 			volume_line.setPosition(line_pos.x + rl, line_pos.y);
-			setPosition(getStart().x + getMax() * default_volume / 100.f, getStart().y);
+			setPosition(getStart().x + getMax() * volume / 100.f, getStart().y);
 		}
 		Circle c1;
 		Circle c2;
@@ -115,7 +115,7 @@ inline void menu::settings(sf::RenderWindow &window)
 		}
 	};
 	VolumeSlider volume_slider({ Circle(15.f), Vec2f(0, 0), res.x / 3.f});
-	sf::Text volume_percent(std::to_string(default_volume) + "%", font);
+	sf::Text volume_percent(std::to_string(volume) + "%", font);
 	volume_percent.setPosition(volume_slider.getStart().x + volume_slider.getMax() + res.x / 39.f, volume_slider.getStart().y);
 	//
 	// sorting buttons in vectors
@@ -152,12 +152,12 @@ inline void menu::settings(sf::RenderWindow &window)
 		&switcherLF, &fScreen, &switcherRF,
 		&switcherWMode, &switcherVsync
 	};
-	
+
 	auto set_settings_buttons_position([&sbuttons, &left_switchers, &right_switchers, &central_buttons, &txts, &menu_buttons, &volume_slider](const Vec2f &res)
 	{
 		Vec2f default_cell_size = { 5.f * res.x / 24.f, res.y / 10.f };
 		ngn::Table tab(4, 5, default_cell_size); // table
-		tab.setColumnWidth(2, central_buttons[0]->getSize().x + res.x/16.f); // central_buttons[0] is pointer on screen viewer 
+		tab.setColumnWidth(2, central_buttons[0]->getSize().x + res.x/16.f); // central_buttons[0] is pointer on screen viewer
 		tab.setColumnWidth(1, left_switchers[0]->getSize().x + res.x/16.f); // left_switchers[0] is pointer on left screen switcher
 		tab.setColumnWidth(0, txts[0]->getSize().x + res.x / 32.f); // txt[0] is pointer on resolution text
 		Vec2f tsize = tab.getSize();
@@ -207,7 +207,8 @@ inline void menu::settings(sf::RenderWindow &window)
 	});
 
 	set_settings_buttons_position(res);
-	
+
+    volume_slider.setPosition(volume_slider.getStart().x + volume_slider.coef()*volume_slider.getMax(), volume_slider.getPosition().y);
 	bool a = false;
 	uint8_t k;
 	auto p1 = std::find(resols.begin(), resols.end(), ures);
@@ -242,7 +243,7 @@ inline void menu::settings(sf::RenderWindow &window)
 			window.draw(*txt);
 		for (auto &b : buttons)
 		{
-			if (b->isIntersected(mpos) && k != ResolutionViewer && k != FramerateViewer) 
+			if (b->isIntersected(mpos) && k != ResolutionViewer && k != FramerateViewer)
 			{
 				b->setFillColor(mix(bcolor, sf::Color::White));
 				if (!is_played[k - 1])
@@ -274,6 +275,9 @@ inline void menu::settings(sf::RenderWindow &window)
 					engine::resetInfoVsync(vsync);
 					engine::resetInfoFramerateLimit(frame_limit);
 					engine::resetInfoVideoMode(mode_id);
+					window_mode = engine::getInfoVideoMode();
+					engine::resetInfoMusic(volume_slider.coef() * 100);
+					volume = engine::getInfoMusic();
 					reopen_window();
 					break;
 				case Reset:
@@ -334,7 +338,7 @@ inline void menu::settings(sf::RenderWindow &window)
 			k++;
 			window.draw(*b);
 		}
-		// volume slider moving 
+		// volume slider moving
 		if (volume_slider.isClicked(sf::Mouse::Button::Left, mpos)) // if clicked
 			a = true;
 		if (!volume_slider.isHold(sf::Mouse::Button::Left)) // and while hold
@@ -342,8 +346,8 @@ inline void menu::settings(sf::RenderWindow &window)
 		if (a) // do this
 		{
 			volume_slider.setPosition(mpos.x - volume_slider.getRadius(), volume_slider.getPosition().y);
-			float volume = volume_slider.coef() * 100;
-			soundtrack.setVolume(volume);
+			float slvolume = volume_slider.coef() * 100; // slider position across volume
+			soundtrack.setVolume(slvolume);
 		}
 		window.draw(volume_slider);
 		window.display();

@@ -26,7 +26,7 @@ namespace engine
 		Json load();
 		std::string getFileName() { return file_name; }
 		std::string getPath() { return path; }
-	
+
 		void save() const; // loads json to file
 		static void save(const JsonFile &jsonf);
 		static void save(std::string path, const std::string &fname, const Json &j = Json()); // loads json to file
@@ -37,7 +37,7 @@ namespace engine
 		/*
 		* create a file.
 		* path - file dirrectory
-		* fname - file name, without a file type 
+		* fname - file name, without a file type
 		*/
 		using namespace std::string_literals;
 		std::string com = "mkdir "s + path;
@@ -141,7 +141,7 @@ namespace engine
 		JsonFile jsf("src", "settings");
 		jsf.js["Resolution"] = { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) }; // resolution
 		jsf.js["Vsync"] = true; // vsync
-		jsf.js["Framerate-limit"] = 60; // frame limit 
+		jsf.js["Framerate-limit"] = 60; // frame limit
 		jsf.js["Video-mode"] = 0; // window mode
 		jsf.save();
 	}
@@ -167,7 +167,7 @@ namespace engine
 				create_infof();
 				js = JsonFile::load("src", "settings");
 			}
-			else 
+			else
 			{
 				std::cout << err.what() << "\n";
 				throw err;
@@ -203,6 +203,13 @@ namespace engine
 		JsonFile::save("src", "settings", js);
 	}
 
+	inline void resetInfoMusic(const int volume)
+	{
+		Json js = load_infof();
+		js["Music"] = volume;
+		JsonFile::save("src", "settings", js);
+	}
+
 
 	inline int getInfoVideoMode()
 	{
@@ -211,7 +218,7 @@ namespace engine
 		return video_modes[mode];
 	}
 
-	inline sf::Vector2u getInfoResolution() 
+	inline sf::Vector2u getInfoResolution()
 	{
 		const Json js = load_infof();
 		const auto &arrv = js.at("Resolution");
@@ -230,5 +237,12 @@ namespace engine
 		const Json js = load_infof();
 		const bool a = js.at("Vsync");
 		return a;
+	}
+
+	inline int getInfoMusic()
+	{
+        const Json js = load_infof();
+        const int a = js.at("Music");
+        return a;
 	}
 }

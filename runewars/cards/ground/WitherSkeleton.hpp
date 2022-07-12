@@ -2,7 +2,7 @@
 
 namespace rune::cards
 {
-	struct cards::WitherSkeleton : virtual ACard
+	struct WitherSkeleton : virtual ACard
 	{
 		explicit WitherSkeleton(const Vec2u &window_size);
 		int getDamage() const;
@@ -29,7 +29,6 @@ namespace rune::cards
 		Health = js[CardName][HealthStr];
 		Description = js[CardName][DescriptionStr];
 	}
-
 	inline int WitherSkeleton::getDamage() const
 	{
 		return Damage;
