@@ -36,15 +36,11 @@ namespace engine
 	using Rect = sf::RectangleShape;
 	using Circle = sf::CircleShape;
 	using Json = nlohmann::json;
-	using Convex = sf::ConvexShape; // �������� �������������
+	using Convex = sf::ConvexShape; // convex polygon
 	enum class ScrollType
 	{
 		Vertical, Horizontal
 	};
-	
-	std::vector<int> video_modes = { sf::Style::Close, sf::Style::None, sf::Style::Fullscreen };
-	std::map<int, int> reverse_modes = { {video_modes[0], 0}, {video_modes[1], 1}, {video_modes[2], 2} };
-	
 	class JsonFile;
 	
 	// Input Actions
@@ -73,7 +69,6 @@ namespace engine
 		constexpr float pi = 3.14159265f;
 		constexpr float rad = pi / 180; // radian
 		float time(); // current time after start program
-		bool chance(const float &x); // x in interval from 0.0 to 1.0
 		bool contains(const Rect &rect, const Vec2f &point); // if point in rect, then returns true 
 		bool contains(const sf::FloatRect &rect, const Vec2f &point); // ro - left top point of rect
 		bool contains(const Convex &polygon, const Vec2f &point);
@@ -93,6 +88,8 @@ namespace engine
 		template<class T>
 		bool in(const T &value, const std::vector<T> &values);
 	}
+
+	
 }
 namespace emath = engine::math;
 namespace ngn = engine;

@@ -9,14 +9,22 @@ namespace engine
 		sf::Sprite spr;
 		sf::RenderStates rs;
 	public:
-		clip(const Vec2u &size, const DrawableType &object)
+		clip(const DrawableType &object, const Vec2u *size = nullptr)
 		{
 			/// <summary>
 			///  clips the object in surrent time and draw it
 			/// </summary>
 			/// <param name="size">is a clip size</param>
 			/// <param name="object">is a object to clip</param>
-			rt.create(size.x, size.y);
+			bool size_is_null = false;
+			if (size == nullptr)
+			{
+				size_is_null = true;
+				size = new Vec2u(object.getGlobalBounds().width, object.getGlobalBounds().height);
+			}
+			rt.create(size->x, size->y);
+			if (size_is_null)
+				delete size;
 			spr.setTexture(rt.getTexture());
 			rt.clear({ 0, 0, 0, 0 });
 			sf::Transform t;

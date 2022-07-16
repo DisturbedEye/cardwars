@@ -1,10 +1,10 @@
 {
-    "Framerate-limit": 60,
-    "Music": 50,
+    "Framerate-Limit": 60,
+    "Music-Volume": 51.95453643798828,
     "Resolution": [
         1920,
         1080
     ],
-    "Video-mode": 2,
-    "Vsync": true
+    "Vsync": true,
+    "Window-Mode": 4
 }

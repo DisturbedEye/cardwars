@@ -20,7 +20,7 @@ namespace engine
 		}
 	public:
 		Json js;
-		JsonFile(const std::string path, const std::string fname, const Json j = Json()) : path(path), file_name(fname), js(j) {}
+		JsonFile(const std::string path, const std::string fname, const Json j = Json()) : path(path), file_name(fname), js(j) { load(); }
 		static Json load(const std::string &path, const std::string &fname); // loads json to file
 		static Json load(const JsonFile &jsonf); // loads json to file
 		Json load();
@@ -40,7 +40,7 @@ namespace engine
 		* fname - file name, without a file type
 		*/
 		using namespace std::string_literals;
-		std::string com = "mkdir "s + path;
+		std::string com = "mkdir "s + path; // cmd command >>>mkdir <path>
 		system(com.c_str()); // console file creating (but only for windows)
 		std::ofstream ofile(getFullPath(path, fname));
 		if (!ofile.is_open())
@@ -93,7 +93,7 @@ namespace engine
 		* path - file dirrectory
 		* fname - file name, without a file type
 		*/
-		return js = JsonFile::load(path, file_name);
+		return js = load(path, file_name);
 	}
 
 	inline void JsonFile::save(std::string path, const std::string &fname, const Json &j)
@@ -134,115 +134,5 @@ namespace engine
 		* fname - file name, without a file type
 		*/
 		save(jsonf.path, jsonf.file_name, jsonf.js);
-	}
-
-	inline void create_infof()
-	{
-		JsonFile jsf("src", "settings");
-		jsf.js["Resolution"] = { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) }; // resolution
-		jsf.js["Vsync"] = true; // vsync
-		jsf.js["Framerate-limit"] = 60; // frame limit
-		jsf.js["Video-mode"] = 0; // window mode
-		jsf.save();
-	}
-
-	inline Json load_infof()
-	{ // reading file
-		std::ifstream infile;
-		infile.open("src/settings.json");
-		if (!infile.is_open())
-			create_infof();
-		else infile.close();
-		auto js = JsonFile::load("src", "settings");
-		try
-		{
-			std::vector<std::string> v = { "Resolution", "Vsync", "Framerate-limit", "Video-mode"};
-			for (auto &i : v)
-				js.at(i);
-		}
-		catch (Json::out_of_range &err) // catch exception
-			{
-			if (err.id == 403)
-			{
-				create_infof();
-				js = JsonFile::load("src", "settings");
-			}
-			else
-			{
-				std::cout << err.what() << "\n";
-				throw err;
-			}
-			}
-		return js;
-	}
-
-
-	inline void resetInfoResolution(const unsigned int x, const unsigned int y)
-	{
-		Json js = load_infof();
-		js["Resolution"] = { x, y };
-		JsonFile::save("src", "settings", js);
-	}
-	inline void resetInfoFramerateLimit(const unsigned int lim)
-	{
-		Json js = load_infof();
-		js["Framerate-limit"] = lim;
-		JsonFile::save("src", "settings", js);
-	}
-	inline void resetInfoVsync(const bool b)
-	{
-		Json js = load_infof();
-		js["Vsync"] = b;
-		JsonFile::save("src", "settings", js);
-	}
-
-	inline void resetInfoVideoMode(const int mode)
-	{
-		Json js = load_infof();
-		js["Video-mode"] = mode;
-		JsonFile::save("src", "settings", js);
-	}
-
-	inline void resetInfoMusic(const int volume)
-	{
-		Json js = load_infof();
-		js["Music"] = volume;
-		JsonFile::save("src", "settings", js);
-	}
-
-
-	inline int getInfoVideoMode()
-	{
-		const Json js = load_infof();
-		int mode = js.at("Video-mode");
-		return video_modes[mode];
-	}
-
-	inline sf::Vector2u getInfoResolution()
-	{
-		const Json js = load_infof();
-		const auto &arrv = js.at("Resolution");
-		return Vec2u(arrv[0], arrv[1]);
-	}
-
-	inline unsigned int getInfoFramerateLimit()
-	{
-		const Json js = load_infof();
-		const unsigned int a = js.at("Framerate-limit");
-		return a;
-	}
-
-	inline bool getInfoVsync()
-	{
-		const Json js = load_infof();
-		const bool a = js.at("Vsync");
-		return a;
-	}
-
-	inline int getInfoMusic()
-	{
-        const Json js = load_infof();
-        const int a = js.at("Music");
-        return a;
 	}
 }
