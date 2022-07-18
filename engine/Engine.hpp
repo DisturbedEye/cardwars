@@ -44,6 +44,9 @@ namespace engine
 	class JsonFile;
 	
 	// Input Actions
+
+	class Curve; // Bezier Curve
+
 	struct Clickable;
 	template<class Shape>
 	class ClickableShape;
@@ -99,6 +102,7 @@ namespace ngn = engine;
 #include "Table.hpp"
 #include "Random.hpp"
 #include "Files/FileManagement.hpp"
+#include "Curve.hpp"
 #include "Texturing/clip.hpp"
 #include "Texturing/ShaderTexture.hpp"
 #include "Texturing/CardTexture.hpp"
