@@ -68,6 +68,20 @@ namespace engine
 			/// <param name="p">point when hold</param>
 			return isIntersected(where) and isHold(what);
 		}
+		bool isAttached(sf::Mouse::Button what, const Vec2f &where) // if clicked in <where> and while <what> (button) is hold hold returns true
+		{
+			/// <summary>
+			///  returns true if was pressed previous and current time 
+			/// </summary>
+			/// <param name="b">mouse button</param>
+			/// <param name="p">point when hold</param>
+
+			if (isClicked(what, where))
+				a = true;
+			if (!isHold(what))
+				a = false;
+			return a;
+		}
 		void waitForAction(sf::Mouse::Button what, const Vec2f &where)
 		{
 			if (isIntersected(where))
@@ -110,6 +124,7 @@ namespace engine
 	private:
 		bool beforek = false; // for keyboard
 		bool beforem = false; // for mouse
+		bool a = false;
 	};
 
 	template<class Shape>
