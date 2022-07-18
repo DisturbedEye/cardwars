@@ -343,11 +343,7 @@ namespace rune::menu
 				window.draw(*b);
 			}
 			// volume slider moving
-			if (volume_slider.isClicked(sf::Mouse::Button::Left, mpos))
-				a = true;
-			if (!volume_slider.isHold(sf::Mouse::Button::Left))
-				a = false;
-			if (a) 
+			if (volume_slider.isAttached(sf::Mouse::Left, mpos)) 
 			{
 				volume_slider.setPosition(mpos.x - volume_slider.getRadius(), volume_slider.getPosition().y);
 				float slvolume = volume_slider.coef() * 100; // slider position across volume

@@ -2,7 +2,7 @@
 
 namespace engine
 {
-	class Curve : sf::VertexArray // now it doesn't work
+	class Curve : public sf::VertexArray
 	{
 		float step;
 	public:
@@ -11,7 +11,7 @@ namespace engine
 	private:
 		static Vec2f count_points(const std::vector<Vec2f> &points, const float &t);
 	};
-	inline Curve::Curve(const std::vector<Vec2f> &points) : VertexArray(sf::Lines, 25)
+	inline Curve::Curve(const std::vector<Vec2f> &points) : VertexArray(sf::LineStrip, 25)
 	{
 		size_t i = 0;
 		step = 1.f / static_cast<float>(getVertexCount());
@@ -41,7 +41,7 @@ namespace engine
 			float y3 = y1 + (y2 - y1) * t;
 			next_points.emplace_back(x3, y3);
 		}
-		return count_points(points, t);
+		return count_points(next_points, t);
 	}
 
 }
