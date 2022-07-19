@@ -257,16 +257,13 @@ namespace rune::menu
 				{
 					b->setFillColor(mix(bcolor, sf::Color::White));
 					if (!is_played[k - 1])
-					{
-						if (s2.getStatus() == sf::Sound::Playing)
-							s2.pause();
 						s2.play();
-						is_played[k - 1] = true;
-					}
+					is_played[k - 1] = true;
 				}
 				if(!b->isIntersected(mpos))
 				{
 					b->setFillColor(bcolor);
+					s2.pause();
 					is_played[k - 1] = false;
 				}
 				if (b->isPressed(sf::Mouse::Button::Left, mpos))
