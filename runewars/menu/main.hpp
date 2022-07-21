@@ -72,7 +72,7 @@ namespace rune::menu
 				b.setTexture(&bttex);
 				if (b.isIntersected(mpos)) {
 					b.setFillColor(mix(bcolor, sf::Color::White));
-					while (n == 0) {
+					if (n == 0) {
 						n = 1;
 						s2.play();
 					}
