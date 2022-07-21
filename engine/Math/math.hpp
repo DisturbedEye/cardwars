@@ -83,9 +83,5 @@ namespace engine
 		{
 			return std::min(maxX, std::max(x, minX));
 		}
-		inline Vec2f clamp(Vec2f p, sf::FloatRect r)
-		{
-			return { clamp(p.x, r.left, r.left + r.width), clamp(p.y, r.top, r.top + r.height) };
-		}
 	}
 }
