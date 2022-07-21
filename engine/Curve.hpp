@@ -5,6 +5,7 @@ namespace engine
 	class Curve : public sf::VertexArray
 	{
 		float step;
+		std::vector<Vec2f> edges;
 	public:
 		Curve(const std::vector<Vec2f> &points);
 		void resize(const size_t &count);
@@ -13,15 +14,16 @@ namespace engine
 	};
 	inline Curve::Curve(const std::vector<Vec2f> &points) : VertexArray(sf::LineStrip, 25)
 	{
-		size_t i = 0;
-		step = 1.f / static_cast<float>(getVertexCount());
-		for(float t = 0.f; t < 1.0f; t = math::clamp(t + step, 0.f, 1.f))
-			(*this)[i++].position = count_points(points, t);
+		edges = points;
+		resize(getVertexCount());
 	}
 	inline void Curve::resize(const size_t& count)
 	{
 		VertexArray::resize(count);
 		step = 1.f / static_cast<float>(count);
+		size_t i = 0;
+		for (float t = 0.f; t < 1.0f; t = math::clamp(t + step, 0.f, 1.f))
+			(*this)[i++].position = count_points(edges, t);
 	}
 
 	inline Vec2f Curve::count_points(const std::vector<Vec2f> &points, const float &t)
