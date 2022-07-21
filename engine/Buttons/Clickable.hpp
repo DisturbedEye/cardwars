@@ -77,10 +77,10 @@ namespace engine
 			/// <param name="p">point when hold</param>
 
 			if (isClicked(what, where))
-				beforem = true;
+				a = true;
 			if (!isHold(what))
-				beforem = false;
-			return beforem;
+				a = false;
+			return a;
 		}
 		void waitForAction(sf::Mouse::Button what, const Vec2f &where)
 		{
@@ -124,7 +124,7 @@ namespace engine
 	private:
 		bool beforek = false; // for keyboard
 		bool beforem = false; // for mouse
-		//bool a = false;
+		bool a = false;
 	};
 
 	template<class Shape>
