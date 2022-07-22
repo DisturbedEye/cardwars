@@ -2,7 +2,7 @@
 
 namespace rune
 {
-	struct ACard : sf::Drawable, sf::Transformable, ngn::ClickableRect
+	struct ACard : sf::Drawable, sf::Transformable, engine::ClickableObject
 	{
 		enum class Type
 		{ Ground, Air, Debuff, Buff, Water, Static };
@@ -17,6 +17,7 @@ namespace rune
 		std::string getDescription() const;
 		//static std::vector<const Keywords> getKeyWords(const std::string &desc); // founds a keywords
 		void onTake();
+		bool isIntersected(const Vec2f& p) const override;
 		ACard &operator=(ACard &&) = delete;
 		ACard &operator=(const ACard &) = delete;
 	protected:
@@ -83,5 +84,9 @@ namespace rune
 	inline void ACard::onTake()
 	{
 
+	}
+	inline bool ACard::isIntersected(const Vec2f &p) const
+	{
+		return emath::contains(cover, p);
 	}
 }

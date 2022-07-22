@@ -21,6 +21,7 @@ int main()
 	using rune::menu::Settings;
 	auto settings = new Settings();
 	sf::RenderWindow window(sf::VideoMode(settings->getResolution().x, settings->getResolution().y, mode.bitsPerPixel), "Rune Wars", settings->getWindowMode());
+	//window.setKeyRepeatEnabled(false); // it important for keyboard and mouse button Pressing events
 	window.setFramerateLimit(settings->getFramerateLimit());
 	window.setVerticalSyncEnabled(settings->getVsync());
 	rune::music_channel.openFromFile("audio/garazh_phonk.wav");
@@ -28,15 +29,15 @@ int main()
 	rune::music_channel.setLoop(true);
 	rune::music_channel.setVolume(settings->getMusicVolume());
 	delete settings;
-	int position = 0; // 0 - main menu, 1 - start game, 2 - settings, 3 about us, 4 - exit
-	while (position != 4)
+	auto position = rune::menu::Hierarchy::MainMenu;
+	while (position != rune::menu::Hierarchy::Exit)
 	{
 		position = rune::menu::main(window);
-		if (position == 1) // start game
+		if (position == rune::menu::Hierarchy::StartGame) 
 			rune::menu::start(window);
-		else if (position == 2) // settings
+		else if (position == rune::menu::Hierarchy::Settings)
 			rune::menu::settings(window);
-		else if (position == 3) // about us
+		else if (position == rune::menu::Hierarchy::AboutUs)
 			rune::menu::about_us(window);
 	}
 	return 0;

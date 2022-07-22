@@ -3,7 +3,7 @@
 namespace engine
 {
 	template<class Shape, ScrollType ScType>
-	class Slider : public Clickable, public Shape
+	class Slider : public ClickableObject, public Shape
 	{
 		float maxV = 0.f; // max value
 		Vec2f start;

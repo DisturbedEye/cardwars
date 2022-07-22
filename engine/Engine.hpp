@@ -48,12 +48,8 @@ namespace engine
 	class Curve; // Bezier Curve
 
 	struct Clickable;
-	template<class Shape>
-	class ClickableShape;
-
-	using ClickableRect = ClickableShape<Rect>;
-	using ClickableConvex = ClickableShape<Convex>;
-	using ClickableCircle = ClickableShape<Circle>;
+	
+	class ClickableObject;
 	class ShaderTexture;
 	class Table;
 	struct Button;

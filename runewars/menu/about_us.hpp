@@ -32,28 +32,31 @@ namespace rune::menu
 		Vector2f mpos;
 		engine::ShaderTexture sht(ures, "backg.frag", sf::Shader::Fragment);
 		sht.setUniform("u_res", res);
+		
 		while (window.isOpen())
 		{
+			mpos = Vector2f(m.getPosition(window));
 			sf::Event event;
 			while (window.pollEvent(event))
-				switch (event.type)
+			{
+				if (event.type == sf::Event::Closed)
+					window.close();
+				if (event.key.code == sf::Keyboard::Escape)
+					if (engine::Clickable::isKeydown(event.type))
+						return;
+				if (event.mouseButton.button == sf::Mouse::Left)
 				{
-			case sf::Event::Closed:
-				window.close();
-					break;
+					if (back.isKeyup(event.type, mpos))
+						return;
 				}
+			}
 			float time = static_cast<float>(clock()) / CLOCKS_PER_SEC;
 			sht.setUniform("t", time);
-			mpos = Vector2f(m.getPosition(window));
 			window.clear();
 			//code
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
-				return;
 			if (back.isIntersected(mpos))
 				back.setFillColor(mix(bcolor, sf::Color::White));
 			else back.setFillColor(bcolor);
-			if (back.isPressed(sf::Mouse::Button::Left, mpos))
-				return;
 			sht.render();
 			rect.setTexture(sht.getTexture());
 			window.draw(rect);

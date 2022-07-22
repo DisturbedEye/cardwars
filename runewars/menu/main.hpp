@@ -1,7 +1,7 @@
 #pragma once
 namespace rune::menu
 {
-	inline int main(sf::RenderWindow &window)
+	inline Hierarchy main(sf::RenderWindow &window)
 	{
 		using engine::Vec2f, engine::Vec2u;
 		using engine::math::mix;
@@ -34,66 +34,76 @@ namespace rune::menu
 		Button settings = Button(bsize, "Settings", font);
 		Button about_us = Button(bsize, "About Us", font);
 		Button exit = Button(bsize, "Exit", font);
-		std::vector<Button> buttons; // buttons too
-		buttons.push_back(start);	 // 1
-		buttons.push_back(settings); // 2
-		buttons.push_back(about_us); // 3
-		buttons.push_back(exit);	 // 4
+		std::vector<Button*> buttons; // buttons too
+		buttons.push_back(&start);	 // 1
+		buttons.push_back(&settings); // 2
+		buttons.push_back(&about_us); // 3
+		buttons.push_back(&exit);	 // 4
 		sf::Color bcolor = sf::Color(200, 200, 200); // button color
 		Vec2f mpos;
 		uint8_t k, n, tmp;
 		sf::Text txt("Rune Wars", font);
 		txt.setPosition(res.x / 6.f, res.y / 4.f);
-		Vec2u bres = window.getSize();
+		std::map<Button*, Hierarchy> actions = { {&start, Hierarchy::StartGame}, {&settings, Hierarchy::Settings}, {&about_us, Hierarchy::AboutUs},{&exit, Hierarchy::Exit} };
 		txt.setScale(txt.getScale().x * 1.5f, txt.getScale().y * 1.5f);
 		n = 0;
 		tmp = 0;
 		while (window.isOpen())
 		{
-			float time = engine::math::time(); // current time after starting program
+			mpos = Vec2f(mouse.getPosition(window));
 			sf::Event event;
 			while (window.pollEvent(event))
 			{
-				switch (event.type)
-				{
-				case sf::Event::Closed:
+				if (event.type == sf::Event::Closed)
 					window.close();
-					break;
+				if (event.key.code == sf::Keyboard::Escape)
+				{
+					if (engine::Clickable::isKeydown(event.type))
+						return Hierarchy::Exit;
+				}
+				if (event.mouseButton.button == sf::Mouse::Left)
+				{
+					for (auto &button : buttons)
+					{
+						if (button->isKeyup(event.type, mpos)) 
+						{
+							s1.play();
+							return actions[button];
+						}
+					}
 				}
 			}
 			window.clear(); // clears screen
 			// code
-			mpos = Vec2f(mouse.getPosition(window));
 			window.draw(r);
 			window.draw(txt);
 			k = 1;
 			for (auto &b : buttons)
 			{
-				b.setTexture(&bttex);
-				if (b.isIntersected(mpos)) {
-					b.setFillColor(mix(bcolor, sf::Color::White));
-					if (n == 0) {
+				b->setTexture(&bttex);
+				if (b->isIntersected(mpos)) {
+					b->setFillColor(mix(bcolor, sf::Color::White));
+					if (n == 0) 
+					{
 						n = 1;
 						s2.play();
 					}
 				}
-				else {
-					b.setFillColor(bcolor);
+				else 
+				{
+					b->setFillColor(bcolor);
 					tmp++;
 				}
-				if (b.isPressed(sf::Mouse::Button::Left, mpos)) {
-					s1.play();
-					return k;
-				}
-				b.setPosition(Vec2f(bpos.x, bpos.y + (k - 1) * (res.y / 24.f + bsize.y)));
-				b.content.setFillColor(sf::Color(0, 0, 0));
-				window.draw(b);
+				b->setPosition(Vec2f(bpos.x, bpos.y + (k - 1) * (res.y / 24.f + bsize.y)));
+				b->content.setFillColor(sf::Color(0, 0, 0));
+				window.draw(*b);
 				k++;
 			}
 			if (tmp == 4) n = 0;
 			else tmp = 0;
 			window.display();
 		}
-		return 4;
+		
+		return Hierarchy::Exit;
 	}
 }

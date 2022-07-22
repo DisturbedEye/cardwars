@@ -1,7 +1,7 @@
 #pragma once
 namespace engine
 {
-	struct Button : Rect, Clickable
+	struct Button : Rect, ClickableObject
 	{
 		Button(const Rect &, const sf::String &, const sf::Font &);
 		Button(const Vec2f &, const sf::String &, const sf::Font &);

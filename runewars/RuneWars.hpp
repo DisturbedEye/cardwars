@@ -62,8 +62,12 @@ namespace rune
 	namespace menu
 	{
 		class Settings;
+		enum class Hierarchy
+		{
+			MainMenu, StartGame, Settings, AboutUs, Exit
+		};
 		void about_us(sf::RenderWindow &);
-		int main(sf::RenderWindow &);
+		Hierarchy main(sf::RenderWindow &);
 		void settings(sf::RenderWindow &);
 		void start(sf::RenderWindow &);
 	}

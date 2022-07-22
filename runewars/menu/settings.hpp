@@ -224,29 +224,107 @@ namespace rune::menu
 		auto p2 = std::find(framerates.begin(), framerates.end(), parameters.getFramerateLimit()); // p2 - framerate iterator
 		std::vector is_played = std::vector(9, false);
 		bool vsync = parameters.getVsync();
+		
 		while (window.isOpen())
 		{
+			mpos = Vec2f(m.getPosition(window));
 			sf::Event event;
 			while (window.pollEvent(event))
 			{
-				switch (event.type)
-				{
-				case sf::Event::Closed:
+				if (event.type == sf::Event::Closed)
 					window.close();
-					break;
-				case sf::Event::Resized: // if screen was resized
-					{
-						sf::FloatRect varea = sf::FloatRect(0, 0, (float)event.size.width, (float)event.size.height);
-						window.setView(sf::View(varea));
-					}
+				if (event.type == sf::Event::Resized)
+				{
+					sf::FloatRect varea = sf::FloatRect(0, 0, (float)event.size.width, (float)event.size.height);
+					window.setView(sf::View(varea));
 					win_resize(window.getSize());
 				}
+				if (event.key.code == sf::Keyboard::Escape)
+					if (engine::Clickable::isKeydown(event.type))
+						return;
+				if (event.mouseButton.button == sf::Mouse::Left)
+				{
+					if (backB.isKeyup(event.type, mpos))
+					{
+						s1.play();
+						return;
+					}
+					else if (saveB.isKeyup(event.type, mpos))
+					{
+						ures = *p1;
+						parameters.setResolution(ures);
+						parameters.setFramerateLimit(*p2);
+						parameters.setVsync(vsync);
+						parameters.setWindowMode(video_modes[mode_id]);
+						parameters.setMusicVolume(music_channel.getVolume());
+						reopen_window();
+					}
+					else if(resetB.isKeyup(event.type, mpos))
+					{
+						parameters.resetToDefault();
+						ures = parameters.getResolution();
+						p2 = std::find(framerates.begin(), framerates.end(), parameters.getFramerateLimit());
+						p1 = std::find(resols.begin(), resols.end(), ures);
+						vsync = parameters.getVsync();
+						mode_id = reverse_modes[parameters.getWindowMode()];
+						reopen_window();
+					}
+					else if (switcherL.isKeyup(event.type, mpos))
+					{
+						if (p1 != resols.begin())
+							p1--;
+						rScreen.content.setString(std::to_string(p1->x) + " x " + std::to_string(p1->y));
+					}
+					else if (rScreen.isKeyup(event.type, mpos))
+					{
+						rScreen.content.setString(":P");
+					}
+
+					else if (switcherR.isKeyup(event.type, mpos))
+					{
+						if (p1 != --resols.end()) p1++;
+						rScreen.content.setString(std::to_string(p1->x) + " x " + std::to_string(p1->y));
+					}
+					else if (switcherLF.isKeyup(event.type, mpos))
+					{
+						if (p2 != framerates.begin()) p2--;
+						fScreen.content.setString(std::to_string(*p2));
+					}
+					else if (fScreen.isKeyup(event.type, mpos))
+					{
+						fScreen.content.setString(":D");
+					}
+					else if (switcherRF.isKeyup(event.type, mpos))
+					{
+						if (p2 != --framerates.end()) p2++;
+						fScreen.content.setString(std::to_string(*p2));
+					}
+					else if (switcherWMode.isKeyup(event.type, mpos))
+					{
+						++mode_id %= static_cast<int>(video_modes.size());
+						switch (mode_id)
+						{
+						case 0:
+							switcherWMode.content.setString("Windowed");
+							break;
+						case 1:
+							switcherWMode.content.setString("Borderless");
+							break;
+						case 2:
+							switcherWMode.content.setString("Fullscreen");
+						}
+					}
+					else if (switcherVsync.isKeyup(event.type, mpos))
+					{
+						vsync = !vsync;
+						if (vsync) switcherVsync.content.setString("V");
+						else if (!vsync) switcherVsync.content.setString("");
+					}
+					volume_slider.push(event.type, mpos);
+				}
 			}
-			mpos = Vec2f(m.getPosition(window));
 			window.clear();
 			//code
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
-				return;
 
 			k = 1;
 			for (auto &txt : txts)
@@ -266,81 +344,12 @@ namespace rune::menu
 					s2.pause();
 					is_played[k - 1] = false;
 				}
-				if (b->isPressed(sf::Mouse::Button::Left, mpos))
-				{
-					s1.play();
-					// button functions
-					switch (k)
-					{
-					case Back:
-						return;
-					case Save:
-						ures = *p1;
-						parameters.setResolution(ures);
-						parameters.setFramerateLimit(*p2);
-						parameters.setVsync(vsync);
-						parameters.setWindowMode(video_modes[mode_id]);
-						parameters.setMusicVolume(music_channel.getVolume());
-						reopen_window();
-						break;
-					case Reset:
-						parameters.resetToDefault();
-						ures = parameters.getResolution();
-						p2 = std::find(framerates.begin(), framerates.end(), parameters.getFramerateLimit());
-						p1 = std::find(resols.begin(), resols.end(), ures);
-						vsync = parameters.getVsync();
-						mode_id = reverse_modes[parameters.getWindowMode()];
-						reopen_window();
-						break;
-					case LeftResolutionSwitcher:
-						if (p1 != resols.begin())
-							p1--;
-						rScreen.content.setString(std::to_string(p1->x) + " x " + std::to_string(p1->y));
-						break;
-					case ResolutionViewer:
-						rScreen.content.setString(":P");
-						break;
-					case RightResolutionSwitcher:
-						if (p1 != --resols.end()) p1++;
-						rScreen.content.setString(std::to_string(p1->x) + " x " + std::to_string(p1->y));
-						break;
-					case LeftFramerateSwicher:
-						if (p2 != framerates.begin()) p2--;
-						fScreen.content.setString(std::to_string(*p2));
-						break;
-					case FramerateViewer:
-						fScreen.content.setString(":D");
-						break;
-					case RightFramerateSwitcher:
-						if (p2 != --framerates.end()) p2++;
-						fScreen.content.setString(std::to_string(*p2));
-						break;
-					case VideoModeSwitcher:
-						++mode_id %= static_cast<int>(video_modes.size());
-						switch (mode_id)
-						{
-						case 0:
-							b->content.setString("Windowed");
-							break;
-						case 1:
-							b->content.setString("Borderless");
-							break;
-						case 2:
-							b->content.setString("Fullscreen");
-						}
-						break;
-					case VsyncSwitcher:
-						vsync = !vsync;
-						if (vsync) b->content.setString("V");
-						else if (!vsync) b->content.setString("");
-						break;
-					}
-				}
 				k++;
 				window.draw(*b);
 			}
+
 			// volume slider moving
-			if (volume_slider.isAttached(sf::Mouse::Left, mpos)) 
+			if (volume_slider.isPushed())
 			{
 				volume_slider.setPosition(mpos.x - volume_slider.getRadius(), volume_slider.getPosition().y);
 				float slvolume = volume_slider.coef() * 100; // slider position across volume
